@@ -1,0 +1,161 @@
+@use "@/styles/tokens" as tokens;
+@use "@/styles/utils/mixins/blur" as blur;
+
+.welcome {
+  display: flex;
+  min-height: 100vh;
+
+  &__left {
+    flex: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: tokens.$space-xxxl tokens.$space-xl;
+    background-image: url("../../public/background/wave-background-1.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  &__card {
+    position: absolute;
+    top: 50%;
+    left: 30%;
+    transform: translate(-50%, -50%);
+    width: 35%;
+    height: 80%;
+    padding: tokens.$space-xxxl tokens.$space-xl tokens.$space-xl;
+    border-radius: tokens.$radius-l;
+    border: 1px solid rgba(tokens.$color-text-light, 0.14);
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    overflow: hidden;
+    isolation: isolate;
+    @include blur.blur(url("../../../public/background/black-background-1.png"), 4px);
+  }
+
+  &__card-actions {
+    margin-top: auto;
+    margin-bottom: tokens.$space-xxxl;
+  }
+
+  &__logo {
+    flex-shrink: 1;
+    background-image: url("../../public/icons/logo-light.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 300px;
+    height: 72px;
+    min-width: 200px;
+    min-height: 64px;
+  }
+
+  &__card-title {
+    margin-top: tokens.$space-xxl;
+    font-size: tokens.$font-size-xxl;
+    color: tokens.$color-text-light;
+    font-family: tokens.$font-family-primary;
+  }
+
+  &__card-text {
+    text-align: center;
+    width: 80%;
+    margin: 0;
+    font-size: tokens.$font-size-m;
+    font-family: tokens.$font-family-primary;
+    line-height: 1.6;
+    color:tokens.$color-text-muted-light;
+
+  }
+
+  &__right {
+    flex: 7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: tokens.$space-xxxl tokens.$space-xl;
+    background-image: url("../../public/background/light-screen.png");
+    color: tokens.$color-text-dark;
+  }
+
+  &__right-inner {
+    width: 100%;
+    max-width: 60%;
+    margin-left: calc(tokens.$space-xxxl * 5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(tokens.$space-xxxl * 3);
+  }
+
+  &__title {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: calc(tokens.$font-size-xxxl * 1.5);
+    white-space: nowrap;
+  }
+
+  &__buttons {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-xxxl;
+  }
+
+  &__footer-icons {
+    margin-top: tokens.$space-m;
+    display: flex;
+    gap: tokens.$space-l;
+  }
+
+  &__footer-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: tokens.$radius-pill;
+    border: 1px solid tokens.$color-text-dark;
+    background-color: tokens.$color-text-light;
+  }
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+
+    &__left {
+      flex: none;
+      min-height: 50vh;
+      position: relative;
+    }
+
+    &__card {
+      position: relative;
+      top: auto;
+      left: auto;
+      transform: none;
+      width: 100%;
+      max-width: 420px;
+      height: auto;
+      min-height: 320px;
+      margin: 0 auto;
+    }
+
+    &__right {
+      flex: none;
+      min-height: 50vh;
+    }
+
+    &__right-inner {
+      max-width: 90%;
+      margin-left: 0;
+    }
+
+  }
+
+  @media (max-width: 768px) {
+    &__title {
+      font-size: tokens.$font-size-l;
+    }
+  }
+}
+
