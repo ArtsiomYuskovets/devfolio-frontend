@@ -1,0 +1,74 @@
+@use "@/styles/tokens" as tokens;
+@use "@/styles/utils/mixins/form-elements" as form-elements;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: tokens.$space-xs;
+  width: 100%;
+}
+
+.label {
+  font-family: tokens.$font-family-primary;
+  font-size: tokens.$font-size-s;
+  letter-spacing: 0.06em;
+  color: inherit;
+}
+
+.error {
+  font-size: tokens.$font-size-xs;
+  color: tokens.$color-logo-bordeaux;
+}
+
+.input {
+  @include form-elements.form-elements-base;
+  cursor: text;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  border-color: transparent;
+  color: tokens.$color-text-light;
+  width: 100%;
+
+  &::placeholder {
+    color: tokens.$color-text-light;
+    opacity: 0.6;
+  }
+
+  &--error {
+    border-color: tokens.$color-logo-bordeaux;
+  }
+
+  &--primary-dark {
+    @include form-elements.form-elements-primary-dark;
+  }
+
+  &--primary-light {
+    @include form-elements.form-elements-primary-light;
+  }
+
+  &--primary-transparent {
+    @include form-elements.form-elements-primary-transparent;
+  }
+
+  &--primary-gray {
+    @include form-elements.form-elements-primary-gray;
+  }
+
+  &--outline-dark {
+    @include form-elements.form-elements-outline-dark;
+  }
+
+  &--outline-light {
+    @include form-elements.form-elements-outline-light;
+  }
+
+  &--outline-transparent {
+    @include form-elements.form-elements-outline-transparent;
+  }
+
+  &--outline-gray {
+    @include form-elements.form-elements-outline-gray;
+  }
+}
