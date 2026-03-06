@@ -8,12 +8,14 @@ export async function loginOrRegistr(
   email: string,
   password: string,
   dispatch: AppDispatch
-) {
+): Promise<boolean> {
   try {
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+    const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
     const res = await api.post<TokensResponse>(endpoint, { email, password });
-    tokenService.setTokens(res.data, dispatch); 
+    tokenService.setTokens(res.data, dispatch);
+    return true;
   } catch (e) {
     console.log(e);
+    return false;
   }
 }

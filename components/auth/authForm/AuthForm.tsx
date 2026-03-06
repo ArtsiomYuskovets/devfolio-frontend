@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import styles from "@/components/auth/authForm/AuthForm.module.scss";
 import { loginOrRegistr } from "@/services/authService";
 import { tokenService } from "@/lib/tokenService";
@@ -10,15 +11,27 @@ import { setTokens } from "@/stores/auth/authSlice";
 import { Input } from "@/components/ui/input/Input";
 import { Button } from "@/components/ui/button/Button";
 
+const REGISTER_PATH = "/profile-settings";
+const LOGIN_PATH = "/dashboard";
+
 export default function AuthForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
-
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { accessToken, accessTokenExpiresAt } = useAppSelector((state) => state.auth);
 
+  const isAuthenticated =
+    !!accessToken &&
+    !!accessTokenExpiresAt &&
+    Date.now() < accessTokenExpiresAt;
+
   useEffect(() => {
+    if (isAuthenticated) {
+      router.replace(LOGIN_PATH);
+      return;
+    }
     tokenService.setDispatchCallback((dispatch, accessToken, expiresAt) => {
       dispatch(setTokens({ accessToken, expiresAt }));
     });
@@ -29,7 +42,7 @@ export default function AuthForm() {
       return null;
     });
     setupInterceptors(dispatch);
-  }, [accessToken, accessTokenExpiresAt, dispatch]);
+  }, [accessToken, accessTokenExpiresAt, dispatch, isAuthenticated, router]);
 
   useEffect(() => {
     const fromWelcome = sessionStorage.getItem("fromWelcome");
@@ -44,7 +57,14 @@ export default function AuthForm() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await loginOrRegistr(isLogin, email, password, dispatch);
+    const success = await loginOrRegistr(isLogin, email, password, dispatch);
+    if (success) {
+      if (isLogin) {
+        router.replace(LOGIN_PATH);
+      } else {
+        router.replace(REGISTER_PATH);
+      }
+    }
   };
 
   return (
