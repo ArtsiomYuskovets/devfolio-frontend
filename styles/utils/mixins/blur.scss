@@ -1,0 +1,13 @@
+@mixin blur($image: url("../../../public/background/wave-background-1.png"), $blur: 4px) {
+    &::before {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    z-index: -1;
+    background-image: $image;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur($blur);
+    }
+}

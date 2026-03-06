@@ -1,0 +1,81 @@
+// Fonts
+// Primary: Alumni Sans — интерфейс, кнопки, подписи, основной текст
+$font-family-primary: 'Alumni Sans', sans-serif;
+// Secondary: Allerta Stencil — логотипы, акцентные заголовки
+$font-family-secondary: 'Allerta Stencil', sans-serif;
+
+// Spacing scale
+$space-xxs: 2px;
+$space-xs: 4px;
+$space-s: 8px;
+$space-m: 12px;
+$space-l: 16px;
+$space-xl: 24px;
+$space-xxl: 32px;
+$space-xxxl: 40px;
+
+// Border radius
+$radius-s: 4px;
+$radius-m: 8px;
+$radius-l: 16px;
+$radius-pill: 999px;
+
+// Мелкий текст, подписи, overline
+$font-size-xs: 14px;
+// Кнопки, метки, ввод
+$font-size-s: 16px;
+// Основной текст, параграфы
+$font-size-m: 18px;
+// Подзаголовки, лид
+$font-size-l: 22px;
+// Заголовки h3
+$font-size-xl: 28px;
+// Заголовки h2, карточки
+$font-size-xxl: 36px;
+// Заголовки h1, hero
+$font-size-xxxl: 44px;
+// Крупный акцент (secondary — лого/баннер)
+$font-size-display: 52px;
+
+// Line height 
+$line-height-tight: 1.2;
+$line-height-body: 1.5;
+$line-height-relaxed: 1.65;
+
+// Brand color palette 
+$color-logo-blue: #40487f;
+$color-logo-bordeaux: #5a2a38;
+
+$color-text-light: #ffffff;
+$color-text-dark: #0b0b14;
+$color-text-muted-light: rgba(255, 255, 255, 0.78);
+
+$color-surface-dark: #05050b;
+$color-surface-dark-soft: rgba(5, 5, 10, 0.9);
+$color-surface-light: #f6f6f8;
+
+// Buttons
+$color-button-light-bg: #CACAD2;
+$color-button-light-border: #000000;
+$color-button-dark-bg: #0D0F17;
+$color-button-dark-border:black;
+$color-button-transparent-bg: #C8C0E01A;
+$color-button-transparent-border:#CBC7D8;
+$color-button-gray-bg: #3D3F48;
+$color-button-gray-border: #4D4F59;
+
+// Button sizes (width × height)
+$button-height-small: 32px;
+$button-height-normal: 40px;
+$button-height-large: 60px;
+$button-width-large: 300px;
+
+// Button font sizes (крупный текст по высоте кнопки, как на референсе)
+$button-font-size-small: 14px;
+$button-font-size-normal: 20px;
+$button-font-size-large: 26px;
+
+// Additional neutrals / possible colors
+$color-neutral-800: #1c1f2a;
+$color-neutral-700: #2b2f3f;
+$color-neutral-600: #3b3f54;
