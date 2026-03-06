@@ -3,11 +3,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface AuthState {
   accessToken: string | null;
   accessTokenExpiresAt: number | null;
+  isAuthCheckComplete: boolean;
 }
 
 const initialState: AuthState = {
   accessToken: null,
   accessTokenExpiresAt: null,
+  isAuthCheckComplete: false,
 };
 
 const authSlice = createSlice({
@@ -25,8 +27,11 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.accessTokenExpiresAt = null;
     },
+    setAuthCheckComplete: (state, action: PayloadAction<boolean>) => {
+      state.isAuthCheckComplete = action.payload;
+    },
   },
 });
 
-export const { setTokens, clearTokens } = authSlice.actions;
+export const { setTokens, clearTokens, setAuthCheckComplete } = authSlice.actions;
 export default authSlice.reducer;

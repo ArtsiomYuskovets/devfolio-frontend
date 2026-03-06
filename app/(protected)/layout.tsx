@@ -12,7 +12,9 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { accessToken, accessTokenExpiresAt } = useAppSelector((state) => state.auth);
+  const { accessToken, accessTokenExpiresAt, isAuthCheckComplete } = useAppSelector(
+    (state) => state.auth
+  );
 
   const isAuthenticated =
     !!accessToken &&
@@ -20,10 +22,14 @@ export default function ProtectedLayout({
     Date.now() < accessTokenExpiresAt;
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (isAuthCheckComplete && !isAuthenticated) {
       router.replace(AUTH_PATH);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthCheckComplete, isAuthenticated, router]);
+
+  if (!isAuthCheckComplete) {
+    return null; // или <Spinner /> пока идёт проверка сессии
+  }
 
   if (!isAuthenticated) {
     return null;
