@@ -6,6 +6,7 @@ import styles from "@/components/auth/authForm/AuthForm.module.scss";
 import { loginOrRegistr } from "@/services/authService";
 import { tokenService } from "@/lib/tokenService";
 import { setAccessTokenGetter, setupInterceptors } from "@/lib/authApi";
+import { checkEmail, checkPassword } from "@/lib/validation";
 import { useAppSelector, useAppDispatch } from "@/stores/auth/hooks";
 import { setTokens } from "@/stores/auth/authSlice";
 import { Input } from "@/components/ui/input/Input";
@@ -17,7 +18,14 @@ const LOGIN_PATH = "/dashboard";
 export default function AuthForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { accessToken, accessTokenExpiresAt } = useAppSelector((state) => state.auth);
@@ -57,19 +65,70 @@ export default function AuthForm() {
 
   const handleSwitch = (toLogin: boolean) => {
     setIsLogin(toLogin);
+    setEmailError(null);
+    setPasswordError(null);
+    setConfirmPasswordError(null);
+    setLoginError(null);
+    setConfirmPassword("");
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const success = await loginOrRegistr(isLogin, email, password, dispatch);
-    if (success) {
-      if (isLogin) {
+    setEmailError(null);
+    setPasswordError(null);
+    setConfirmPasswordError(null);
+    setLoginError(null);
+
+    if (isLogin) {
+      const success = await loginOrRegistr(isLogin, email, password, dispatch);
+      if (success) {
         router.replace(LOGIN_PATH);
       } else {
-        router.replace(REGISTER_PATH);
+        setLoginError("Неверная почта или пароль");
       }
+      return;
+    }
+
+    const emailValidation = checkEmail(email);
+    if (!emailValidation.isValid) {
+      setEmailError(emailValidation.errors[0] ?? "Неверный формат email");
+      return;
+    }
+
+    const passwordValidation = checkPassword(password);
+    if (!passwordValidation.isValid) {
+      setPasswordError(passwordValidation.errors[0] ?? "Пароль не соответствует требованиям");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setConfirmPasswordError("Пароли не совпадают");
+      return;
+    }
+    if (!confirmPassword.trim()) {
+      setConfirmPasswordError("Подтвердите пароль");
+      return;
+    }
+
+    const success = await loginOrRegistr(isLogin, email, password, dispatch);
+    if (success) {
+      router.replace(REGISTER_PATH);
+    } else {
+      setLoginError("Ошибка регистрации. Попробуйте снова.");
     }
   };
+
+  const passwordToggleButton = (visible: boolean, onClick: () => void) => (
+    <button
+      type="button"
+      tabIndex={-1}
+      aria-label={visible ? "Hide password" : "Show password"}
+      onClick={onClick}
+      className={styles.auth__passwordToggle}
+    >
+      {visible ? "Скрыть" : "Показать"}
+    </button>
+  );
 
   return (
     <div className={styles.auth}>
@@ -100,19 +159,30 @@ export default function AuthForm() {
           <div className={styles["auth__form-wrap"]}>
             <form className={styles.auth__form} onSubmit={handleSubmit}>
               <h2 className={styles["auth__form-title"]}>ВХОД</h2>
+              {loginError && (
+                <span className={styles.auth__formError} role="alert">
+                  {loginError}
+                </span>
+              )}
               <Input
                 variant="outline-dark"
                 type="email"
                 placeholder="E-mail"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
               />
               <Input
                 variant="outline-dark"
-                type="password"
-                placeholder="ПАРОЛЬ"
+                type={passwordVisible ? "text" : "password"}
+                placeholder="Пароль"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                rightAdornment={passwordToggleButton(
+                  passwordVisible,
+                  () => setPasswordVisible((v) => !v)
+                )}
               />
               <Button type="submit" variant="outline-dark" size="wide">
                 ВХОД
@@ -125,21 +195,45 @@ export default function AuthForm() {
           <div className={styles["auth__form-wrap"]}>
             <form className={styles.auth__form} onSubmit={handleSubmit}>
               <h2 className={styles["auth__form-title"]}>РЕГИСТРАЦИЯ</h2>
-              <Input variant="outline-transparent" placeholder="ИМЯ" />
-              <Input variant="outline-transparent" placeholder="ФАМИЛИЯ" />
+              {loginError && (
+                <span className={styles.auth__formError} role="alert">
+                  {loginError}
+                </span>
+              )}
               <Input
                 variant="outline-transparent"
                 type="email"
                 placeholder="E-mail"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                error={emailError ?? undefined}
+                autoComplete="email"
               />
               <Input
                 variant="outline-transparent"
-                type="password"
-                placeholder="ПАРОЛЬ"
+                type={passwordVisible ? "text" : "password"}
+                placeholder="Пароль"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                error={passwordError ?? undefined}
+                autoComplete="new-password"
+                rightAdornment={passwordToggleButton(
+                  passwordVisible,
+                  () => setPasswordVisible((v) => !v)
+                )}
+              />
+              <Input
+                variant="outline-transparent"
+                type={confirmPasswordVisible ? "text" : "password"}
+                placeholder="Повторите пароль"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                error={confirmPasswordError ?? undefined}
+                autoComplete="new-password"
+                rightAdornment={passwordToggleButton(
+                  confirmPasswordVisible,
+                  () => setConfirmPasswordVisible((v) => !v)
+                )}
               />
               <Button type="submit" variant="outline-transparent" size="wide">
                 РЕГИСТРАЦИЯ

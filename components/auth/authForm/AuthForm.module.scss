@@ -114,4 +114,28 @@
     letter-spacing: 0.12em;
     color: inherit;
   }
+
+  &__formError {
+    display: block;
+    font-size: tokens.$font-size-s;
+    font-weight: 500;
+    color: #e53935;
+    margin-bottom: tokens.$space-xs;
+  }
+
+  &__passwordToggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xs;
+    color: inherit;
+    opacity: 0.8;
+    padding: 0 tokens.$space-xs;
+    white-space: nowrap;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
 }

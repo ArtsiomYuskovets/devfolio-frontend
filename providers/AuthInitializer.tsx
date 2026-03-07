@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { store } from '@/stores/auth/store';
 import { useAppDispatch } from '@/stores/auth/hooks';
-import { setTokens, setAuthCheckComplete } from '@/stores/auth/authSlice';
+import { setTokens } from '@/stores/auth/authSlice';
 import { tokenService } from '@/lib/tokenService';
 import { setAccessTokenGetter, setupInterceptors } from '@/lib/authApi';
 
@@ -24,21 +24,6 @@ export function AuthInitializer({ children }: { children: React.ReactNode }) {
     });
 
     setupInterceptors(dispatch);
-
-    const { accessToken, accessTokenExpiresAt } = store.getState().auth;
-    const hasValidToken =
-      !!accessToken &&
-      !!accessTokenExpiresAt &&
-      Date.now() < accessTokenExpiresAt;
-
-    if (hasValidToken) {
-      dispatch(setAuthCheckComplete(true));
-      return;
-    }
-
-    tokenService.refreshAccessToken(dispatch).finally(() => {
-      dispatch(setAuthCheckComplete(true));
-    });
   }, [dispatch]);
 
   return <>{children}</>;

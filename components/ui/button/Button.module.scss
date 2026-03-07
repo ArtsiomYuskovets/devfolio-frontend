@@ -3,6 +3,7 @@
 
 .button {
   @include form-elements.form-elements-base;
+  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   justify-content: center;

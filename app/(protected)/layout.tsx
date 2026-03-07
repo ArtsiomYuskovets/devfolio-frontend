@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useAppSelector } from "@/stores/auth/hooks";
+import { useAppSelector, useAppDispatch } from "@/stores/auth/hooks";
+import { setAuthCheckComplete, clearTokens } from "@/stores/auth/authSlice";
+import { tokenService } from "@/lib/tokenService";
 
 const AUTH_PATH = "/auth";
 
@@ -12,6 +14,8 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const refreshStartedRef = useRef(false);
   const { accessToken, accessTokenExpiresAt, isAuthCheckComplete } = useAppSelector(
     (state) => state.auth
   );
@@ -22,13 +26,33 @@ export default function ProtectedLayout({
     Date.now() < accessTokenExpiresAt;
 
   useEffect(() => {
+    const hasValidToken =
+      !!accessToken &&
+      !!accessTokenExpiresAt &&
+      Date.now() < accessTokenExpiresAt;
+
+    if (hasValidToken) {
+      dispatch(setAuthCheckComplete(true));
+      return;
+    }
+
+    if (refreshStartedRef.current) return;
+    refreshStartedRef.current = true;
+
+    tokenService.refreshAccessToken(dispatch).finally(() => {
+      dispatch(setAuthCheckComplete(true));
+    });
+  }, [accessToken, accessTokenExpiresAt, dispatch]);
+
+  useEffect(() => {
     if (isAuthCheckComplete && !isAuthenticated) {
+      dispatch(clearTokens());
       router.replace(AUTH_PATH);
     }
-  }, [isAuthCheckComplete, isAuthenticated, router]);
+  }, [isAuthCheckComplete, isAuthenticated, router, dispatch]);
 
   if (!isAuthCheckComplete) {
-    return null; // или <Spinner /> пока идёт проверка сессии
+    return null;
   }
 
   if (!isAuthenticated) {

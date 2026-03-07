@@ -16,8 +16,24 @@
 }
 
 .error {
-  font-size: tokens.$font-size-xs;
-  color: tokens.$color-logo-bordeaux;
+  font-size: tokens.$font-size-s;
+  font-weight: 500;
+  color: #e53935;
+}
+
+.inputRow {
+  position: relative;
+  width: 100%;
+}
+
+.adornment {
+  position: absolute;
+  right: tokens.$space-m;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
 }
 
 .input {
@@ -34,6 +50,10 @@
   &::placeholder {
     color: tokens.$color-text-light;
     opacity: 0.6;
+  }
+
+  &--hasAdornment {
+    padding-right: 2.75rem;
   }
 
   &--error {
