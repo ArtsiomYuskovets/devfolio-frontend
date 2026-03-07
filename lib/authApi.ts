@@ -26,6 +26,13 @@ export const setupInterceptors = (dispatch: AppDispatch) => {
     (res) => res,
     async (error) => {
       if (error.response?.status === 401) {
+        const isRefreshRequest = String(error.config?.url ?? '').includes('refresh');
+
+        if (isRefreshRequest) {
+          tokenService.clearTokens(dispatch);
+          return Promise.reject(error);
+        }
+
         const refreshed = await tokenService.refreshAccessToken(dispatch);
         if (refreshed) {
           error.config.headers.Authorization = `Bearer ${getAccessTokenFromState()}`;

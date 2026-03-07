@@ -9,8 +9,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const handleLogout = () => {
-    tokenService.clearTokens(dispatch);
+  const handleLogout = async () => {
+    await tokenService.logout(dispatch);
     router.replace("/auth");
   };
 

@@ -51,6 +51,10 @@ export default function AuthForm() {
     }
   }, []);
 
+  useEffect(() => {
+    tokenService.logout(dispatch);
+  }, [dispatch]);
+
   const handleSwitch = (toLogin: boolean) => {
     setIsLogin(toLogin);
   };

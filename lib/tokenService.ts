@@ -24,6 +24,14 @@ export const tokenService = {
     dispatch(clearTokens());
   },
 
+  logout: async (dispatch: AppDispatch): Promise<void> => {
+    try {
+      await api.post("api/auth/logout");
+    } finally {
+      tokenService.clearTokens(dispatch);
+    }
+  },
+
   refreshAccessToken: async (dispatch: AppDispatch): Promise<boolean> => {
     try {
       const res = await api.post<TokensResponse>('api/auth/refresh');
