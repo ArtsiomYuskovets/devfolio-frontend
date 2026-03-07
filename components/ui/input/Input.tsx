@@ -16,6 +16,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   variant?: InputVariant;
   label?: string;
   error?: string;
+  rightAdornment?: React.ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -26,6 +27,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       error,
       className,
       id,
+      rightAdornment,
       ...props
     },
     ref
@@ -39,21 +41,27 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {label}
           </label>
         )}
-        <input
-          ref={ref}
-          id={inputId}
-          className={[
-            styles.input,
-            styles[`input--${variant}`],
-            error ? styles["input--error"] : "",
-            className,
-          ]
-            .filter(Boolean)
-            .join(" ")}
-          aria-invalid={!!error}
-          aria-describedby={error ? `${inputId}-error` : undefined}
-          {...props}
-        />
+        <div className={styles.inputRow}>
+          <input
+            ref={ref}
+            id={inputId}
+            className={[
+              styles.input,
+              styles[`input--${variant}`],
+              error ? styles["input--error"] : "",
+              rightAdornment ? styles["input--hasAdornment"] : "",
+              className,
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            aria-invalid={!!error}
+            aria-describedby={error ? `${inputId}-error` : undefined}
+            {...props}
+          />
+          {rightAdornment && (
+            <div className={styles.adornment}>{rightAdornment}</div>
+          )}
+        </div>
         {error && (
           <span id={`${inputId}-error`} className={styles.error} role="alert">
             {error}
