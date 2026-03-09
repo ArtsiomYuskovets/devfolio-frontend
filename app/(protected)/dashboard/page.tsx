@@ -2,19 +2,23 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAppDispatch } from "@/stores/auth/hooks";
+import { useAppDispatch} from "@/stores/auth/hooks";
 import { tokenService } from "@/lib/tokenService";
+import { userService } from "@/lib/userService";
 
 export default function DashboardPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-
   const handleLogout = async () => {
     await tokenService.logout(dispatch);
     router.replace("/auth");
   };
 
-  return (
+  const handleGetCurrentUser = async () => {
+    await userService.getCurrentUser(dispatch);
+  };
+
+    return (
     <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>Dashboard (заглушка)</h1>
       <p>Вы вошли в систему. Здесь будет контент после входа.</p>
@@ -23,6 +27,9 @@ export default function DashboardPage() {
         <Link href="/profile">Профиль</Link>
         <button type="button" onClick={handleLogout}>
           Выйти
+        </button>
+        <button type="button" onClick={handleGetCurrentUser}>
+          Получить текущего пользователя
         </button>
       </nav>
     </main>

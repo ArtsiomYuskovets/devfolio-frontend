@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/stores/auth/hooks";
 import { setAuthCheckComplete, clearTokens } from "@/stores/auth/authSlice";
 import { tokenService } from "@/lib/tokenService";
+import { userService } from "@/lib/userService";
 
 const AUTH_PATH = "/auth";
 
@@ -19,6 +20,7 @@ export default function ProtectedLayout({
   const { accessToken, accessTokenExpiresAt, isAuthCheckComplete } = useAppSelector(
     (state) => state.auth
   );
+  const userId = useAppSelector((state) => state.user.userId);
 
   const isAuthenticated =
     !!accessToken &&
@@ -47,9 +49,16 @@ export default function ProtectedLayout({
   useEffect(() => {
     if (isAuthCheckComplete && !isAuthenticated) {
       dispatch(clearTokens());
+      userService.clearUser(dispatch);
       router.replace(AUTH_PATH);
     }
   }, [isAuthCheckComplete, isAuthenticated, router, dispatch]);
+
+  useEffect(() => {
+    if (isAuthCheckComplete && isAuthenticated && !userId) {
+      userService.getCurrentUser(dispatch);
+    }
+  }, [isAuthCheckComplete, isAuthenticated, userId, dispatch]);
 
   if (!isAuthCheckComplete) {
     return null;
