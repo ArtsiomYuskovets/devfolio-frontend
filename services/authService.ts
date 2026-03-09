@@ -2,6 +2,7 @@ import { api } from "@/lib/authApi";
 import { tokenService } from "@/lib/tokenService";
 import { TokensResponse } from "@/types/types";
 import { AppDispatch } from "../stores/auth/store";
+import { userService } from "@/lib/userService";
 
 export async function loginOrRegistr(
   isLogin: boolean,
@@ -13,6 +14,7 @@ export async function loginOrRegistr(
     const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
     const res = await api.post<TokensResponse>(endpoint, { email, password });
     tokenService.setTokens(res.data, dispatch);
+    await userService.getCurrentUser(dispatch);
     return true;
   } catch (e) {
     console.log(e);
