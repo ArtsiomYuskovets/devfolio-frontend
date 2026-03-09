@@ -8,16 +8,18 @@ type Links = {
     [key: string]: string
 }
 
-export type UserInfo = {
+type UserBase = {
     userId: string,
+}
+
+export type UserInfo = UserBase & {
     email: string,
     password: string,
     loggetAt: number,
     createdAt: number,
 }
 
-export type UserProfileInfo = {
-    userId: string,
+export type UserProfileInfo = UserBase & {
     nickname: string,
     firstName: string,
     lastName: string,
@@ -27,3 +29,4 @@ export type UserProfileInfo = {
     links: Links,
 }
 
+export type DataForFillProfile = Omit<UserProfileInfo, "userId">;
