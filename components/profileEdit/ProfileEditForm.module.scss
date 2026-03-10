@@ -11,6 +11,12 @@
     display: flex;
     justify-content: center;
   }
+  
+  &__input {
+    &::placeholder {
+      color: rgba(tokens.$color-text-dark, 0.8);
+    }
+  }
 
   &__card {
     width: 100%;

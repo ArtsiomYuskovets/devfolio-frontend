@@ -26,7 +26,7 @@ export default function AuthForm() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { accessToken, accessTokenExpiresAt } = useAppSelector((state) => state.auth);
-  const { userId } = useAppSelector((state) => state.user);
+
   const isAuthenticated =
     !!accessToken &&
     !!accessTokenExpiresAt &&
@@ -72,7 +72,7 @@ export default function AuthForm() {
     if (isLogin) {
       const success = await loginOrRegistr(isLogin, email, password, dispatch);
       if (success) {
-        router.replace(`/profile/${userId}`);
+        router.replace("/profile/edit");
       } else {
         setLoginError("Неверная почта или пароль");
       }
@@ -102,7 +102,7 @@ export default function AuthForm() {
 
     const success = await loginOrRegistr(isLogin, email, password, dispatch);
     if (success) {
-      router.replace(`/profile/${userId}/edit`);
+      router.replace("/profile/edit");
     } else {
       setLoginError("Ошибка регистрации. Попробуйте снова.");
     }

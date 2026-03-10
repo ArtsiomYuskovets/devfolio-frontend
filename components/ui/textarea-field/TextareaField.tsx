@@ -19,7 +19,6 @@ export function TextareaField({
         className={styles.textarea}
         value={value}
         placeholder={placeholder}
-        readOnly
         {...props}
       />
     </label>

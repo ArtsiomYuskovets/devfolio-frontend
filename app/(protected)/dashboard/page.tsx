@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppDispatch} from "@/stores/auth/hooks";
 import { tokenService } from "@/lib/tokenService";
-import { userService } from "@/lib/userService";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -14,9 +13,6 @@ export default function DashboardPage() {
     router.replace("/auth");
   };
 
-  const handleGetCurrentUser = async () => {
-    await userService.getCurrentUser(dispatch);
-  };
 
     return (
     <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
@@ -28,7 +24,7 @@ export default function DashboardPage() {
         <button type="button" onClick={handleLogout}>
           Выйти
         </button>
-        <button type="button" onClick={handleGetCurrentUser}>
+        <button type="button">
           Получить текущего пользователя
         </button>
       </nav>
