@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/stores/auth/hooks";
 import { setAuthCheckComplete, clearTokens } from "@/stores/auth/authSlice";
 import { tokenService } from "@/lib/tokenService";
+import { useGetMyProfileQuery } from "@/stores/user/userApi";
 
 const AUTH_PATH = "/auth";
 
@@ -24,6 +25,15 @@ export default function ProtectedLayout({
     !!accessToken &&
     !!accessTokenExpiresAt &&
     Date.now() < accessTokenExpiresAt;
+
+  const { 
+    data: profile,           
+    isLoading: profileLoading, 
+    error: profileError,      
+    refetch: refetchProfile   
+  } = useGetMyProfileQuery(undefined, {
+    skip: !isAuthenticated,  
+  });
 
   useEffect(() => {
     const hasValidToken =
@@ -50,6 +60,12 @@ export default function ProtectedLayout({
       router.replace(AUTH_PATH);
     }
   }, [isAuthCheckComplete, isAuthenticated, router, dispatch]);
+
+  useEffect(() => {
+    if (profileError) {
+      console.error("❌ Ошибка загрузки профиля:", profileError);
+    }
+  }, [profileError]);
 
   if (!isAuthCheckComplete) {
     return null;

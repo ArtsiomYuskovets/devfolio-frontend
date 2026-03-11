@@ -1,0 +1,71 @@
+@use "@/styles/tokens" as tokens;
+
+.skills-section {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-l;
+    width: 100%;
+  
+    &__row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: tokens.$space-m;
+    }
+  
+    &__list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: tokens.$space-s;
+      flex: 1;
+    }
+  }
+
+.skill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: tokens.$space-xs;
+  padding: tokens.$space-xs tokens.$space-s;
+  background: tokens.$color-button-dark-bg;
+  border-radius: 100px; 
+  color: white;
+  font-size: tokens.$font-size-s;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &__name {
+    padding-left: tokens.$space-xs;
+  }
+
+  &__remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: tokens.$font-size-m;
+    font-weight: 700;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    line-height: 1;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}

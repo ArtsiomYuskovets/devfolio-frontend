@@ -24,7 +24,7 @@
 @mixin form-elements-primary-light {
     background-color: tokens.$color-button-light-bg;
     border-color: rgba(tokens.$color-button-light-border, 0.4);
-    color: tokens.$color-text-light;
+    color: tokens.$color-text-dark;
 
 }
 

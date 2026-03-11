@@ -5,15 +5,12 @@ import { useRouter } from "next/navigation";
 import styles from "@/components/auth/authForm/AuthForm.module.scss";
 import { loginOrRegistr } from "@/services/authService";
 import { tokenService } from "@/lib/tokenService";
-import { setAccessTokenGetter, setupInterceptors } from "@/lib/authApi";
 import { checkEmail, checkPassword } from "@/lib/validation";
 import { useAppSelector, useAppDispatch } from "@/stores/auth/hooks";
 import { setTokens } from "@/stores/auth/authSlice";
 import { Input } from "@/components/ui/input/Input";
 import { Button } from "@/components/ui/button/Button";
 
-const REGISTER_PATH = "/profile-settings";
-const LOGIN_PATH = "/dashboard";
 
 export default function AuthForm() {
   const [email, setEmail] = useState("");
@@ -37,19 +34,12 @@ export default function AuthForm() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace(LOGIN_PATH);
+      router.replace("/dashboard");
       return;
     }
     tokenService.setDispatchCallback((dispatch, accessToken, expiresAt) => {
       dispatch(setTokens({ accessToken, expiresAt }));
     });
-    setAccessTokenGetter(() => {
-      if (accessToken && accessTokenExpiresAt && Date.now() <= accessTokenExpiresAt) {
-        return accessToken;
-      }
-      return null;
-    });
-    setupInterceptors(dispatch);
   }, [accessToken, accessTokenExpiresAt, dispatch, isAuthenticated, router]);
 
   useEffect(() => {
@@ -82,7 +72,7 @@ export default function AuthForm() {
     if (isLogin) {
       const success = await loginOrRegistr(isLogin, email, password, dispatch);
       if (success) {
-        router.replace(LOGIN_PATH);
+        router.replace("/profile/edit");
       } else {
         setLoginError("Неверная почта или пароль");
       }
@@ -112,7 +102,7 @@ export default function AuthForm() {
 
     const success = await loginOrRegistr(isLogin, email, password, dispatch);
     if (success) {
-      router.replace(REGISTER_PATH);
+      router.replace("/profile/edit");
     } else {
       setLoginError("Ошибка регистрации. Попробуйте снова.");
     }

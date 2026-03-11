@@ -1,0 +1,47 @@
+@use "@/styles/tokens" as tokens;
+
+.skill-input {
+  position: relative;
+  width: 100%;
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + tokens.$space-xs);
+    left: 0;
+    right: 0;
+    background: tokens.$color-text-light;
+    border: 1px solid rgba(tokens.$color-text-dark, 0.12);
+    border-radius: tokens.$radius-m;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: tokens.$space-m;
+    z-index: 100;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  &__list {
+    list-style: none;
+    margin: tokens.$space-s 0 0;
+    padding: 0;
+  }
+
+  &__item {
+    padding: tokens.$space-s tokens.$space-m;
+    cursor: pointer;
+    border-radius: tokens.$radius-s;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: rgba(tokens.$color-text-dark, 0.05);
+    }
+
+    &:active {
+      background-color: rgba(tokens.$color-text-dark, 0.1);
+    }
+  }
+
+  &__empty {
+    margin-top: tokens.$space-s;
+    text-align: center;
+  }
+}

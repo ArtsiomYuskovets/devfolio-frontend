@@ -1,15 +1,20 @@
 "use client";
 
-import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAppSelector } from "@/stores/auth/hooks";
 
-export default function ProfilePage() {
-  return (
-    <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-      <h1>Профиль (заглушка)</h1>
-      <p>Страница профиля. Доступна только после входа.</p>
-      <nav style={{ marginTop: "1rem" }}>
-        <Link href="/dashboard">← Назад в Dashboard</Link>
-      </nav>
-    </main>
-  );
+export default function ProfileRedirectPage() {
+  const router = useRouter();
+  const userId = useAppSelector((state) => state.user.userId);
+
+  useEffect(() => {
+    if (userId) {
+      router.replace(`/profile/${userId}`);
+    } else {
+      router.replace("/dashboard");
+    }
+  }, [userId, router]);
+
+  return null;
 }

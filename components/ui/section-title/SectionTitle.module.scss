@@ -1,0 +1,23 @@
+@use "@/styles/tokens" as tokens;
+
+.section-title {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+  border-radius: tokens.$radius-m;
+  background-color: tokens.$color-button-dark-bg;
+  color: tokens.$color-text-light;
+  font-family: tokens.$font-family-primary;
+  font-size: tokens.$button-font-size-normal;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+  padding: tokens.$space-s tokens.$space-l;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    font-size: tokens.$font-size-m;
+  }
+}
