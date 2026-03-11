@@ -55,7 +55,7 @@ export function SkillInput({ onAddSkill, existingSkills = [] }: SkillInputProps)
     <div className={styles["skill-input"]}>
       <Button 
         type="button" 
-        variant="outline-dark" 
+        variant="primary-light" 
         size="wide"
         onClick={() => setIsOpen(!isOpen)}
       >

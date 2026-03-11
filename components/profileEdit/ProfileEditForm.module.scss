@@ -11,7 +11,39 @@
     display: flex;
     justify-content: center;
   }
-  
+  &__link-group {
+    display: flex;
+    gap: tokens.$space-s;
+    align-items: flex-end;
+    margin-bottom: tokens.$space-m;
+    padding: tokens.$space-m;
+    border: 1px solid rgba(tokens.$color-text-dark, 0.1);
+    border-radius: tokens.$radius-m;
+    position: relative;
+  }
+
+  &__field {
+    flex: 1;
+  }
+
+  &__remove-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: rgba(tokens.$color-text-dark, 0.08);
+    color: red;
+    font-size: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-bottom: tokens.$space-xs;
+
+    &:hover {
+      background: rgba(tokens.$color-text-dark, 0.15);
+    }
+  }
   &__input {
     &::placeholder {
       color: rgba(tokens.$color-text-dark, 0.8);

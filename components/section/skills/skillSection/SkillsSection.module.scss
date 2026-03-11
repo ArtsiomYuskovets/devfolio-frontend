@@ -26,7 +26,7 @@
   align-items: center;
   gap: tokens.$space-xs;
   padding: tokens.$space-xs tokens.$space-s;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: tokens.$color-button-dark-bg;
   border-radius: 100px; 
   color: white;
   font-size: tokens.$font-size-s;

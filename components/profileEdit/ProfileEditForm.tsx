@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input/Input";
 import { TextareaField } from "@/components/ui/textarea-field/TextareaField";
 import { EditAdornment } from "@/components/ui/edit-adornment/EditAdornment";
 import styles from "./ProfileEditForm.module.scss";
-import { SkillsSection } from "../skills/skillSection/SkillsSection";
-import { useState } from "react";
+import { SkillsSection } from "@/components/section/skills/skillSection/SkillsSection";
+import { useState, useCallback } from "react";
 import { useUpdateMyProfileMutation } from "@/stores/user/userApi";
+import { LinksSection } from "@/components/section/linkSection/LinkSection";
 
 type ProfileEditFormProps = {
   profile?: Partial<UserProfileInfo>;
@@ -18,17 +19,50 @@ type ProfileEditFormProps = {
 export function ProfileEditForm({ profile }: ProfileEditFormProps) {
   const [myProfile, setMyProfile] = useState<Partial<UserProfileInfo>>(profile ?? {});
   const [updateMyProfile] = useUpdateMyProfileMutation();
+  const [links, setLinks] = useState<Array<{ key: string; value: string }>>(() => {
+    const initialLinks = profile?.links ?? {};
+    const linksArray = Object.entries(initialLinks).map(([key, value]) => ({
+      key,
+      value
+    }));
+    
+    return linksArray.length > 0 ? linksArray : [{ key: '', value: '' }];
+  });
 
   const handleChange = (field: keyof UserProfileInfo, value: string) => {
     setMyProfile(prev => ({ ...prev, [field]: value }));
   };
-  const handleLinkChange = (key: string, value: string) => {
-    setMyProfile(prev => ({ ...prev, links: { ...prev.links, [key]: value } }));
-  };
+  const handleKeyChange = useCallback((index: number, newKey: string) => {
+    setLinks(prev => {
+      const newLinks = [...prev];
+        newLinks[index] = { ...newLinks[index], key: newKey };
+        return newLinks;
+      });
+  }, []);
+  const handleValueChange = useCallback((index: number, newValue: string) => {
+    setLinks(prev => {
+      const newLinks = [...prev];
+      newLinks[index] = { ...newLinks[index], value: newValue };
+      return newLinks;
+    });
+  }, []);
+  const handleRemoveLink = useCallback((indexToRemove: number) => {
+    const newLinks = links.filter((_, index) => index !== indexToRemove);
+    setLinks(newLinks.length > 0 ? newLinks : [{ key: '', value: '' }]);
+  }, []);
   const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
-      const updatedProfile = await updateMyProfile(myProfile).unwrap();
+      const linksObject: Record<string, string> = Object.fromEntries(
+        links
+          .filter(({ key, value }) => key && value)
+          .map(({ key, value }) => [key, value])
+      );
+      const profileToSave = {
+        ...myProfile,
+        links: linksObject
+      };
+      const updatedProfile = await updateMyProfile(profileToSave).unwrap();
       if (updatedProfile) {
         console.log(updatedProfile);
         alert('Профиль успешно обновлен');
@@ -38,7 +72,11 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
       alert('Ошибка при обновлении профиля');
     }
   };
-
+  const handleAddLink = useCallback(() => {
+    if (links.length < 5) {
+      setLinks([...links, { key: '', value: '' }]);
+    }
+  }, []);
   return (
     <section className={styles["profile-edit"]}>
       <div className={styles["profile-edit__shell"]}>
@@ -130,38 +168,13 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
 
             <SectionTitle>ССЫЛКИ</SectionTitle>
 
-            <div className={styles["profile-edit__stack"]}>
-              {Object.entries(myProfile.links ?? {}).length > 0 ? (
-                Object.entries(myProfile.links ?? {}).map(([key, value]) => (
-                  <div key={key} className={styles["profile-edit__field"]}>
-                    <Input
-                      label={key}
-                      className={styles["profile-edit__input"]}
-                      variant="primary-light"
-                      placeholder="https://ссылка-на-вас"
-                      value={value ?? ""}
-                      onChange={(e) => handleLinkChange(key, e.target.value)}
-                    />
-                  </div>
-                ))
-              ) : (
-                <div className={styles["profile-edit__field"]}>
-                  <Input
-                    label="Social"
-                    className={styles["profile-edit__input"]}
-                    variant="primary-light"
-                    placeholder="https://ссылка-на-вас"
-                    value=""
-                    onChange={(e) => handleLinkChange('social', e.target.value)}
-                  />
-                </div>
-              )}
-            </div>
-            <p className={styles["profile-edit__hint"]}>
-              Добавьте до 5 ссылок на социальные сети и проекты, которые будут
-              отображаться в вашем профиле
-            </p>
-
+            <LinksSection
+              links={links}
+              onKeyChange={handleKeyChange}
+              onValueChange={handleValueChange}
+              onAddLink={handleAddLink}
+              onRemoveLink={handleRemoveLink}
+            />
             <div className={styles["profile-edit__actions"]}>
               <Button type="button" variant="outline-dark" size="wide" onClick={handleSave}>
                 Сохранить
