@@ -1,55 +1,13 @@
-import { createApi, fetchBaseQuery, BaseQueryFn } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { UserProfileInfo, DataForFillProfile } from '@/types/types'
-import { api } from '@/lib/authApi';
-import { AxiosRequestConfig, AxiosError } from 'axios';
+import { axiosBaseQuery } from '../axios';
 
-interface AxiosBaseQueryArgs {
-    url: string;
-    method?: AxiosRequestConfig['method'];
-    data?: AxiosRequestConfig['data'];
-    params?: AxiosRequestConfig['params'];
-    headers?: AxiosRequestConfig['headers'];
+interface ProfilesSearchParams {
+    skills: string[];
+    page: number;
+    size: number;
+    sort: string[];
 }
-
-interface AxiosBaseQueryResult<T = unknown> {
-    data: T;
-}
-
-interface AxiosBaseQueryError {
-    status?: number;
-    data: unknown;
-}
-
-interface AxiosBaseQueryConfig {
-    baseUrl?: string;
-}
-
-const axiosBaseQuery = (
-    { baseUrl }: AxiosBaseQueryConfig = { baseUrl: '' }
-): BaseQueryFn<AxiosBaseQueryArgs, unknown, AxiosBaseQueryError> =>
-    async ({ url, method, data, params, headers }) => {
-        try {
-            const result = await api({
-                url: baseUrl + url,
-                method,
-                data,
-                params,
-                headers,
-            });
-
-            return { data: result.data };
-
-        } catch (axiosError) {
-            const err = axiosError as AxiosError;
-
-            return {
-                error: {
-                    status: err.response?.status,
-                    data: err.response?.data || err.message,
-                },
-            };
-        }
-    };
 
 export const userApi = createApi({
     reducerPath: 'userApi',
@@ -71,10 +29,16 @@ export const userApi = createApi({
             }),
         }),
 
-        getProfilesList: builder.query<UserProfileInfo[], void>({
-            query: () => ({
+        getProfilesList: builder.query<UserProfileInfo[], ProfilesSearchParams>({
+            query: (searchParams) => ({
                 url: 'api/profiles',
                 method: 'GET',
+                params: {
+                    skills: searchParams.skills,
+                    page: searchParams.page,
+                    size: searchParams.size,
+                    sort: searchParams.sort,
+                },
             }),
             providesTags: ['ProfilesList'],
         }),
@@ -102,7 +66,7 @@ export const userApi = createApi({
                 if (typeof file === 'string') {
                     return {
                         url: 'api/profiles/me/avatar',
-                        method: 'PUT',
+                        method: 'PATCH',
                         data: { avatarURL: file },
                     };
                 }
@@ -111,7 +75,7 @@ export const userApi = createApi({
                 formData.append('avatar', file);
 
                 return {
-                    url: 'api/profiles/avatar',
+                    url: 'api/profiles/me/avatar',
                     method: 'POST',
                     data: formData,
                     headers: { 'Content-Type': 'multipart/form-data' },

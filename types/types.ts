@@ -8,6 +8,11 @@ type Links = {
     [key: string]: string
 }
 
+export type Skill = {
+    id: string,
+    name: string,
+    category: string,
+}
 type UserBase = {
     userId: string,
 }
