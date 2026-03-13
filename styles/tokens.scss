@@ -13,12 +13,18 @@ $space-l: 16px;
 $space-xl: 24px;
 $space-xxl: 32px;
 $space-xxxl: 40px;
+$space-4xl: 48px;
 
 // Border radius
 $radius-s: 4px;
 $radius-m: 8px;
 $radius-l: 16px;
 $radius-pill: 999px;
+
+// Border widths
+$border-width-thin: 1px;
+$border-width-base: 2px;
+$border-width-strong: 3px;
 
 // Мелкий текст, подписи, overline
 $font-size-xs: 14px;
@@ -53,6 +59,60 @@ $color-text-muted-light: rgba(255, 255, 255, 0.78);
 $color-surface-dark: #05050b;
 $color-surface-dark-soft: rgba(5, 5, 10, 0.9);
 $color-surface-light: #f6f6f8;
+$color-surface-overlay: rgba(5, 5, 11, 0.45);
+$color-surface-card-light: rgba(255, 255, 255, 0.96);
+$color-surface-card-soft: rgba(255, 255, 255, 0.78);
+$color-surface-card-muted: rgba(255, 255, 255, 0.72);
+
+$color-border-dark-soft: rgba($color-text-dark, 0.18);
+$color-border-dark-medium: rgba($color-text-dark, 0.22);
+$color-border-dark-strong: rgba($color-text-dark, 0.28);
+$color-text-dark-muted: rgba($color-text-dark, 0.72);
+$color-text-dark-soft: rgba($color-text-dark, 0.68);
+$color-text-dark-faint: rgba($color-text-dark, 0.65);
+$color-text-light-strong: rgba($color-text-light, 0.96);
+$color-text-light-soft: rgba($color-text-light, 0.92);
+
+$color-gradient-avatar-start: #444b67;
+$color-gradient-avatar-end: #313548;
+$color-gradient-avatar-menu-start: #434a65;
+$color-gradient-avatar-menu-end: #2f3447;
+$color-gradient-project-start: #161a2a;
+$color-gradient-project-end: #090b12;
+
+// Shadows
+$shadow-soft: 0 12px 32px rgba(11, 11, 20, 0.06);
+$shadow-card: 0 18px 36px rgba(11, 11, 20, 0.18);
+$shadow-avatar: 0 18px 44px rgba(11, 11, 20, 0.18);
+$shadow-menu-avatar: 0 16px 36px rgba(0, 0, 0, 0.3);
+
+// Layout sizes
+$size-hamburger-gap: 5px;
+$size-hamburger-width: 22px;
+$size-hamburger-height: 2px;
+$size-profile-hero-height: 132px;
+$size-profile-avatar: 156px;
+$size-profile-avatar-mobile: 136px;
+$size-profile-avatar-menu: 112px;
+$size-profile-avatar-overlap: -92px;
+$size-profile-avatar-overlap-mobile: -72px;
+$size-profile-menu-width: 320px;
+$size-profile-menu-close-offset: 40px;
+$size-profile-bio-min-height: 120px;
+$size-profile-feature-min-height: 128px;
+$size-project-media-width: 140px;
+$size-project-media-height: 152px;
+$size-project-media-height-mobile: 120px;
+$size-project-icon: 72px;
+$size-project-title-min-width: 120px;
+$size-project-description-min-height: 90px;
+$layout-profile-max-width: 1080px;
+$layout-profile-tablet-max-width: 720px;
+$layout-profile-sidebar-max-width: 420px;
+$layout-profile-sidebar-min-width: 220px;
+$layout-profile-sidebar-max-column: 260px;
+$layout-modal-max-width: 1040px;
+$blur-strong: 8px;
 
 // Buttons
 $color-button-light-bg: #CACAD2;
