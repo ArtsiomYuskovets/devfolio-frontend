@@ -29,4 +29,13 @@ export type UserProfileInfo = UserBase & {
     links: Links,
 }
 
+export type Project = {
+    projectId: string,
+    name: string,
+    description: string,
+    githubURL: string,
+    projectPublic: boolean,
+    createdAt: number,
+    updatedAt: number,
+}
 export type DataForFillProfile = Omit<UserProfileInfo, "userId">;
