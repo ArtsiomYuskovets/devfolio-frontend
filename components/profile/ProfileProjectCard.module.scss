@@ -1,0 +1,88 @@
+@use "@/styles/tokens" as tokens;
+
+.profile-project-card {
+  display: grid;
+  grid-template-columns: tokens.$size-project-media-width minmax(0, 1fr);
+  border-radius: tokens.$radius-l;
+  overflow: hidden;
+  border: tokens.$border-width-thin solid tokens.$color-border-dark-soft;
+  background: tokens.$color-surface-card-light;
+
+  &__media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: tokens.$size-project-media-height;
+    color: tokens.$color-text-light-soft;
+    background: linear-gradient(
+      180deg,
+      tokens.$color-gradient-project-start,
+      tokens.$color-gradient-project-end
+    );
+  }
+
+  &__media-icon {
+    width: tokens.$size-project-icon;
+    height: tokens.$size-project-icon;
+  }
+
+  &__content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-m;
+    padding: tokens.$space-l tokens.$space-l tokens.$space-m;
+  }
+
+  &__favorite {
+    position: absolute;
+    top: tokens.$space-s;
+    right: tokens.$space-m;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: tokens.$color-text-dark;
+    font-size: tokens.$font-size-l;
+    cursor: pointer;
+  }
+
+  &__title {
+    align-self: flex-start;
+    min-width: tokens.$size-project-title-min-width;
+    padding: tokens.$space-xs tokens.$space-l;
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-strong;
+    border-radius: tokens.$radius-pill;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    font-weight: 700;
+    color: tokens.$color-text-dark;
+  }
+
+  &__description {
+    min-height: tokens.$size-project-description-min-height;
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-medium;
+    border-radius: tokens.$radius-m;
+    padding: tokens.$space-m;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    line-height: tokens.$line-height-body;
+    color: tokens.$color-text-dark-faint;
+  }
+
+  &__meta {
+    display: flex;
+    justify-content: flex-end;
+    gap: tokens.$space-m;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xs;
+    color: tokens.$color-text-dark-soft;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+
+    &__media {
+      min-height: tokens.$size-project-media-height-mobile;
+    }
+  }
+}

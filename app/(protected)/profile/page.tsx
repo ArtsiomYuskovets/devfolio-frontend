@@ -2,19 +2,22 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAppSelector } from "@/stores/auth/hooks";
+import { useGetMyProfileQuery } from "@/stores/user/userApi";
 
 export default function ProfileRedirectPage() {
   const router = useRouter();
-  const userId = useAppSelector((state) => state.user.userId);
+  const { data: profile, isLoading } = useGetMyProfileQuery();
 
   useEffect(() => {
-    if (userId) {
-      router.replace(`/profile/${userId}`);
-    } else {
+    if (profile?.userId) {
+      router.replace(`/profile/${profile.userId}`);
+      return;
+    }
+
+    if (!isLoading) {
       router.replace("/dashboard");
     }
-  }, [userId, router]);
+  }, [isLoading, profile?.userId, router]);
 
   return null;
 }

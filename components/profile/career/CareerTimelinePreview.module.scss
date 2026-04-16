@@ -1,0 +1,55 @@
+@use "@/styles/tokens" as tokens;
+
+.career-timeline-preview {
+  display: flex;
+  flex-direction: column;
+  gap: tokens.$space-m;
+  max-height: 188px;
+  overflow-y: auto;
+  padding-right: tokens.$space-xs;
+
+  &__item {
+    display: flex;
+    align-items: flex-start;
+    gap: tokens.$space-m;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: tokens.$space-xxl;
+    height: tokens.$space-xxl;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: tokens.$color-button-dark-bg;
+  }
+
+  &__content {
+    min-width: 0;
+  }
+
+  &__meta,
+  &__title,
+  &__place {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+  }
+
+  &__meta {
+    font-size: tokens.$font-size-s;
+    line-height: tokens.$line-height-body;
+    color: tokens.$color-text-dark-soft;
+  }
+
+  &__title {
+    font-size: tokens.$font-size-m;
+    color: tokens.$color-text-dark;
+  }
+
+  &__place {
+    font-size: tokens.$font-size-s;
+    line-height: tokens.$line-height-body;
+    color: tokens.$color-text-dark-muted;
+  }
+}

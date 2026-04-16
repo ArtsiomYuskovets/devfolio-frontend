@@ -1,0 +1,61 @@
+@use "@/styles/tokens" as tokens;
+
+.career-entry-timeline-card {
+  display: flex;
+  gap: tokens.$space-m;
+  border: tokens.$border-width-thin solid tokens.$color-border-dark-medium;
+  border-radius: tokens.$radius-l;
+  background: tokens.$color-surface-card-soft;
+  padding: tokens.$space-l;
+
+  &__icon {
+    flex-shrink: 0;
+    width: tokens.$space-4xl;
+    height: tokens.$space-4xl;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: tokens.$color-button-dark-bg;
+    font-size: tokens.$font-size-l;
+  }
+
+  &__content {
+    min-width: 0;
+  }
+
+  &__meta,
+  &__place,
+  &__text {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    line-height: tokens.$line-height-body;
+  }
+
+  &__meta {
+    font-size: tokens.$font-size-s;
+    color: tokens.$color-text-dark-soft;
+  }
+
+  &__title {
+    margin: tokens.$space-xs 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xl;
+    color: tokens.$color-text-dark;
+  }
+
+  &__place {
+    font-size: tokens.$font-size-m;
+    color: tokens.$color-text-dark;
+  }
+
+  &__text {
+    margin-top: tokens.$space-xs;
+    font-size: tokens.$font-size-s;
+    color: tokens.$color-text-dark-soft;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}

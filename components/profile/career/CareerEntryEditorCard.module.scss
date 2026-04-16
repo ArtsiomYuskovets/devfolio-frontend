@@ -1,0 +1,126 @@
+@use "@/styles/tokens" as tokens;
+
+.career-entry-editor-card {
+  border: tokens.$border-width-thin solid tokens.$color-border-dark-medium;
+  border-radius: tokens.$radius-l;
+  background: tokens.$color-surface-card-soft;
+  padding: tokens.$space-l;
+
+  &__top,
+  &__top-actions,
+  &__date-head,
+  &__date-row {
+    display: flex;
+    align-items: center;
+    gap: tokens.$space-m;
+  }
+
+  &__top {
+    justify-content: space-between;
+    margin-bottom: tokens.$space-l;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: tokens.$space-s;
+    padding: tokens.$space-xs tokens.$space-m;
+    border-radius: tokens.$radius-pill;
+    background: tokens.$color-button-dark-bg;
+    color: tokens.$color-text-light;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+  }
+
+  &__grid,
+  &__dates {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: tokens.$space-m;
+    margin-bottom: tokens.$space-m;
+  }
+
+  &__date-group {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-s;
+  }
+
+  &__date-head {
+    justify-content: space-between;
+  }
+
+  &__date-label,
+  &__checkbox,
+  &__current {
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    color: tokens.$color-text-dark-soft;
+  }
+
+  &__checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: tokens.$space-s;
+  }
+
+  &__select,
+  &__textarea {
+    width: 100%;
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-medium;
+    border-radius: tokens.$radius-m;
+    background: tokens.$color-button-light-bg;
+    color: tokens.$color-text-dark;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    padding: tokens.$space-m tokens.$space-l;
+  }
+
+  &__input {
+    color: tokens.$color-text-dark;
+
+    &::placeholder {
+      color: tokens.$color-text-dark-soft;
+      opacity: 1;
+    }
+  }
+
+  &__current {
+    padding: tokens.$space-m tokens.$space-l;
+    border: tokens.$border-width-thin dashed tokens.$color-border-dark-medium;
+    border-radius: tokens.$radius-m;
+    background: tokens.$color-surface-card-muted;
+  }
+
+  &__textarea {
+    min-height: tokens.$size-profile-bio-min-height;
+    resize: vertical;
+  }
+
+  &__remove {
+    width: tokens.$space-xxxl;
+    height: tokens.$space-xxxl;
+    border: 0;
+    border-radius: 50%;
+    background: tokens.$color-button-dark-bg;
+    color: tokens.$color-text-light;
+    font-size: tokens.$font-size-xl;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  @media (max-width: 768px) {
+    &__top,
+    &__top-actions,
+    &__date-head,
+    &__date-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    &__grid,
+    &__dates {
+      grid-template-columns: 1fr;
+    }
+  }
+}
