@@ -133,3 +133,15 @@ export const projectsApi = createApi({
         }),
     }),
 });
+
+export const {
+    useGetProjectsByIdQuery,
+    useUpdateProjectMutation,
+    useDeleteProjectMutation,
+    useCreateProjectMutation,
+    useVerifyProjectSkillsMutation,
+    useAddProjectSkillMutation,
+    useDeleteProjectSkillMutation,
+    useGetProjectSkillsQuery,
+    useGetUsersProjectsQuery,
+} = projectsApi;

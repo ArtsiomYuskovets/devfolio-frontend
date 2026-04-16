@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { store } from '@/stores/auth/store';
+import { store } from '@/stores/store';
 import { useAppDispatch } from '@/stores/auth/hooks';
 import { setTokens } from '@/stores/auth/authSlice';
 import { tokenService } from '@/lib/tokenService';
