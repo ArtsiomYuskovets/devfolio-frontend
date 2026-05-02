@@ -1,0 +1,205 @@
+@use "@/styles/tokens" as tokens;
+@use "@/styles/utils/mixins/blur" as blur;
+
+.project-view {
+  min-height: 100vh;
+  padding: tokens.$space-xxxl tokens.$space-l;
+  background-image: url("../../public/background/light-screen.png");
+  background-repeat: repeat;
+
+  &__shell {
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-xl;
+  }
+
+  &__hero {
+    position: relative;
+    border-radius: tokens.$radius-l;
+    padding: tokens.$space-xl;
+    color: tokens.$color-text-light;
+    isolation: isolate;
+    overflow: hidden;
+    @include blur.blur(url("../../../public/background/wave-background-1.png"), 6px);
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: rgba(5, 5, 11, 0.88);
+    }
+  }
+
+  &__hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: tokens.$space-m;
+  }
+
+  &__hero-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: tokens.$space-m;
+  }
+
+  &__back-link {
+    color: tokens.$color-text-light;
+    text-decoration: none;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+  }
+
+  &__edit-link {
+    color: tokens.$color-text-light;
+    text-decoration: none;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    padding: tokens.$space-xs tokens.$space-m;
+    border-radius: tokens.$radius-pill;
+    border: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.35);
+
+    &:hover {
+      border-color: rgba(tokens.$color-text-light, 0.55);
+    }
+  }
+
+  &__visibility {
+    padding: tokens.$space-xs tokens.$space-m;
+    border-radius: tokens.$radius-pill;
+    border: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.4);
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+  }
+
+  &__title {
+    margin: tokens.$space-l 0 tokens.$space-m;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-display;
+    line-height: 1;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$space-m;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    color: tokens.$color-text-muted-light;
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: tokens.$space-l;
+  }
+
+  &__card {
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-soft;
+    border-radius: tokens.$radius-l;
+    background: tokens.$color-surface-card-soft;
+    box-shadow: tokens.$shadow-soft;
+    padding: tokens.$space-l;
+    min-height: 180px;
+  }
+
+  &__card-title {
+    margin: 0 0 tokens.$space-m;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xl;
+    color: tokens.$color-text-dark;
+  }
+
+  &__text {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    line-height: tokens.$line-height-body;
+    color: tokens.$color-text-dark-soft;
+  }
+
+  &__repo-link {
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    color: tokens.$color-logo-blue;
+    word-break: break-all;
+    text-decoration: underline;
+  }
+
+  &__skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$space-s;
+  }
+
+  &__skill {
+    display: inline-flex;
+    padding: tokens.$space-xs tokens.$space-m;
+    border-radius: tokens.$radius-pill;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    border: tokens.$border-width-thin solid transparent;
+
+    &--verified {
+      background: tokens.$color-skill-verified-bg;
+      color: tokens.$color-skill-verified-text;
+    }
+
+    &--unverified {
+      background: tokens.$color-skill-unverified-bg;
+      color: tokens.$color-skill-unverified-text;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$space-m;
+  }
+
+  &__status {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-l;
+    color: tokens.$color-text-dark;
+  }
+
+  @media (max-width: 900px) {
+    &__content {
+      grid-template-columns: 1fr;
+    }
+
+    &__title {
+      font-size: tokens.$font-size-xxxl;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: tokens.$space-l tokens.$space-s tokens.$space-xxxl;
+
+    &__hero {
+      padding: tokens.$space-l;
+    }
+
+    &__hero-top {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    &__title {
+      font-size: tokens.$font-size-xxl;
+    }
+
+    &__actions {
+      flex-direction: column;
+    }
+  }
+}
