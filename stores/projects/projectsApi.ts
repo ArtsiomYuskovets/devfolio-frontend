@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery, BaseQueryFn } from '@reduxjs/toolkit/query/react';
-import { Project } from '@/types/types'
+import { Project, ProjectSkillAttachment } from '@/types/types'
 import { api } from '@/lib/authApi';
 import { AxiosRequestConfig, AxiosError } from 'axios';
 
@@ -107,11 +107,31 @@ export const projectsApi = createApi({
             }),
             invalidatesTags: ['ProjectsList'],
         }),
-        getProjectSkills: builder.query<string[], string>({
+        getProjectSkills: builder.query<ProjectSkillAttachment[], string>({
             query: (projectId) => ({
                 url: `api/projects/${projectId}/skills`,
                 method: 'GET',
             }),
+            transformResponse: (response: unknown): ProjectSkillAttachment[] => {
+                if (!Array.isArray(response)) return [];
+                return response.flatMap((item: unknown): ProjectSkillAttachment[] => {
+                    if (typeof item === 'string') {
+                        return item ? [{ skillId: item, verified: false }] : [];
+                    }
+                    if (item && typeof item === 'object' && item !== null) {
+                        const o = item as Record<string, unknown>;
+                        const skillId =
+                            typeof o.skillId === 'string'
+                                ? o.skillId
+                                : typeof o.id === 'string'
+                                  ? o.id
+                                  : '';
+                        if (!skillId) return [];
+                        return [{ skillId, verified: Boolean(o.verified) }];
+                    }
+                    return [];
+                });
+            },
         }),
         getUsersProjects: builder.query<Project[], {
             userId: string;

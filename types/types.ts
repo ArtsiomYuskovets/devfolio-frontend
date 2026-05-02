@@ -56,13 +56,24 @@ export type UserProfileInfo = UserBase & {
     careerTimeline?: ProfileCareerEntry[],
 }
 
-export type Project = {
+export type ProjectData = {
     projectId: string,
+    createdAt: number,
+    updatedAt: number,
+}
+
+export type ProjectInfo = {
     name: string,
     description: string,
     githubURL: string,
     projectPublic: boolean,
-    createdAt: number,
-    updatedAt: number,
 }
+export type Project = ProjectData & ProjectInfo;
+
+/** Навык проекта с флагом верификации (ответ GET …/projects/{id}/skills). */
+export type ProjectSkillAttachment = {
+    skillId: string;
+    verified: boolean;
+};
+
 export type DataForFillProfile = Omit<UserProfileInfo, "userId">;
