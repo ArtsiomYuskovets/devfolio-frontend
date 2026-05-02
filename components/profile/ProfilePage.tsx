@@ -1,8 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { ProfileProjectsSection } from "./ProfileProjectsSection";
-import { ProfileSidebarMenu } from "./ProfileSidebarMenu";
 import { ProfileCareerModal } from "./career/ProfileCareerModal";
 import { CareerTimelinePreview } from "./career/CareerTimelinePreview";
 import {
@@ -20,7 +20,6 @@ type ProfilePageProps = {
 };
 
 export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCareerModalOpen, setIsCareerModalOpen] = useState(false);
   const [careerEntries, setCareerEntries] = useState<ProfileCareerEntry[]>(
     profile.careerTimeline?.length
@@ -48,8 +47,6 @@ export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
     [careerEntries]
   );
 
-  const handleMenuOpen = useCallback(() => setIsMenuOpen(true), []);
-  const handleMenuClose = useCallback(() => setIsMenuOpen(false), []);
   const handleCareerModalOpen = useCallback(
     () => setIsCareerModalOpen(true),
     []
@@ -66,18 +63,9 @@ export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
     <>
       <section className={styles["profile-view"]}>
         <header className={styles["profile-view__hero"]}>
-          <button
-            type="button"
-            className={styles["profile-view__menu-button"]}
-            onClick={handleMenuOpen}
-            aria-label="Открыть меню профиля"
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-
-          <div className={styles["profile-view__brand"]}>Devfolio</div>
+          <Link href="/projects" className={styles["profile-view__brand"]}>
+            Devfolio
+          </Link>
         </header>
 
         <div className={styles["profile-view__content"]}>
@@ -131,11 +119,6 @@ export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
           </div>
         </div>
       </section>
-
-      <ProfileSidebarMenu
-        isOpen={isMenuOpen}
-        onClose={handleMenuClose}
-      />
 
       <ProfileCareerModal
         isOpen={isCareerModalOpen}

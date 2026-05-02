@@ -113,6 +113,9 @@ $layout-profile-sidebar-min-width: 220px;
 $layout-profile-sidebar-max-column: 260px;
 $layout-modal-max-width: 1040px;
 $blur-strong: 8px;
+$blur-medium: 4px;
+$blur-light: 2px;
+$blur-extra-light: 1px;
 
 // Buttons
 $color-button-light-bg: #CACAD2;
@@ -139,3 +142,9 @@ $button-font-size-large: 26px;
 $color-neutral-800: #1c1f2a;
 $color-neutral-700: #2b2f3f;
 $color-neutral-600: #3b3f54;
+
+// Семантика: верификация навыков
+$color-skill-verified-bg: #1a4d2e;
+$color-skill-verified-text: #e8fff0;
+$color-skill-unverified-bg: #5c1e1a;
+$color-skill-unverified-text: #ffe8e6;

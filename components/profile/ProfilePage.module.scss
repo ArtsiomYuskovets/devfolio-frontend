@@ -10,8 +10,8 @@
   &__hero {
     min-height: tokens.$size-profile-hero-height;
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: center;
     padding: tokens.$space-xl tokens.$space-xxl;
     color: tokens.$color-text-light;
     background: tokens.$color-surface-dark;
@@ -40,6 +40,8 @@
     font-family: tokens.$font-family-secondary;
     font-size: tokens.$font-size-xxl;
     letter-spacing: 0.06em;
+    color: inherit;
+    text-decoration: none;
   }
 
   &__content {

@@ -1,0 +1,22 @@
+@use "@/styles/tokens" as tokens;
+
+$menu-trigger-reserve: tokens.$space-l +
+  tokens.$size-hamburger-width +
+  tokens.$space-s * 2 +
+  tokens.$space-m;
+
+.protected-shell {
+  position: relative;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  background: tokens.$color-surface-dark;
+  color: tokens.$color-text-light;
+}
+
+.protected-shell__main {
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding-left: calc(#{$menu-trigger-reserve} + env(safe-area-inset-left, 0px));
+}

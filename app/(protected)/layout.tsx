@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/stores/auth/hooks";
 import { setAuthCheckComplete, clearTokens } from "@/stores/auth/authSlice";
 import { tokenService } from "@/lib/tokenService";
 import { useGetMyProfileQuery } from "@/stores/user/userApi";
+import { MenuHamburgerButton } from "@/components/layout/MenuHamburgerButton";
+import { ProfileSidebarMenu } from "@/components/profile/ProfileSidebarMenu";
+import shellStyles from "@/components/layout/ProtectedShell.module.scss";
 
 const AUTH_PATH = "/auth";
 
@@ -17,6 +20,7 @@ export default function ProtectedLayout({
   const router = useRouter();
   const dispatch = useAppDispatch();
   const refreshStartedRef = useRef(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { accessToken, accessTokenExpiresAt, isAuthCheckComplete } = useAppSelector(
     (state) => state.auth
   );
@@ -75,5 +79,17 @@ export default function ProtectedLayout({
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <div className={shellStyles["protected-shell"]}>
+      <MenuHamburgerButton
+        onOpen={() => setIsMenuOpen(true)}
+        menuOpen={isMenuOpen}
+      />
+      <ProfileSidebarMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+      />
+      <div className={shellStyles["protected-shell__main"]}>{children}</div>
+    </div>
+  );
 }
