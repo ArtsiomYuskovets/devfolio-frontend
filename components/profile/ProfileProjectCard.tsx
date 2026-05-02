@@ -5,6 +5,7 @@ type ProfileProjectCardProps = {
   description: string;
   likes: number;
   views: number;
+  showFavoriteButton?: boolean;
 };
 
 export function ProfileProjectCard({
@@ -12,6 +13,7 @@ export function ProfileProjectCard({
   description,
   likes,
   views,
+  showFavoriteButton = true,
 }: ProfileProjectCardProps) {
   return (
     <article className={styles["profile-project-card"]}>
@@ -41,13 +43,19 @@ export function ProfileProjectCard({
       </div>
 
       <div className={styles["profile-project-card__content"]}>
-        <button
-          type="button"
-          className={styles["profile-project-card__favorite"]}
-          aria-label="Добавить в избранное"
-        >
-          ☆
-        </button>
+        {showFavoriteButton ? (
+          <button
+            type="button"
+            className={styles["profile-project-card__favorite"]}
+            aria-label="Добавить в избранное"
+          >
+            ☆
+          </button>
+        ) : (
+          <span className={styles["profile-project-card__favorite"]} aria-hidden="true">
+            ☆
+          </span>
+        )}
 
         <div className={styles["profile-project-card__title"]}>{title}</div>
 
