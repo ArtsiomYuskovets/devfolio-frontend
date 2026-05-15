@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button/Button";
 import { areLikelySkillIds } from "@/lib/skillDisplay";
 import {
@@ -9,6 +9,7 @@ import {
   useGetProjectSkillsQuery,
 } from "@/stores/projects/projectsApi";
 import { useSkillsByIdsQuery } from "@/stores/skill/skillApi";
+import { projectCardPreviewSrc } from "@/lib/projectImage";
 import styles from "./ProjectViewPage.module.scss";
 
 type ProjectViewPageProps = {
@@ -74,6 +75,13 @@ export function ProjectViewPage({ projectId }: ProjectViewPageProps) {
     [project?.createdAt, project?.updatedAt]
   );
 
+  const previewSrc = project ? projectCardPreviewSrc(project) : undefined;
+  const [previewBroken, setPreviewBroken] = useState(false);
+
+  useEffect(() => {
+    setPreviewBroken(false);
+  }, [project?.projectId, previewSrc]);
+
   if (!projectId) {
     return <div className={styles["project-view__status"]}>Проект не найден</div>;
   }
@@ -111,6 +119,19 @@ export function ProjectViewPage({ projectId }: ProjectViewPageProps) {
             </span>
           </div>
 
+          {previewSrc && !previewBroken ? (
+            <div className={styles["project-view__preview-wrap"]}>
+              <img
+                src={previewSrc}
+                alt=""
+                className={styles["project-view__preview-img"]}
+                loading="eager"
+                decoding="async"
+                onError={() => setPreviewBroken(true)}
+              />
+            </div>
+          ) : null}
+
           <h1 className={styles["project-view__title"]}>{project.name}</h1>
 
           <div className={styles["project-view__meta"]}>
@@ -130,14 +151,14 @@ export function ProjectViewPage({ projectId }: ProjectViewPageProps) {
 
           <article className={styles["project-view__card"]}>
             <h2 className={styles["project-view__card-title"]}>Репозиторий</h2>
-            {project.githubURL ? (
+            {project.githubUrl ? (
               <a
-                href={project.githubURL}
+                href={project.githubUrl}
                 target="_blank"
                 rel="noreferrer"
                 className={styles["project-view__repo-link"]}
               >
-                {project.githubURL}
+                {project.githubUrl}
               </a>
             ) : (
               <p className={styles["project-view__text"]}>

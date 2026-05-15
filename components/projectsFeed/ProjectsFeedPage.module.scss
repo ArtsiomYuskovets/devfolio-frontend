@@ -106,6 +106,15 @@
     gap: tokens.$space-l;
   }
 
+  &__status {
+    margin: 0;
+    padding: tokens.$space-l;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    color: tokens.$color-text-muted-light;
+    text-align: center;
+  }
+
   &__filters {
     border: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.2);
     border-radius: tokens.$radius-l;

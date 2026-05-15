@@ -77,6 +77,23 @@
     font-size: tokens.$font-size-s;
   }
 
+  &__preview-wrap {
+    margin-top: tokens.$space-l;
+    border-radius: tokens.$radius-m;
+    overflow: hidden;
+    border: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.2);
+    max-height: 320px;
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  &__preview-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 320px;
+    object-fit: cover;
+  }
+
   &__title {
     margin: tokens.$space-l 0 tokens.$space-m;
     font-family: tokens.$font-family-primary;

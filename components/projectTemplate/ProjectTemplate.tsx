@@ -38,7 +38,7 @@ const availableSkills = [
 export function ProjectTemplate({
   projectId = "",
   title = 'Проект "Имя автора"',
-  githubUrl = "https://github.com/coldsteeze/devfolio-frontend",
+  githubUrl: demoGithubUrl = "https://github.com/coldsteeze/devfolio-frontend",
 }: ProjectTemplateProps) {
   const isApiMode = Boolean(projectId);
 
@@ -85,13 +85,15 @@ export function ProjectTemplate({
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [githubURL, setGithubURL] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
+  const [githubUrl, setGithubUrl] = useState("");
 
   useEffect(() => {
     if (project) {
       setName(project.name);
       setDescription(project.description);
-      setGithubURL(project.githubURL);
+      setShortDescription(project.shortDescription ?? "");
+      setGithubUrl(project.githubUrl ?? "");
     }
   }, [project]);
 
@@ -171,9 +173,10 @@ export function ProjectTemplate({
       ...project,
       name,
       description,
-      githubURL,
+      shortDescription,
+      githubUrl,
     }).unwrap();
-  }, [project, updateProject, name, description, githubURL]);
+  }, [project, updateProject, name, description, shortDescription, githubUrl]);
 
   const handleAddSkillFromCatalog = useCallback(
     async (skillId: string) => {
@@ -353,21 +356,30 @@ export function ProjectTemplate({
             variant="primary-light"
             className={styles["project-template__input"]}
             placeholder="Ссылка на GitHub"
-            value={isApiMode ? githubURL : githubUrl}
+            value={isApiMode ? githubUrl : demoGithubUrl}
             onChange={
-              isApiMode ? (e) => setGithubURL(e.target.value) : undefined
+              isApiMode ? (e) => setGithubUrl(e.target.value) : undefined
             }
             readOnly={!isApiMode}
           />
 
           <div className={styles["project-template__details"]}>
             {isApiMode ? (
-              <textarea
-                className={styles["project-template__textarea"]}
-                placeholder="Описание проекта"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
+              <>
+                <textarea
+                  className={styles["project-template__textarea"]}
+                  placeholder="Краткое описание"
+                  value={shortDescription}
+                  onChange={(e) => setShortDescription(e.target.value)}
+                  rows={2}
+                />
+                <textarea
+                  className={styles["project-template__textarea"]}
+                  placeholder="Описание проекта"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </>
             ) : (
               <textarea
                 className={styles["project-template__textarea"]}
