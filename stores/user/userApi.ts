@@ -1,6 +1,19 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { UserProfileInfo, DataForFillProfile } from '@/types/types'
+import { pickUserId } from '@/lib/userId';
 import { axiosBaseQuery } from '../axios';
+
+function normalizeUserProfile(response: unknown): UserProfileInfo {
+    const id = pickUserId(response);
+    if (!response || typeof response !== 'object') {
+        return response as UserProfileInfo;
+    }
+    const base = { ...(response as Record<string, unknown>) };
+    if (id) {
+        base.userId = id;
+    }
+    return base as UserProfileInfo;
+}
 
 interface ProfilesSearchParams {
     skills: string[];
@@ -19,6 +32,7 @@ export const userApi = createApi({
                 url: 'api/profiles/me',
                 method: 'GET',
             }),
+            transformResponse: normalizeUserProfile,
             providesTags: ['UserProfile'],
         }),
 
@@ -27,6 +41,7 @@ export const userApi = createApi({
                 url: `api/profiles/${userId}`,
                 method: 'GET',
             }),
+            transformResponse: normalizeUserProfile,
         }),
 
         getProfilesList: builder.query<UserProfileInfo[], ProfilesSearchParams>({
@@ -49,6 +64,7 @@ export const userApi = createApi({
                 method: 'PUT',
                 data, 
             }),
+            transformResponse: normalizeUserProfile,
             invalidatesTags: ['UserProfile'],
         }),
 
@@ -58,6 +74,7 @@ export const userApi = createApi({
                 method: 'POST',
                 data,
             }),
+            transformResponse: normalizeUserProfile,
             invalidatesTags: ['UserProfile'],
         }),
 
