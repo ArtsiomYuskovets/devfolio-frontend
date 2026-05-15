@@ -27,11 +27,11 @@ export default function ProfileByIdPage() {
     return <div>Profile not found</div>;
   }
 
-  if (isLoadingMyProfile || isLoadingViewedProfile) {
+  if (isLoadingViewedProfile) {
     return <div>Loading profile...</div>;
   }
 
-  if (myProfileError || viewedProfileError) {
+  if (viewedProfileError) {
     return <div>Error getting profile</div>;
   }
 
@@ -39,7 +39,7 @@ export default function ProfileByIdPage() {
     return <div>Profile not found</div>;
   }
 
-  const isOwnProfile = myProfile?.userId === viewedProfile.userId;
+  const isOwnProfile = !myProfileError && myProfile?.userId === viewedProfile.userId;
 
   return (
     <main>

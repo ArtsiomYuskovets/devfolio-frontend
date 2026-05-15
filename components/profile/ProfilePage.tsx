@@ -12,6 +12,7 @@ import {
 import { ProfileFeatureCard } from "./featureCard/ProfileFeatureCard";
 import { ProfileSkillsCard } from "./skills/ProfileSkillsCard";
 import type { ProfileCareerEntry, UserProfileInfo } from "@/types/types";
+import { pickUserId } from "@/lib/userId";
 import styles from "./ProfilePage.module.scss";
 
 type ProfilePageProps = {
@@ -115,7 +116,10 @@ export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
               </ProfileFeatureCard>
             </section>
 
-            <ProfileProjectsSection isOwnProfile={isOwnProfile} />
+            <ProfileProjectsSection
+              userId={pickUserId(profile) ?? profile.userId}
+              isOwnProfile={isOwnProfile}
+            />
           </div>
         </div>
       </section>
