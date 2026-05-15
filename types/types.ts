@@ -60,17 +60,18 @@ export type ProjectData = {
     projectId: string,
     createdAt: number,
     updatedAt: number,
+    previewImageUrl?: string
 }
 
 export type ProjectInfo = {
     name: string,
     description: string,
-    githubURL: string,
+    shortDescription: string,
+    githubUrl: string,
     projectPublic: boolean,
 }
 export type Project = ProjectData & ProjectInfo;
 
-/** Навык проекта с флагом верификации (ответ GET …/projects/{id}/skills). */
 export type ProjectSkillAttachment = {
     skillId: string;
     verified: boolean;
