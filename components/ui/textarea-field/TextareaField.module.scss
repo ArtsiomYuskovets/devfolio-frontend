@@ -31,3 +31,25 @@
     color: rgba(tokens.$color-text-dark, 0.38);
   }
 }
+
+.field--darkSurface {
+  .label {
+    color: tokens.$color-text-muted-light;
+  }
+}
+
+.textarea--darkSurface {
+  background-color: tokens.$color-surface-card-light;
+  color: tokens.$color-text-dark;
+  outline: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.28);
+  outline-offset: 0;
+  border-radius: tokens.$radius-m;
+
+  &::placeholder {
+    color: tokens.$color-text-dark-muted;
+  }
+
+  &:focus {
+    outline-color: rgba(tokens.$color-text-light, 0.45);
+  }
+}
