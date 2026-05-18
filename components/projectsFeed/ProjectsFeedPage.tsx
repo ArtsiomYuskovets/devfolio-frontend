@@ -41,14 +41,19 @@ export function ProjectsFeedPage() {
       <div className={styles["projects-feed__content"]}>
         <section className={styles["projects-feed__filters"]}>
           <div className={styles["projects-feed__filters-row"]}>
-            <div className={styles["projects-feed__switcher"]}>
-              <button type="button" aria-label="Предыдущий">
-                ‹
-              </button>
-              <button type="button" aria-label="Следующий">
-                ›
-              </button>
-            </div>
+          <div className={styles["projects-feed__actions"]}>
+            <Button
+              type="button"
+              variant="outline-light"
+              size="small"
+              onClick={() => router.push("/projects/new")}
+            >
+              + Добавить проект
+            </Button>
+            <Button type="button" variant="outline-light" size="small">
+              Фильтры
+            </Button>
+          </div>
 
             <div className={styles["projects-feed__search"]}>
               <Input
@@ -67,19 +72,7 @@ export function ProjectsFeedPage() {
             </div>
           </div>
 
-          <div className={styles["projects-feed__actions"]}>
-            <Button
-              type="button"
-              variant="outline-light"
-              size="small"
-              onClick={() => router.push("/projects/new")}
-            >
-              + Добавить проект
-            </Button>
-            <Button type="button" variant="outline-light" size="small">
-              Фильтры
-            </Button>
-          </div>
+          
         </section>
 
         {isLoading ? (
