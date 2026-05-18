@@ -60,7 +60,8 @@ export type ProjectData = {
     projectId: string,
     createdAt: number,
     updatedAt: number,
-    previewImageUrl?: string
+    previewImageUrl?: string,
+    userId?: string,
 }
 
 export type ProjectInfo = {
