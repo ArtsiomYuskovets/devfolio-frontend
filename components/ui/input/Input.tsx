@@ -20,19 +20,19 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  (
-    {
+  (props, ref) => {
+    const {
       variant = "primary-dark",
       label,
       error,
       className,
       id,
       rightAdornment,
-      ...props
-    },
-    ref
-  ) => {
+      value,
+      ...rest
+    } = props;
     const inputId = useId();
+    const isControlled = Object.prototype.hasOwnProperty.call(props, "value");
 
     return (
       <div className={styles.wrapper}>
@@ -56,7 +56,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               .join(" ")}
             aria-invalid={!!error}
             aria-describedby={error ? `${inputId}-error` : undefined}
-            {...props}
+            {...(isControlled ? { value: value ?? "" } : {})}
+            {...rest}
           />
           {rightAdornment && (
             <div className={styles.adornment}>{rightAdornment}</div>
