@@ -68,7 +68,69 @@ export function resolveApiAssetUrl(url: string): string {
   return `${API_ORIGIN}${path}`;
 }
 
+function pickImageUrlFromItem(item: unknown): string | undefined {
+  if (typeof item === "string") {
+    return readString(item);
+  }
+  if (item && typeof item === "object" && item !== null) {
+    const o = item as Record<string, unknown>;
+    return readString(o.url ?? o.imageUrl ?? o.href);
+  }
+  return undefined;
+}
+
+export function pickProjectGalleryUrls(response: unknown): string[] {
+  if (!response || typeof response !== "object") {
+    return [];
+  }
+  const o = response as Record<string, unknown>;
+  const urls: string[] = [];
+  const seen = new Set<string>();
+
+  const push = (raw?: string) => {
+    if (!raw) return;
+    const resolved = resolveApiAssetUrl(raw);
+    if (!seen.has(resolved)) {
+      seen.add(resolved);
+      urls.push(resolved);
+    }
+  };
+
+  push(pickProjectPreviewUrl(response));
+
+  const images = o.images;
+  if (Array.isArray(images)) {
+    for (const item of images) {
+      push(pickImageUrlFromItem(item));
+    }
+  }
+
+  const photos =
+    o.photos ??
+    o.gallery ??
+    o.galleryImages ??
+    o.gallery_images ??
+    o.imageUrls ??
+    o.image_urls;
+  if (Array.isArray(photos)) {
+    for (const item of photos) {
+      push(pickImageUrlFromItem(item));
+    }
+  }
+
+  const id = pickProjectId(response);
+  if (urls.length === 0 && id) {
+    push(`${API_ORIGIN}/api/projects/${encodeURIComponent(id)}/preview`);
+  }
+
+  return urls;
+}
+
 export function projectCardPreviewSrc(project: Project): string | undefined {
+  const gallery = pickProjectGalleryUrls(project);
+  if (gallery.length > 0) {
+    return gallery[0];
+  }
   const raw = project.previewImageUrl;
   if (raw?.trim()) {
     return resolveApiAssetUrl(raw.trim());

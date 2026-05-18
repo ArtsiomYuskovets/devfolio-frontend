@@ -3,7 +3,7 @@ export function pickUserId(raw: unknown): string | null {
     return null;
   }
   const r = raw as Record<string, unknown>;
-  const keys = ["userId", "id", "user_id"] as const;
+  const keys = ["userId", "id", "user_id", "ownerId", "owner_id"] as const;
   for (const k of keys) {
     const v = r[k];
     if (typeof v === "string" && v.trim()) {
