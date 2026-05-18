@@ -1,0 +1,44 @@
+@use "@/styles/tokens" as tokens;
+
+.project-template-editor {
+  .project-template__top::after {
+    background: linear-gradient(
+      120deg,
+      rgba(tokens.$color-neutral-800, 0.92),
+      rgba(tokens.$color-surface-dark, 0.9)
+    );
+  }
+
+  &__input {
+    color: tokens.$color-text-dark;
+  }
+
+  &__textarea {
+    width: 100%;
+    min-height: 120px;
+    resize: vertical;
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-medium;
+    border-radius: tokens.$radius-m;
+    background: tokens.$color-surface-card-light;
+    color: tokens.$color-text-dark;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    line-height: tokens.$line-height-body;
+    padding: tokens.$space-m tokens.$space-l;
+  }
+
+  &__skills {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-s;
+    position: relative;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$space-m;
+    margin-top: tokens.$space-s;
+  }
+}

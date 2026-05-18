@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { ProjectTemplate } from "@/components/projectTemplate/ProjectTemplate";
+import { ProjectTemplateEditor } from "@/components/projectTemplate/ProjectTemplateEditor";
 
 export default function ProjectTemplateByIdPage() {
   const params = useParams<{ id: string }>();
@@ -9,7 +9,7 @@ export default function ProjectTemplateByIdPage() {
 
   return (
     <main>
-      <ProjectTemplate projectId={projectId ?? ""} />
+      <ProjectTemplateEditor projectId={projectId ?? ""} />
     </main>
   );
 }
