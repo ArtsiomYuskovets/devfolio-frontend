@@ -1,7 +1,7 @@
 import { createApi, BaseQueryFn } from '@reduxjs/toolkit/query/react';
 import { Project, ProjectInfo, ProjectSkillAttachment } from '@/types/types'
-import { pickProjectId } from '@/lib/projectId';
-import { pickProjectPreviewUrl } from '@/lib/projectImage';
+import { normalizeProjectPayload } from '@/lib/projectNormalize';
+import { normalizeListResponse } from '@/lib/normalizeList';
 import { api } from '@/lib/authApi';
 import { AxiosRequestConfig, AxiosError } from 'axios';
 
@@ -35,22 +35,6 @@ function omitUndefinedParams(params: Record<string, unknown>): Record<string, un
     return Object.fromEntries(
         Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
     );
-}
-
-function normalizeProjectPayload(response: unknown): Project {
-    const id = pickProjectId(response);
-    if (!response || typeof response !== 'object') {
-        return response as Project;
-    }
-    const base = { ...(response as Record<string, unknown>) };
-    if (id) {
-        base.projectId = id;
-    }
-    const previewUrl = pickProjectPreviewUrl(response);
-    if (previewUrl) {
-        base.previewImageUrl = previewUrl;
-    }
-    return base as Project;
 }
 
 function normalizeProjectsListResponse(response: unknown): Project[] {
@@ -111,7 +95,7 @@ export const projectsApi = createApi({
     endpoints: (builder) => ({
         getProjectsById: builder.query<Project, string>({
             query: (projectId) => ({
-                url: `api/projects/${projectId}`,
+                url: `api/projects/${encodeURIComponent(projectId)}`,
                 method: 'GET',
             }),
             transformResponse: normalizeProjectPayload,
@@ -168,8 +152,8 @@ export const projectsApi = createApi({
                 method: 'GET',
             }),
             transformResponse: (response: unknown): ProjectSkillAttachment[] => {
-                if (!Array.isArray(response)) return [];
-                return response.flatMap((item: unknown): ProjectSkillAttachment[] => {
+                const list = normalizeListResponse<unknown>(response);
+                return list.flatMap((item: unknown): ProjectSkillAttachment[] => {
                     if (typeof item === 'string') {
                         return item ? [{ skillId: item, verified: false }] : [];
                     }
@@ -178,9 +162,11 @@ export const projectsApi = createApi({
                         const skillId =
                             typeof o.skillId === 'string'
                                 ? o.skillId
-                                : typeof o.id === 'string'
-                                  ? o.id
-                                  : '';
+                                : typeof o.skill_id === 'string'
+                                  ? o.skill_id
+                                  : typeof o.id === 'string'
+                                    ? o.id
+                                    : '';
                         if (!skillId) return [];
                         return [{ skillId, verified: Boolean(o.verified) }];
                     }

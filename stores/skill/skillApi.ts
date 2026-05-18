@@ -1,5 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { Skill } from '@/types/types';
+import { normalizeListResponse } from '@/lib/normalizeList';
 import { axiosBaseQuery } from '../axios';
 
 
@@ -22,14 +23,18 @@ export const skillApi = createApi({
                 url: 'api/skills',
                 method: 'GET',
                 params: {
-                    search: searchParams.search,
-                    category: searchParams.category,
+                    search: searchParams.search || undefined,
+                    category: searchParams.category || undefined,
                     includeInactive: searchParams.includeInactive,
                     page: searchParams.page,
                     size: searchParams.size,
-                    sort: searchParams.sort,
+                    sort: searchParams.sort?.length
+                        ? searchParams.sort.join(',')
+                        : undefined,
                 },
             }),
+            transformResponse: (response: unknown) =>
+                normalizeListResponse<Skill>(response),
             providesTags: ['SkillList'],
         }),
         getSkill: builder.query<Skill, string>({
@@ -66,8 +71,10 @@ export const skillApi = createApi({
             query: (skillIds) => ({
                 url: `api/skills/by-ids`,
                 method: 'POST',
-                body: skillIds,
+                data: skillIds,
             }),
+            transformResponse: (response: unknown) =>
+                normalizeListResponse<Skill>(response),
             providesTags: ['Skills'],
         }),
     }),
