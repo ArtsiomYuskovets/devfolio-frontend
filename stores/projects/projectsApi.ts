@@ -1,30 +1,10 @@
-import { createApi, BaseQueryFn } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { Project, ProjectInfo, ProjectSkillAttachment } from '@/types/types'
 import { normalizeProjectPayload } from '@/lib/projectNormalize';
+import { normalizeFavoritesResponse } from '@/lib/normalizeFavorites';
 import { normalizeListResponse } from '@/lib/normalizeList';
-import { api } from '@/lib/authApi';
-import { AxiosRequestConfig, AxiosError } from 'axios';
+import { axiosBaseQuery } from '../axios';
 
-interface AxiosBaseQueryArgs {
-    url: string;
-    method?: AxiosRequestConfig['method'];
-    data?: AxiosRequestConfig['data'];
-    params?: AxiosRequestConfig['params'];
-    headers?: AxiosRequestConfig['headers'];
-}
-
-interface AxiosBaseQueryResult<T = unknown> {
-    data: T;
-}
-
-interface AxiosBaseQueryError {
-    status?: number;
-    data: unknown;
-}
-
-interface AxiosBaseQueryConfig {
-    baseUrl?: string;
-}
 interface ProjectsListParams {
     page: number;
     size: number;
@@ -51,47 +31,10 @@ function normalizeProjectsListResponse(response: unknown): Project[] {
     return raw.map((item) => normalizeProjectPayload(item));
 }
 
-const axiosBaseQuery = (
-    { baseUrl }: AxiosBaseQueryConfig = { baseUrl: '' }
-): BaseQueryFn<AxiosBaseQueryArgs, unknown, AxiosBaseQueryError> =>
-    async ({ url, method, data, params, headers }) => {
-        try {
-            const req: AxiosRequestConfig = {
-                url: baseUrl + url,
-                method,
-                data,
-                params,
-                headers,
-            };
-            if (typeof FormData !== 'undefined' && data instanceof FormData) {
-                const h: Record<string, unknown> = {
-                    ...(headers && typeof headers === 'object' && !Array.isArray(headers)
-                        ? (headers as Record<string, unknown>)
-                        : {}),
-                };
-                h['Content-Type'] = false;
-                req.headers = h as AxiosRequestConfig['headers'];
-            }
-            const result = await api(req);
-
-            return { data: result.data };
-
-        } catch (axiosError) {
-            const err = axiosError as AxiosError;
-
-            return {
-                error: {
-                    status: err.response?.status,
-                    data: err.response?.data || err.message,
-                },
-            };
-        }
-    };
-
 export const projectsApi = createApi({
     reducerPath: 'projectsApi',
     baseQuery: axiosBaseQuery({ baseUrl: 'http://localhost:8080/' }),
-    tagTypes: ['ProjectsList'],
+    tagTypes: ['ProjectsList', 'Favorites'],
     endpoints: (builder) => ({
         getProjectsById: builder.query<Project, string>({
             query: (projectId) => ({
@@ -148,7 +91,7 @@ export const projectsApi = createApi({
         }),
         getProjectSkills: builder.query<ProjectSkillAttachment[], string>({
             query: (projectId) => ({
-                url: `api/projects/${projectId}/skills`,
+                url: `api/projects/${encodeURIComponent(projectId)}/skills`,
                 method: 'GET',
             }),
             transformResponse: (response: unknown): ProjectSkillAttachment[] => {
@@ -252,6 +195,28 @@ export const projectsApi = createApi({
             }),
             invalidatesTags: ['ProjectsList'],
         }),
+        addProjectToFavorites: builder.mutation<void, { projectId: string }>({
+            query: ({ projectId }) => ({
+                url: `api/projects/${encodeURIComponent(projectId)}/favorites`,
+                method: 'POST',
+            }),
+            invalidatesTags: ['Favorites', 'ProjectsList'],
+        }),
+        removeProjectFromFavorites: builder.mutation<void, { projectId: string }>({
+            query: ({ projectId }) => ({
+                url: `api/projects/${encodeURIComponent(projectId)}/favorites`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Favorites', 'ProjectsList'],
+        }),
+        getFavoritesProjects: builder.query<Project[], void>({
+            query: () => ({
+                url: `api/users/me/favorites`,
+                method: 'GET',
+            }),
+            transformResponse: normalizeFavoritesResponse,
+            providesTags: ['Favorites'],
+        }),
     }),
 });
 
@@ -270,4 +235,7 @@ export const {
     useUploadProjectPhotoMutation,
     useDeleteProjectImageMutation,
     useDeleteProjectPreviewImageMutation,
+    useAddProjectToFavoritesMutation,
+    useRemoveProjectFromFavoritesMutation,
+    useGetFavoritesProjectsQuery,
 } = projectsApi;
