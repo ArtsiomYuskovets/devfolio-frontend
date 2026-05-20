@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { ProfilePage } from "@/components/profile/ProfilePage";
+import { pickProfileUserId } from "@/lib/userId";
 import {
   useGetMyProfileQuery,
   useGetUserProfileQuery,
@@ -14,7 +15,7 @@ export default function ProfileByIdPage() {
     data: myProfile,
     isLoading: isLoadingMyProfile,
     error: myProfileError,
-  } = useGetMyProfileQuery();
+  } = useGetMyProfileQuery(undefined, { refetchOnMountOrArgChange: true });
   const {
     data: viewedProfile,
     isLoading: isLoadingViewedProfile,
@@ -39,7 +40,14 @@ export default function ProfileByIdPage() {
     return <div>Profile not found</div>;
   }
 
-  const isOwnProfile = !myProfileError && myProfile?.userId === viewedProfile.userId;
+  const myUserId = myProfile
+    ? pickProfileUserId(myProfile) ?? myProfile.userId
+    : undefined;
+  const viewedUserId =
+    pickProfileUserId(viewedProfile) ?? viewedProfile.userId;
+
+  const isOwnProfile =
+    !myProfileError && Boolean(myUserId && viewedUserId && myUserId === viewedUserId);
 
   return (
     <main>

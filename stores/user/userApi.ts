@@ -1,16 +1,16 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { UserProfileInfo, DataForFillProfile } from '@/types/types'
-import { pickUserId } from '@/lib/userId';
+import { pickProfileUserId } from '@/lib/userId';
 import { axiosBaseQuery } from '../axios';
 
 function normalizeUserProfile(response: unknown): UserProfileInfo {
-    const id = pickUserId(response);
     if (!response || typeof response !== 'object') {
         return response as UserProfileInfo;
     }
+    const userId = pickProfileUserId(response);
     const base = { ...(response as Record<string, unknown>) };
-    if (id) {
-        base.userId = id;
+    if (userId) {
+        base.userId = userId;
     }
     return base as UserProfileInfo;
 }
