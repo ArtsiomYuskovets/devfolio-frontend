@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button/Button";
 import { ProfileProjectCard } from "./ProfileProjectCard";
 import { useGetUsersProjectsQuery } from "@/stores/projects/projectsApi";
 import { pickProjectId } from "@/lib/projectId";
+import { pickUserId } from "@/lib/userId";
 import { projectCardDescription } from "@/lib/projectDisplay";
 import { projectCardPreviewSrc } from "@/lib/projectImage";
 import styles from "./ProfileProjectsSection.module.scss";
@@ -86,6 +87,9 @@ export function ProfileProjectsSection({
                   likes={0}
                   views={0}
                   previewSrc={projectCardPreviewSrc(project)}
+                  projectId={id}
+                  ownerUserId={pickUserId(project) ?? project.userId ?? userId}
+                  showFavoriteButton={!isOwnProfile}
                 />
               </Link>
             );

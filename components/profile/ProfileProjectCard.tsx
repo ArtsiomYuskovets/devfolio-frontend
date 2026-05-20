@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ProjectFavoriteButton } from "@/components/projects/ProjectFavoriteButton";
 import styles from "./ProfileProjectCard.module.scss";
 
 type ProfileProjectCardProps = {
@@ -10,6 +11,8 @@ type ProfileProjectCardProps = {
   views: number;
   previewSrc?: string;
   showFavoriteButton?: boolean;
+  projectId?: string;
+  ownerUserId?: string;
 };
 
 export function ProfileProjectCard({
@@ -19,6 +22,8 @@ export function ProfileProjectCard({
   views,
   previewSrc,
   showFavoriteButton = true,
+  projectId,
+  ownerUserId,
 }: ProfileProjectCardProps) {
   const [imgHidden, setImgHidden] = useState(false);
 
@@ -71,14 +76,21 @@ export function ProfileProjectCard({
       </div>
 
       <div className={styles["profile-project-card__content"]}>
-        {showFavoriteButton ? (
-          <button
-            type="button"
+        {showFavoriteButton && projectId ? (
+          <ProjectFavoriteButton
+            projectId={projectId}
+            ownerUserId={ownerUserId}
             className={styles["profile-project-card__favorite"]}
-            aria-label="Добавить в избранное"
+            activeClassName={styles["profile-project-card__favorite--active"]}
+            disabledClassName={styles["profile-project-card__favorite--disabled"]}
+          />
+        ) : showFavoriteButton ? (
+          <span
+            className={styles["profile-project-card__favorite"]}
+            aria-hidden="true"
           >
             ☆
-          </button>
+          </span>
         ) : (
           <span className={styles["profile-project-card__favorite"]} aria-hidden="true">
             ☆

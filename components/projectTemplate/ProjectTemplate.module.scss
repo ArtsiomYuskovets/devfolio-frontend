@@ -274,6 +274,15 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
+
+    &--active {
+      color: #c9a227;
+    }
+
+    &--disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
   }
 
   &__headline {

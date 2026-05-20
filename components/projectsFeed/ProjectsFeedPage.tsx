@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input/Input";
 import { ProfileProjectCard } from "@/components/profile/ProfileProjectCard";
 import { useGetProjectsListQuery } from "@/stores/projects/projectsApi";
 import { pickProjectId } from "@/lib/projectId";
+import { pickUserId } from "@/lib/userId";
 import { projectCardDescription } from "@/lib/projectDisplay";
 import { projectCardPreviewSrc } from "@/lib/projectImage";
 import styles from "./ProjectsFeedPage.module.scss";
@@ -106,7 +107,8 @@ export function ProjectsFeedPage() {
                     likes={0}
                     views={0}
                     previewSrc={projectCardPreviewSrc(project)}
-                    showFavoriteButton={false}
+                    projectId={id}
+                    ownerUserId={pickUserId(project) ?? project.userId}
                   />
                 </Link>
               );

@@ -7,6 +7,7 @@ import { ProjectTemplateGallery } from "./ProjectTemplateGallery";
 import { ProjectTemplateHeader } from "./ProjectTemplateHeader";
 import { ProjectTemplateInfo } from "./ProjectTemplateInfo";
 import { ProjectTemplateSkills } from "./ProjectTemplateSkills";
+import { ProjectFavoriteButton } from "@/components/projects/ProjectFavoriteButton";
 import styles from "./ProjectTemplate.module.scss";
 
 export type ProjectTemplateProps = {
@@ -18,7 +19,6 @@ export function ProjectTemplate({ projectId }: ProjectTemplateProps) {
     project,
     isLoading,
     isError,
-    error,
     gallery,
     skills,
     isSkillsLoading,
@@ -26,6 +26,8 @@ export function ProjectTemplate({ projectId }: ProjectTemplateProps) {
     authorName,
     authorProfileHref,
     editHref,
+    ownerId,
+    error,
   } = useProjectViewData(projectId);
 
   if (!projectId) {
@@ -73,13 +75,13 @@ export function ProjectTemplate({ projectId }: ProjectTemplateProps) {
         />
 
         <section className={styles["project-template__project"]}>
-          <button
-            type="button"
+          <ProjectFavoriteButton
+            projectId={projectId}
+            ownerUserId={ownerId ?? project.userId}
             className={styles["project-template__favorite"]}
-            aria-label="Добавить проект в избранное"
-          >
-            ☆
-          </button>
+            activeClassName={styles["project-template__favorite--active"]}
+            disabledClassName={styles["project-template__favorite--disabled"]}
+          />
 
           <ProjectTemplateGallery images={gallery} />
           <ProjectTemplateInfo project={project} />

@@ -99,5 +99,6 @@ export function useProjectViewData(projectId: string) {
     authorProfileHref,
     editHref,
     isOwner,
+    ownerId,
   };
 }

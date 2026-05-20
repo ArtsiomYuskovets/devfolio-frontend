@@ -107,6 +107,11 @@
     margin-top: tokens.$space-s;
   }
 
+  &__footer {
+    margin-top: auto;
+    padding-top: tokens.$space-l;
+  }
+
   &__link {
     display: block;
     text-decoration: none;
