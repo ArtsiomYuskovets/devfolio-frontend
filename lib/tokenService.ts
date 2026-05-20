@@ -1,12 +1,14 @@
 import { TokensResponse } from "@/types/types";
 import { api } from "./authApi";
-import { AppDispatch } from "../stores/auth/store";
+import { clearAuthStorage, persistAuth } from "@/lib/authStorage";
+import { resetApiCaches } from "@/lib/resetApiCaches";
 import { setTokens, clearTokens } from "../stores/auth/authSlice";
+import type { AppDispatch } from "@/stores/store";
 
 let dispatchTokens: (dispatch: AppDispatch, accessToken: string, expiresAt: number) => void = () => {};
+let refreshInFlight: Promise<boolean> | null = null;
 
 export const tokenService = {
-
   setDispatchCallback: (
     callback: (dispatch: AppDispatch, accessToken: string, expiresAt: number) => void
   ) => {
@@ -14,13 +16,14 @@ export const tokenService = {
   },
 
   setTokens: (data: TokensResponse, dispatch: AppDispatch) => {
-    dispatchTokens(
-      dispatch,
-      data.accessToken,
-      Date.now() + data.accessTokenExpiresIn * 1000
-    );
+    const expiresAt = Date.now() + data.accessTokenExpiresIn * 1000;
+    persistAuth(data.accessToken, expiresAt);
+    dispatchTokens(dispatch, data.accessToken, expiresAt);
   },
+
   clearTokens: (dispatch: AppDispatch) => {
+    clearAuthStorage();
+    resetApiCaches(dispatch);
     dispatch(clearTokens());
   },
 
@@ -33,13 +36,23 @@ export const tokenService = {
   },
 
   refreshAccessToken: async (dispatch: AppDispatch): Promise<boolean> => {
-    try {
-      const res = await api.post<TokensResponse>('api/auth/refresh');
-      tokenService.setTokens(res.data, dispatch);
-      return true;
-    } catch (e) {
-      console.log("Ошибка обновления токенов: " + e);
-      return false;
+    if (refreshInFlight) {
+      return refreshInFlight;
     }
+
+    refreshInFlight = (async () => {
+      try {
+        const res = await api.post<TokensResponse>("api/auth/refresh");
+        tokenService.setTokens(res.data, dispatch);
+        return true;
+      } catch (e) {
+        console.log("Ошибка обновления токенов: " + e);
+        return false;
+      } finally {
+        refreshInFlight = null;
+      }
+    })();
+
+    return refreshInFlight;
   },
 };

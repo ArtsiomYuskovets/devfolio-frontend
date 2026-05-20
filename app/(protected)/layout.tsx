@@ -1,81 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/stores/auth/hooks";
-import { setAuthCheckComplete, clearTokens } from "@/stores/auth/authSlice";
-import { tokenService } from "@/lib/tokenService";
+import { useState } from "react";
 import { useGetMyProfileQuery } from "@/stores/user/userApi";
+import { useProtectedAuth } from "@/hooks/useProtectedAuth";
 import { MenuHamburgerButton } from "@/components/layout/MenuHamburgerButton";
 import { ProfileSidebarMenu } from "@/components/profile/ProfileSidebarMenu";
 import shellStyles from "@/components/layout/ProtectedShell.module.scss";
-
-const AUTH_PATH = "/auth";
 
 export default function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-  const dispatch = useAppDispatch();
-  const refreshStartedRef = useRef(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { accessToken, accessTokenExpiresAt, isAuthCheckComplete } = useAppSelector(
-    (state) => state.auth
-  );
+  const { isReady } = useProtectedAuth();
 
-  const isAuthenticated =
-    !!accessToken &&
-    !!accessTokenExpiresAt &&
-    Date.now() < accessTokenExpiresAt;
-
-  const { 
-    data: profile,           
-    isLoading: profileLoading, 
-    error: profileError,      
-    refetch: refetchProfile   
-  } = useGetMyProfileQuery(undefined, {
-    skip: !isAuthenticated,  
+  useGetMyProfileQuery(undefined, {
+    skip: !isReady,
   });
 
-  useEffect(() => {
-    const hasValidToken =
-      !!accessToken &&
-      !!accessTokenExpiresAt &&
-      Date.now() < accessTokenExpiresAt;
-
-    if (hasValidToken) {
-      dispatch(setAuthCheckComplete(true));
-      return;
-    }
-
-    if (refreshStartedRef.current) return;
-    refreshStartedRef.current = true;
-
-    tokenService.refreshAccessToken(dispatch).finally(() => {
-      dispatch(setAuthCheckComplete(true));
-    });
-  }, [accessToken, accessTokenExpiresAt, dispatch]);
-
-  useEffect(() => {
-    if (isAuthCheckComplete && !isAuthenticated) {
-      dispatch(clearTokens());
-      router.replace(AUTH_PATH);
-    }
-  }, [isAuthCheckComplete, isAuthenticated, router, dispatch]);
-
-  useEffect(() => {
-    if (profileError) {
-      console.error("❌ Ошибка загрузки профиля:", profileError);
-    }
-  }, [profileError]);
-
-  if (!isAuthCheckComplete) {
-    return null;
-  }
-
-  if (!isAuthenticated) {
+  if (!isReady) {
     return null;
   }
 

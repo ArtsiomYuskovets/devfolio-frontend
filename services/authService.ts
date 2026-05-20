@@ -1,7 +1,8 @@
 import { api } from "@/lib/authApi";
+import { resetApiCaches } from "@/lib/resetApiCaches";
 import { tokenService } from "@/lib/tokenService";
 import { TokensResponse } from "@/types/types";
-import { AppDispatch } from "../stores/auth/store";
+import type { AppDispatch } from "@/stores/store";
 
 export async function loginOrRegistr(
   isLogin: boolean,
@@ -12,6 +13,7 @@ export async function loginOrRegistr(
   try {
     const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
     const res = await api.post<TokensResponse>(endpoint, { email, password });
+    resetApiCaches(dispatch);
     tokenService.setTokens(res.data, dispatch);
     return true;
   } catch (e) {

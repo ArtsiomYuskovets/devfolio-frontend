@@ -1,6 +1,5 @@
 import axios from "axios";
-import { tokenService } from "./tokenService";
-import { AppDispatch } from "../stores/auth/store";
+import type { AppDispatch } from "@/stores/store";
 
 export const api = axios.create({
   baseURL: "http://localhost:8080",
@@ -28,6 +27,8 @@ export const setupInterceptors = (dispatch: AppDispatch) => {
       if (error.response?.status === 401) {
         const isRefreshRequest = String(error.config?.url ?? '').includes('refresh');
 
+        const { tokenService } = await import("./tokenService");
+
         if (isRefreshRequest) {
           tokenService.clearTokens(dispatch);
           return Promise.reject(error);
@@ -37,9 +38,9 @@ export const setupInterceptors = (dispatch: AppDispatch) => {
         if (refreshed) {
           error.config.headers.Authorization = `Bearer ${getAccessTokenFromState()}`;
           return api.request(error.config);
-        } else {
-          tokenService.clearTokens(dispatch);
         }
+
+        tokenService.clearTokens(dispatch);
       }
       return Promise.reject(error);
     }
