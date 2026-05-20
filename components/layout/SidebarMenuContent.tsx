@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button/Button";
+import { tokenService } from "@/lib/tokenService";
+import { useAppDispatch } from "@/stores/auth/hooks";
 import styles from "@/components/profile/ProfileSidebarMenu.module.scss";
 
 const navigationItems: { label: string; href?: string }[] = [
@@ -10,7 +12,7 @@ const navigationItems: { label: string; href?: string }[] = [
   { label: "Профиль", href: "/profile" },
   { label: "Лента проектов", href: "/projects" },
   { label: "Чаты" },
-  { label: "Избранные проекты" },
+  { label: "Избранные проекты", href: "/projects/favorites" },
   { label: "Просмотренные проекты" },
 ];
 
@@ -28,7 +30,13 @@ function isActiveHref(href: string, pathname: string): boolean {
     return pathname === "/profile" || /^\/profile\/[^/]+\/?$/.test(pathname);
   }
   if (href === "/projects") {
-    return pathname === "/projects" || pathname.startsWith("/project/");
+    return (
+      pathname === "/projects" ||
+      (pathname.startsWith("/project/") && !pathname.startsWith("/projects/"))
+    );
+  }
+  if (href === "/projects/favorites") {
+    return pathname === "/projects/favorites";
   }
   return false;
 }
@@ -47,9 +55,17 @@ export function SidebarMenuContent({
   onClose,
 }: SidebarMenuContentProps) {
   const pathname = usePathname() ?? "";
+  const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const handleNav = () => {
     onNavigate?.();
+  };
+
+  const handleLogout = async () => {
+    await tokenService.logout(dispatch);
+    onNavigate?.();
+    router.replace("/auth");
   };
 
   const isEditActive = pathname.startsWith("/profile/edit");
@@ -134,6 +150,17 @@ export function SidebarMenuContent({
           )
         )}
       </nav>
+
+      <div className={styles["profile-menu__footer"]}>
+        <Button
+          type="button"
+          variant="outline-light"
+          size="wide"
+          onClick={() => void handleLogout()}
+        >
+          Выйти из профиля
+        </Button>
+      </div>
     </>
   );
 }
