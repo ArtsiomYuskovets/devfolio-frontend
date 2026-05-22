@@ -13,30 +13,50 @@ function mergeRecords(
   return Object.assign({}, ...parts.filter(isPlainObject));
 }
 
-function unwrapProjectRaw(response: unknown): Record<string, unknown> | null {
-  if (!isPlainObject(response)) {
-    return null;
-  }
+function flattenProjectEnvelope(
+  source: Record<string, unknown>
+): Record<string, unknown> {
+  let merged: Record<string, unknown> = { ...source };
 
-  for (const key of ["data", "project", "result", "payload", "body", "item"]) {
-    const nested = response[key];
-    if (
-      isPlainObject(nested) &&
-      (pickProjectId(nested) || nested.name || nested.title)
-    ) {
-      return mergeRecords(response, nested);
+  for (const key of ["data", "project", "result", "payload", "body", "item"] as const) {
+    const nested = source[key];
+    if (isPlainObject(nested)) {
+      merged = mergeRecords(merged, flattenProjectEnvelope(nested));
     }
   }
 
-  let merged: Record<string, unknown> = { ...response };
-  for (const key of ["projectInfo", "info", "details", "metadata", "attributes"]) {
-    const nested = response[key];
+  for (const key of [
+    "projectData",
+    "project_data",
+    "projectInfo",
+    "project_info",
+    "info",
+    "details",
+    "metadata",
+    "attributes",
+    "stats",
+    "engagement",
+    "metrics",
+    "interaction",
+    "counters",
+    "analytics",
+    "statistics",
+  ] as const) {
+    const nested = merged[key];
     if (isPlainObject(nested)) {
       merged = mergeRecords(merged, nested);
     }
   }
 
   return merged;
+}
+
+function unwrapProjectRaw(response: unknown): Record<string, unknown> | null {
+  if (!isPlainObject(response)) {
+    return null;
+  }
+
+  return flattenProjectEnvelope(response);
 }
 
 function readString(
@@ -66,6 +86,25 @@ function readBool(
     }
     if (v === 0 || v === "0" || v === "false") {
       return false;
+    }
+  }
+  return undefined;
+}
+
+function readCount(
+  o: Record<string, unknown>,
+  ...keys: string[]
+): number | undefined {
+  for (const k of keys) {
+    const v = o[k];
+    if (typeof v === "number" && Number.isFinite(v) && v >= 0) {
+      return Math.floor(v);
+    }
+    if (typeof v === "string" && v.trim()) {
+      const parsed = Number(v);
+      if (Number.isFinite(parsed) && parsed >= 0) {
+        return Math.floor(parsed);
+      }
     }
   }
   return undefined;
@@ -164,6 +203,31 @@ export function normalizeProjectPayload(response: unknown): Project {
     "last_modified"
   );
 
+  const viewersCount = readCount(
+    raw,
+    "viewersCount",
+    "viewers_count",
+    "viewerCount",
+    "viewer_count",
+    "viewsCount",
+    "views_count",
+    "viewCount",
+    "view_count",
+    "totalViews",
+    "total_views",
+    "views"
+  );
+  const likesCount = readCount(
+    raw,
+    "likesCount",
+    "likes_count",
+    "likeCount",
+    "like_count",
+    "totalLikes",
+    "total_likes",
+    "likes"
+  );
+
   return {
     ...(raw as Project),
     ...(projectId ? { projectId } : {}),
@@ -176,5 +240,7 @@ export function normalizeProjectPayload(response: unknown): Project {
     ...(projectPublic !== undefined ? { projectPublic } : {}),
     ...(createdAt !== undefined ? { createdAt } : {}),
     ...(updatedAt !== undefined ? { updatedAt } : {}),
+    viewersCount: viewersCount ?? 0,
+    likesCount: likesCount ?? 0,
   };
 }

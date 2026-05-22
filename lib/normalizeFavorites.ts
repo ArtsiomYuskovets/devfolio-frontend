@@ -13,6 +13,8 @@ function stubProject(projectId: string): Project {
     projectPublic: true,
     createdAt: 0,
     updatedAt: 0,
+    viewersCount: 0,
+    likesCount: 0,
   };
 }
 
