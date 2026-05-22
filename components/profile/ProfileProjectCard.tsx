@@ -104,9 +104,22 @@ export function ProfileProjectCard({
         </div>
 
         <div className={styles["profile-project-card__meta"]}>
-          <span>Аналитика</span>
-          <span>{likes} ♥</span>
-          <span>{views} 👁</span>
+          <span className={styles["profile-project-card__stat"]}>
+            <span className={styles["profile-project-card__stat-icon"]} aria-hidden>
+              ♥
+            </span>
+            <span className={styles["profile-project-card__stat-value"]}>
+              {likes}
+            </span>
+          </span>
+          <span className={styles["profile-project-card__stat"]}>
+            <span className={styles["profile-project-card__stat-icon"]} aria-hidden>
+              👁
+            </span>
+            <span className={styles["profile-project-card__stat-value"]}>
+              {views}
+            </span>
+          </span>
         </div>
       </div>
     </article>

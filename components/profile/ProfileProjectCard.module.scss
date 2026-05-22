@@ -47,6 +47,8 @@
     flex-direction: column;
     gap: tokens.$space-m;
     padding: tokens.$space-l tokens.$space-l tokens.$space-m;
+    color: tokens.$color-text-dark;
+    min-height: 0;
   }
 
   &__favorite {
@@ -97,10 +99,38 @@
   &__meta {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
     gap: tokens.$space-m;
+    margin-top: auto;
+    padding-top: tokens.$space-xs;
+    flex-shrink: 0;
+    color: tokens.$color-text-dark;
+  }
+
+  &__stat {
+    display: inline-flex;
+    align-items: center;
+    gap: tokens.$space-xs;
+    min-height: 28px;
+    padding: tokens.$space-xs tokens.$space-m;
+    border-radius: tokens.$radius-pill;
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-soft;
+    background: rgba(tokens.$color-text-dark, 0.04);
     font-family: tokens.$font-family-primary;
-    font-size: tokens.$font-size-xs;
-    color: tokens.$color-text-dark-soft;
+    color: tokens.$color-text-dark;
+  }
+
+  &__stat-icon {
+    font-size: tokens.$font-size-m;
+    line-height: 1;
+  }
+
+  &__stat-value {
+    font-size: tokens.$font-size-m;
+    font-weight: 700;
+    line-height: 1;
+    min-width: 1ch;
   }
 
   @media (max-width: 768px) {
