@@ -12,6 +12,7 @@ export type Skill = {
     id: string,
     name: string,
     category: string,
+    confirmed: boolean,
 }
 type UserBase = {
     userId: string,
@@ -64,14 +65,26 @@ export type ProjectData = {
     userId?: string,
 }
 
-export type ProjectInfo = {
+export type ProjectInfoFields = {
     name: string,
     description: string,
     shortDescription: string,
     githubUrl: string,
     projectPublic: boolean,
 }
+
+export type ProjectStats = {
+    viewersCount: number,
+    likesCount: number,
+}
+
+export type ProjectInfo = ProjectInfoFields & ProjectStats;
+
 export type Project = ProjectData & ProjectInfo;
+
+export type ProjectLikeStatus = {
+    liked: boolean,
+};
 
 export type ProjectSkillAttachment = {
     skillId: string;
