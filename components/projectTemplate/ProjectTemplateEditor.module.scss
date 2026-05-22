@@ -33,6 +33,21 @@
     flex-direction: column;
     gap: tokens.$space-s;
     position: relative;
+    overflow: visible;
+    z-index: 5;
+  }
+
+  &__skills-dropdown {
+    z-index: 200;
+    min-width: min(320px, 90vw);
+    max-height: min(280px, 50vh);
+    padding: tokens.$space-s;
+    gap: tokens.$space-xs;
+  }
+
+  :global(.project-template__details),
+  :global(.project-template__project) {
+    overflow: visible;
   }
 
   &__actions {
@@ -40,5 +55,60 @@
     flex-wrap: wrap;
     gap: tokens.$space-m;
     margin-top: tokens.$space-s;
+  }
+
+  &__skills-meta {
+    margin: tokens.$space-xs 0 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    color: rgba(tokens.$color-text-dark, 0.65);
+  }
+
+  &__skills-error {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    color: tokens.$color-text-dark;
+  }
+
+  &__skill-search {
+    margin-bottom: tokens.$space-s;
+  }
+
+  &__skill-category {
+    display: block;
+    font-size: tokens.$font-size-xs;
+    opacity: 0.7;
+  }
+
+  &__verify-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: tokens.$space-xs;
+    margin-top: tokens.$space-s;
+  }
+
+  &__verify-button {
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-strong;
+    border-radius: tokens.$radius-pill;
+    background: tokens.$color-surface-card-light;
+    color: tokens.$color-text-dark;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    font-weight: 700;
+    padding: tokens.$space-s tokens.$space-l;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__skills-hint {
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xs;
+    color: rgba(tokens.$color-text-dark, 0.65);
   }
 }

@@ -27,6 +27,8 @@ export function ProjectTemplate({ projectId }: ProjectTemplateProps) {
     authorProfileHref,
     editHref,
     ownerId,
+    likesCount,
+    viewsCount,
     error,
   } = useProjectViewData(projectId);
 
@@ -84,9 +86,17 @@ export function ProjectTemplate({ projectId }: ProjectTemplateProps) {
           />
 
           <ProjectTemplateGallery images={gallery} />
-          <ProjectTemplateInfo project={project} />
+          <ProjectTemplateInfo
+            project={project}
+            likesCount={likesCount}
+            viewsCount={viewsCount}
+          />
           <ProjectTemplateSkills skills={skills} isLoading={isSkillsLoading} />
-          <ProjectTemplateActions editHref={editHref} />
+          <ProjectTemplateActions
+            projectId={projectId}
+            likesCount={likesCount}
+            editHref={editHref}
+          />
         </section>
       </div>
     </section>

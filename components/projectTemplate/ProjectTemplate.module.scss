@@ -266,6 +266,7 @@
     position: absolute;
     top: tokens.$space-s;
     right: tokens.$space-s;
+    z-index: 2;
     border: 0;
     background: rgba(tokens.$color-surface-card-light, 0.85);
     color: tokens.$color-text-dark;
@@ -387,6 +388,7 @@
 
   &__skills-control {
     position: relative;
+    z-index: 10;
   }
 
   &__add-skill-button {
@@ -405,16 +407,18 @@
     position: absolute;
     top: calc(100% + tokens.$space-xs);
     right: 0;
-    min-width: 180px;
-    max-height: 200px;
+    min-width: 280px;
+    max-height: min(280px, 50vh);
     overflow-y: auto;
-    z-index: 2;
+    z-index: 200;
     border: tokens.$border-width-thin solid tokens.$color-border-dark-soft;
     border-radius: tokens.$radius-m;
     background: tokens.$color-surface-card-light;
-    box-shadow: tokens.$shadow-soft;
+    box-shadow: tokens.$shadow-card;
     display: flex;
     flex-direction: column;
+    gap: tokens.$space-xs;
+    padding: tokens.$space-s;
   }
 
   &__skills-option {
@@ -456,15 +460,15 @@
     border: tokens.$border-width-thin solid transparent;
 
     &--verified {
-      background: tokens.$color-button-dark-bg;
-      color: tokens.$color-text-light;
-      border-color: tokens.$color-button-dark-bg;
+      background: rgba(40, 167, 90, 0.18);
+      color: #1e7e45;
+      border-color: #2ea85c;
     }
 
     &--unverified {
-      background: tokens.$color-button-light-bg;
-      color: tokens.$color-text-dark;
-      border-color: tokens.$color-border-dark-medium;
+      background: rgba(220, 70, 70, 0.14);
+      color: #b32626;
+      border-color: #d64545;
     }
 
     &:where(button) {
@@ -484,6 +488,47 @@
     gap: tokens.$space-m;
     align-items: center;
     margin-top: tokens.$space-s;
+  }
+
+  &__like-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: tokens.$space-s;
+    min-height: tokens.$button-height-normal;
+    padding: 0 tokens.$space-xl;
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-strong;
+    border-radius: tokens.$radius-pill;
+    background: tokens.$color-surface-card-light;
+    color: tokens.$color-text-dark;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$button-font-size-normal;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease;
+
+    span:first-child {
+      font-size: tokens.$font-size-xl;
+      line-height: 1;
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    &--active {
+      color: #c44;
+      border-color: rgba(#c44, 0.45);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
   }
 
   &__edit-link {

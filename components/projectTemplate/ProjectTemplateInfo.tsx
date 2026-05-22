@@ -4,9 +4,15 @@ import styles from "./ProjectTemplate.module.scss";
 
 type ProjectTemplateInfoProps = {
   project: Project;
+  likesCount: number;
+  viewsCount: number;
 };
 
-export function ProjectTemplateInfo({ project }: ProjectTemplateInfoProps) {
+export function ProjectTemplateInfo({
+  project,
+  likesCount,
+  viewsCount,
+}: ProjectTemplateInfoProps) {
   return (
     <>
       <div className={styles["project-template__headline"]}>
@@ -19,6 +25,8 @@ export function ProjectTemplateInfo({ project }: ProjectTemplateInfoProps) {
       <div className={styles["project-template__meta-row"]}>
         <span>Создан: {formatProjectDate(project.createdAt)}</span>
         <span>Обновлён: {formatProjectDate(project.updatedAt)}</span>
+        <span>{likesCount} ♥</span>
+        <span>{viewsCount} 👁</span>
       </div>
 
       {project.githubUrl ? (

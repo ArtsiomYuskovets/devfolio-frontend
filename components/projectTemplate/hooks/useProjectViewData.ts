@@ -1,10 +1,13 @@
-import { useMemo } from "react";
-import { areLikelySkillIds } from "@/lib/skillDisplay";
+"use client";
+
+import { useEffect, useMemo, useRef } from "react";
+import { resolveSkillDisplayName } from "@/lib/normalizeProjectSkills";
 import { pickProjectGalleryUrls } from "@/lib/projectImage";
 import { pickUserId } from "@/lib/userId";
 import {
   useGetProjectsByIdQuery,
   useGetProjectSkillsQuery,
+  useRecordProjectViewMutation,
 } from "@/stores/projects/projectsApi";
 import { useSkillsByIdsQuery } from "@/stores/skill/skillApi";
 import {
@@ -12,6 +15,20 @@ import {
   useGetUserProfileQuery,
 } from "@/stores/user/userApi";
 import type { ProjectViewSkill } from "../projectTemplate.utils";
+
+const VIEW_SESSION_PREFIX = "project-view:";
+
+function markViewRecorded(projectId: string): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  const key = `${VIEW_SESSION_PREFIX}${projectId}`;
+  if (sessionStorage.getItem(key) === "1") {
+    return false;
+  }
+  sessionStorage.setItem(key, "1");
+  return true;
+}
 
 export function useProjectViewData(projectId: string) {
   const {
@@ -21,7 +38,22 @@ export function useProjectViewData(projectId: string) {
     isError,
   } = useGetProjectsByIdQuery(projectId, { skip: !projectId });
 
-  const { data: skillAttachments = [], isLoading: isSkillsLoading } =
+  const [recordProjectView] = useRecordProjectViewMutation();
+  const viewRecordedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!projectId || viewRecordedRef.current === projectId) {
+      return;
+    }
+    if (!markViewRecorded(projectId)) {
+      viewRecordedRef.current = projectId;
+      return;
+    }
+    viewRecordedRef.current = projectId;
+    void recordProjectView(projectId);
+  }, [projectId, recordProjectView]);
+
+  const { data: projectSkillViews = [], isLoading: isSkillsLoading } =
     useGetProjectSkillsQuery(projectId, { skip: !projectId });
 
   const { data: myProfile } = useGetMyProfileQuery();
@@ -41,35 +73,32 @@ export function useProjectViewData(projectId: string) {
   });
 
   const skillIdsList = useMemo(
-    () => skillAttachments.map((a) => a.skillId).filter(Boolean),
-    [skillAttachments]
+    () => projectSkillViews.map((a) => a.skillId).filter(Boolean),
+    [projectSkillViews]
   );
 
-  const verifiedBySkillId = useMemo(
-    () => new Map(skillAttachments.map((a) => [a.skillId, a.verified])),
-    [skillAttachments]
-  );
+  const { data: skillsByIds = [], isFetching: isSkillsCatalogLoading } =
+    useSkillsByIdsQuery(skillIdsList, {
+      skip: !projectId || skillIdsList.length === 0,
+    });
 
-  const looksLikeIds = areLikelySkillIds(skillIdsList);
-
-  const { data: skillsResolved } = useSkillsByIdsQuery(skillIdsList, {
-    skip: !projectId || !looksLikeIds || skillIdsList.length === 0,
-  });
-
-  const skills: ProjectViewSkill[] = useMemo(() => {
-    if (looksLikeIds && Array.isArray(skillsResolved) && skillsResolved.length) {
-      return skillsResolved.map((s) => ({
-        key: s.id,
-        label: s.name,
-        verified: verifiedBySkillId.get(s.id) ?? false,
-      }));
+  const catalogById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const skill of skillsByIds) {
+      map.set(skill.id, skill.name);
     }
-    return skillIdsList.map((id) => ({
-      key: id,
-      label: id,
-      verified: verifiedBySkillId.get(id) ?? false,
-    }));
-  }, [looksLikeIds, skillsResolved, skillIdsList, verifiedBySkillId]);
+    return map;
+  }, [skillsByIds]);
+
+  const skills: ProjectViewSkill[] = useMemo(
+    () =>
+      projectSkillViews.map((view) => ({
+        key: view.skillId,
+        label: resolveSkillDisplayName(view, catalogById.get(view.skillId)),
+        verified: view.verified,
+      })),
+    [projectSkillViews, catalogById]
+  );
 
   const gallery = useMemo(
     () => (project ? pickProjectGalleryUrls(project) : []),
@@ -86,6 +115,9 @@ export function useProjectViewData(projectId: string) {
   const editHref =
     isOwner && projectId ? `/project/${projectId}/template` : undefined;
 
+  const likesCount = project?.likesCount ?? 0;
+  const viewsCount = project?.viewersCount ?? 0;
+
   return {
     project,
     isLoading,
@@ -93,12 +125,14 @@ export function useProjectViewData(projectId: string) {
     error,
     gallery,
     skills,
-    isSkillsLoading,
+    isSkillsLoading: isSkillsLoading || isSkillsCatalogLoading,
     authorProfile,
     authorName,
     authorProfileHref,
     editHref,
     isOwner,
     ownerId,
+    likesCount,
+    viewsCount,
   };
 }
