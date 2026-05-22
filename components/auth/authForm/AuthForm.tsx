@@ -33,13 +33,12 @@ export default function AuthForm() {
     Date.now() < accessTokenExpiresAt;
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.replace("/dashboard");
-      return;
-    }
     tokenService.setDispatchCallback((dispatch, accessToken, expiresAt) => {
       dispatch(setTokens({ accessToken, expiresAt }));
     });
+    if (isAuthenticated) {
+      router.replace("/dashboard");
+    }
   }, [accessToken, accessTokenExpiresAt, dispatch, isAuthenticated, router]);
 
   useEffect(() => {
@@ -48,10 +47,6 @@ export default function AuthForm() {
       setIsLogin(false);
     }
   }, []);
-
-  useEffect(() => {
-    tokenService.logout(dispatch);
-  }, [dispatch]);
 
   const handleSwitch = (toLogin: boolean) => {
     setIsLogin(toLogin);

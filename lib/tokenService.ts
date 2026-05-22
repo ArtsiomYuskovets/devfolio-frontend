@@ -1,6 +1,8 @@
 import { TokensResponse } from "@/types/types";
+import type { InternalAxiosRequestConfig } from "axios";
 import { api } from "./authApi";
 import { clearAuthStorage, persistAuth } from "@/lib/authStorage";
+import { accessTokenExpiresAt } from "@/lib/authTokenUtils";
 import { resetApiCaches } from "@/lib/resetApiCaches";
 import { setTokens, clearTokens } from "../stores/auth/authSlice";
 import type { AppDispatch } from "@/stores/store";
@@ -16,7 +18,7 @@ export const tokenService = {
   },
 
   setTokens: (data: TokensResponse, dispatch: AppDispatch) => {
-    const expiresAt = Date.now() + data.accessTokenExpiresIn * 1000;
+    const expiresAt = accessTokenExpiresAt(data.accessTokenExpiresIn);
     persistAuth(data.accessToken, expiresAt);
     dispatchTokens(dispatch, data.accessToken, expiresAt);
   },
@@ -30,6 +32,8 @@ export const tokenService = {
   logout: async (dispatch: AppDispatch): Promise<void> => {
     try {
       await api.post("api/auth/logout");
+    } catch {
+      // Session may already be invalid on the server.
     } finally {
       tokenService.clearTokens(dispatch);
     }
@@ -42,11 +46,12 @@ export const tokenService = {
 
     refreshInFlight = (async () => {
       try {
-        const res = await api.post<TokensResponse>("api/auth/refresh");
+        const res = await api.post<TokensResponse>("api/auth/refresh", undefined, {
+          _skipAuth: true,
+        } as InternalAxiosRequestConfig & { _skipAuth: boolean });
         tokenService.setTokens(res.data, dispatch);
         return true;
-      } catch (e) {
-        console.log("Ошибка обновления токенов: " + e);
+      } catch {
         return false;
       } finally {
         refreshInFlight = null;

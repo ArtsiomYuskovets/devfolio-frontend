@@ -40,6 +40,7 @@ const authSlice = createSlice({
     clearTokens: (state) => {
       state.accessToken = null;
       state.accessTokenExpiresAt = null;
+      state.isAuthCheckComplete = false;
     },
     setAuthCheckComplete: (state, action: PayloadAction<boolean>) => {
       state.isAuthCheckComplete = action.payload;

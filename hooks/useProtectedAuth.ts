@@ -16,6 +16,8 @@ const PERIODIC_CHECK_MS = 30_000;
 
 type SessionStatus = "checking" | "authenticated" | "unauthenticated";
 
+let initialSessionCheck: Promise<boolean> | null = null;
+
 export function useProtectedAuth() {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -25,8 +27,6 @@ export function useProtectedAuth() {
 
   const [status, setStatus] = useState<SessionStatus>("checking");
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const refreshInFlightRef = useRef(false);
-  const initialCheckDoneRef = useRef(false);
 
   const clearRefreshTimer = useCallback(() => {
     if (refreshTimerRef.current) {
@@ -35,17 +35,23 @@ export function useProtectedAuth() {
     }
   }, []);
 
-  const runRefresh = useCallback(async (): Promise<boolean> => {
-    if (refreshInFlightRef.current) {
-      return false;
-    }
-    refreshInFlightRef.current = true;
-    try {
-      return await tokenService.refreshAccessToken(dispatch);
-    } finally {
-      refreshInFlightRef.current = false;
-    }
-  }, [dispatch]);
+  const runRefresh = useCallback(
+    () => tokenService.refreshAccessToken(dispatch),
+    [dispatch]
+  );
+
+  const markUnauthenticatedIfExpired = useCallback(
+    (refreshOk: boolean) => {
+      if (refreshOk) {
+        setStatus("authenticated");
+        return;
+      }
+      if (!isTokenValid(accessTokenExpiresAt)) {
+        setStatus("unauthenticated");
+      }
+    },
+    [accessTokenExpiresAt]
+  );
 
   const scheduleRefresh = useCallback(
     (expiresAt: number) => {
@@ -54,40 +60,37 @@ export function useProtectedAuth() {
       refreshTimerRef.current = setTimeout(() => {
         void (async () => {
           const ok = await runRefresh();
-          if (!ok) {
-            setStatus("unauthenticated");
-          }
+          markUnauthenticatedIfExpired(ok);
         })();
       }, delay);
     },
-    [clearRefreshTimer, runRefresh]
+    [clearRefreshTimer, runRefresh, markUnauthenticatedIfExpired]
   );
 
   useEffect(() => {
-    if (initialCheckDoneRef.current) {
-      return;
-    }
-    initialCheckDoneRef.current = true;
-
     let cancelled = false;
 
-    void (async () => {
-      if (
-        isTokenValid(accessTokenExpiresAt) &&
-        !shouldRefreshToken(accessTokenExpiresAt)
-      ) {
-        if (!cancelled) {
-          setStatus("authenticated");
+    if (!initialSessionCheck) {
+      initialSessionCheck = (async () => {
+        if (
+          isTokenValid(accessTokenExpiresAt) &&
+          !shouldRefreshToken(accessTokenExpiresAt)
+        ) {
+          return true;
         }
-        return;
-      }
+        const ok = await runRefresh();
+        if (ok) {
+          return true;
+        }
+        return isTokenValid(accessTokenExpiresAt);
+      })().finally(() => {
+        initialSessionCheck = null;
+      });
+    }
 
-      const ok = await runRefresh();
+    void initialSessionCheck.then((ok) => {
       if (!cancelled) {
         setStatus(ok ? "authenticated" : "unauthenticated");
-      }
-    })().finally(() => {
-      if (!cancelled) {
         dispatch(setAuthCheckComplete(true));
       }
     });
@@ -114,15 +117,13 @@ export function useProtectedAuth() {
       if (shouldRefreshToken(accessTokenExpiresAt)) {
         void (async () => {
           const ok = await runRefresh();
-          if (!ok) {
-            setStatus("unauthenticated");
-          }
+          markUnauthenticatedIfExpired(ok);
         })();
       }
     }, PERIODIC_CHECK_MS);
 
     return () => clearInterval(intervalId);
-  }, [status, accessTokenExpiresAt, runRefresh]);
+  }, [status, accessTokenExpiresAt, runRefresh, markUnauthenticatedIfExpired]);
 
   useEffect(() => {
     if (!isAuthCheckComplete || status !== "unauthenticated") {
