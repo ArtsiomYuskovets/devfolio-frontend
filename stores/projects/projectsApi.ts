@@ -1,5 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { Project, ProjectInfo, ProjectSkillAttachment } from '@/types/types'
+import { Project, ProjectInfoFields, ProjectLikeStatus } from '@/types/types'
+import { normalizeProjectSkillViews, type ProjectSkillView } from '@/lib/normalizeProjectSkills';
+import { normalizeProjectLikeStatus } from '@/lib/projectLikeStatus';
 import { normalizeProjectPayload } from '@/lib/projectNormalize';
 import { normalizeFavoritesResponse } from '@/lib/normalizeFavorites';
 import { normalizeListResponse } from '@/lib/normalizeList';
@@ -18,31 +20,50 @@ function omitUndefinedParams(params: Record<string, unknown>): Record<string, un
 }
 
 function normalizeProjectsListResponse(response: unknown): Project[] {
-    const raw: unknown[] = [];
-    if (Array.isArray(response)) {
-        raw.push(...response);
-    } else if (response && typeof response === 'object') {
-        const r = response as Record<string, unknown>;
-        const nested = r.content ?? r.items ?? r.data ?? r.projects;
-        if (Array.isArray(nested)) {
-            raw.push(...nested);
-        }
+    console.log('[project] GET /api/projects (list) raw', {
+        typeofResponse: typeof response,
+        isArray: Array.isArray(response),
+        raw: response,
+    });
+
+    const items = normalizeListResponse<unknown>(response);
+    const projects = items.map((item) => normalizeProjectPayload(item));
+
+    if (items[0]) {
+        console.log('[project] list item[0] raw', items[0]);
     }
-    return raw.map((item) => normalizeProjectPayload(item));
+    if (projects[0]) {
+        console.log('[project] list item[0] normalized', projects[0]);
+    }
+
+    return projects;
 }
 
 export const projectsApi = createApi({
     reducerPath: 'projectsApi',
     baseQuery: axiosBaseQuery({ baseUrl: 'http://localhost:8080/' }),
-    tagTypes: ['ProjectsList', 'Favorites'],
+    tagTypes: ['ProjectsList', 'Favorites', 'ProjectSkills', 'ProjectInteraction'],
     endpoints: (builder) => ({
         getProjectsById: builder.query<Project, string>({
             query: (projectId) => ({
                 url: `api/projects/${encodeURIComponent(projectId)}`,
                 method: 'GET',
             }),
-            transformResponse: normalizeProjectPayload,
-            providesTags: ['ProjectsList'],
+            transformResponse: (response: unknown, _meta, projectId) => {
+                console.log('[project] GET /api/projects/:id', {
+                    projectId,
+                    typeofResponse: typeof response,
+                    isArray: Array.isArray(response),
+                    raw: response,
+                });
+                const normalized = normalizeProjectPayload(response);
+                console.log('[project] after normalizeProjectPayload', normalized);
+                return normalized;
+            },
+            providesTags: (_result, _error, projectId) => [
+                { type: 'ProjectsList', id: projectId },
+                { type: 'ProjectInteraction', id: projectId },
+            ],
         }),
         updateProject: builder.mutation<Project, Project>({
             query: (project) => ({
@@ -59,7 +80,7 @@ export const projectsApi = createApi({
             }),
             invalidatesTags: ['ProjectsList'],
         }),
-        createProject: builder.mutation<Project, ProjectInfo>({
+        createProject: builder.mutation<Project, ProjectInfoFields>({
             query: (body) => ({
                 url: `api/projects`,
                 method: 'POST',
@@ -70,52 +91,44 @@ export const projectsApi = createApi({
         }),
         verifyProjectSkills: builder.mutation<void, string>({
             query: (projectId) => ({
-                url: `api/projects/${projectId}/verifications`,
+                url: `api/projects/${encodeURIComponent(projectId)}/verifications`,
                 method: 'POST',
             }),
-            invalidatesTags: ['ProjectsList'],
+            invalidatesTags: (_result, _error, projectId) => [
+                { type: 'ProjectSkills', id: projectId },
+                'ProjectsList',
+            ],
         }),
         addProjectSkill: builder.mutation<void, { projectId: string, skillId: string }>({
             query: ({ projectId, skillId }) => ({
-                url: `api/projects/${projectId}/skills/${skillId}`,
+                url: `api/projects/${encodeURIComponent(projectId)}/skills/${encodeURIComponent(skillId)}`,
                 method: 'POST',
             }),
-            invalidatesTags: ['ProjectsList'],
+            invalidatesTags: (_result, _error, { projectId }) => [
+                { type: 'ProjectSkills', id: projectId },
+                'ProjectsList',
+            ],
         }),
         deleteProjectSkill: builder.mutation<void, { projectId: string, skillId: string }>({
             query: ({ projectId, skillId }) => ({
-                url: `api/projects/${projectId}/skills/${skillId}`,
+                url: `api/projects/${encodeURIComponent(projectId)}/skills/${encodeURIComponent(skillId)}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['ProjectsList'],
+            invalidatesTags: (_result, _error, { projectId }) => [
+                { type: 'ProjectSkills', id: projectId },
+                'ProjectsList',
+            ],
         }),
-        getProjectSkills: builder.query<ProjectSkillAttachment[], string>({
+        getProjectSkills: builder.query<ProjectSkillView[], string>({
             query: (projectId) => ({
                 url: `api/projects/${encodeURIComponent(projectId)}/skills`,
                 method: 'GET',
             }),
-            transformResponse: (response: unknown): ProjectSkillAttachment[] => {
-                const list = normalizeListResponse<unknown>(response);
-                return list.flatMap((item: unknown): ProjectSkillAttachment[] => {
-                    if (typeof item === 'string') {
-                        return item ? [{ skillId: item, verified: false }] : [];
-                    }
-                    if (item && typeof item === 'object' && item !== null) {
-                        const o = item as Record<string, unknown>;
-                        const skillId =
-                            typeof o.skillId === 'string'
-                                ? o.skillId
-                                : typeof o.skill_id === 'string'
-                                  ? o.skill_id
-                                  : typeof o.id === 'string'
-                                    ? o.id
-                                    : '';
-                        if (!skillId) return [];
-                        return [{ skillId, verified: Boolean(o.verified) }];
-                    }
-                    return [];
-                });
-            },
+            transformResponse: (response: unknown) =>
+                normalizeProjectSkillViews(response),
+            providesTags: (_result, _error, projectId) => [
+                { type: 'ProjectSkills', id: projectId },
+            ],
         }),
         getUsersProjects: builder.query<Project[], {
             userId: string;
@@ -217,6 +230,46 @@ export const projectsApi = createApi({
             transformResponse: normalizeFavoritesResponse,
             providesTags: ['Favorites'],
         }),
+        recordProjectView: builder.mutation<void, string>({
+            query: (projectId) => ({
+                url: `api/projects/${encodeURIComponent(projectId)}/view`,
+                method: 'POST',
+            }),
+            invalidatesTags: (_result, _error, projectId) => [
+                { type: 'ProjectsList', id: projectId },
+                { type: 'ProjectInteraction', id: projectId },
+            ],
+        }),
+        likeProject: builder.mutation<void, string>({
+            query: (projectId) => ({
+                url: `api/projects/${encodeURIComponent(projectId)}/like`,
+                method: 'POST',
+            }),
+            invalidatesTags: (_result, _error, projectId) => [
+                { type: 'ProjectInteraction', id: projectId },
+                { type: 'ProjectsList', id: projectId },
+            ],
+        }),
+        unlikeProject: builder.mutation<void, string>({
+            query: (projectId) => ({
+                url: `api/projects/${encodeURIComponent(projectId)}/like`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: (_result, _error, projectId) => [
+                { type: 'ProjectInteraction', id: projectId },
+                { type: 'ProjectsList', id: projectId },
+            ],
+        }),
+        getProjectLikeStatus: builder.query<ProjectLikeStatus, string>({
+            query: (projectId) => ({
+                url: `api/projects/${encodeURIComponent(projectId)}/like/status`,
+                method: 'GET',
+            }),
+            transformResponse: normalizeProjectLikeStatus,
+            providesTags: (_result, _error, projectId) => [
+                { type: 'ProjectInteraction', id: projectId },
+            ],
+        }),
     }),
 });
 
@@ -238,4 +291,8 @@ export const {
     useAddProjectToFavoritesMutation,
     useRemoveProjectFromFavoritesMutation,
     useGetFavoritesProjectsQuery,
+    useRecordProjectViewMutation,
+    useLikeProjectMutation,
+    useUnlikeProjectMutation,
+    useGetProjectLikeStatusQuery,
 } = projectsApi;

@@ -1,8 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { Skill } from '@/types/types';
-import { normalizeListResponse } from '@/lib/normalizeList';
+import { normalizeSkillPayload, normalizeSkillsListResponse } from '@/lib/normalizeSkill';
 import { axiosBaseQuery } from '../axios';
-
 
 interface SkillsSearchParams {
     search: string;
@@ -34,38 +33,42 @@ export const skillApi = createApi({
                 },
             }),
             transformResponse: (response: unknown) =>
-                normalizeListResponse<Skill>(response),
+                normalizeSkillsListResponse(response),
             providesTags: ['SkillList'],
         }),
         getSkill: builder.query<Skill, string>({
             query: (skillId) => ({
-                url: `api/skills/${skillId}`,
+                url: `api/skills/${encodeURIComponent(skillId)}`,
                 method: 'GET',
             }),
+            transformResponse: (response: unknown) => {
+                const normalized = normalizeSkillPayload(response);
+                return normalized ?? (response as Skill);
+            },
             providesTags: ['Skills'],
         }),
         updateSkill: builder.mutation<Skill, Skill>({
             query: (skill) => ({
-                url: `api/skills/${skill.id}`,
+                url: `api/skills/${encodeURIComponent(skill.id)}`,
                 method: 'PUT',
-                body: skill,
+                data: skill,
             }),
-            invalidatesTags: ['Skills'],
+            invalidatesTags: ['Skills', 'SkillList'],
         }),
         deleteSkill: builder.mutation<void, string>({
             query: (skillId) => ({
-                url: `api/skills/${skillId}`,
+                url: `api/skills/${encodeURIComponent(skillId)}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['Skills'],
+            invalidatesTags: ['Skills', 'SkillList'],
         }),
         createSkill: builder.mutation<Skill, Skill>({
             query: (skill) => ({
                 url: `api/skills`,
                 method: 'POST',
-                body: skill,
+                data: skill,
             }),
-            invalidatesTags: ['Skills'],
+            invalidatesTags: ['Skills', 'SkillList'],
         }),
         skillsByIds: builder.query<Skill[], string[]>({
             query: (skillIds) => ({
@@ -74,7 +77,7 @@ export const skillApi = createApi({
                 data: skillIds,
             }),
             transformResponse: (response: unknown) =>
-                normalizeListResponse<Skill>(response),
+                normalizeSkillsListResponse(response),
             providesTags: ['Skills'],
         }),
     }),
