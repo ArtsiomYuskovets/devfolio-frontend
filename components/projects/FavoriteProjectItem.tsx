@@ -57,8 +57,8 @@ export function FavoriteProjectItem({
       <ProfileProjectCard
         title={project.name || "Без названия"}
         description={projectCardDescription(project)}
-        likes={0}
-        views={0}
+        likes={project.likesCount}
+        views={project.viewersCount}
         previewSrc={projectCardPreviewSrc(project)}
         projectId={projectId}
         ownerUserId={project.userId}

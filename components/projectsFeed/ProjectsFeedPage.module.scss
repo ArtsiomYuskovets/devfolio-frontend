@@ -250,6 +250,18 @@
     color: inherit;
     transition: transform 0.2s ease;
 
+    :global(.profile-project-card__meta),
+    :global(.profile-project-card__stat),
+    :global(.profile-project-card__stat-value),
+    :global(.profile-project-card__stat-icon) {
+      color: tokens.$color-text-dark;
+    }
+
+    :global(.profile-project-card__title),
+    :global(.profile-project-card__description) {
+      color: tokens.$color-text-dark;
+    }
+
     :global(.profile-project-card) {
       transition:
         transform 0.2s ease,
