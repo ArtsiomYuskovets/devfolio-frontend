@@ -8,6 +8,8 @@ type Links = {
     [key: string]: string
 }
 
+export type SkillCategory = "LANGUAGE" | "FRAMEWORK" | "TOOL" | "PLATFORM";
+
 export type Skill = {
     id: string,
     name: string,
@@ -46,6 +48,8 @@ export type UserInfo = UserBase & {
     createdAt: number,
 }
 
+export type UserType = "JOB_SEEKER" | "RECRUITER";
+
 export type UserProfileInfo = UserBase & {
     nickname: string,
     firstName: string,
@@ -54,7 +58,18 @@ export type UserProfileInfo = UserBase & {
     avatarURL: string,
     skills: string[],
     links: Links,
+    userType: UserType,
     careerTimeline?: ProfileCareerEntry[],
+}
+
+export type UserProfileFeed = {
+    userId: string,
+    nickname: string,
+    displayName: string,
+    avatarURL: string,
+    userType: UserType,
+    bioSnippet: string,
+    createdAt: number,
 }
 
 export type ProjectData = {
