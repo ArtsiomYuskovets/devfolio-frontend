@@ -17,6 +17,9 @@ function readSkillId(o: Record<string, unknown>): string {
   }
 
   const skill = o.skill;
+  if (typeof skill === "string" && skill.trim()) {
+    return skill.trim();
+  }
   if (skill && typeof skill === "object" && skill !== null) {
     const s = skill as Record<string, unknown>;
     if (typeof s.id === "string" && s.id.trim()) {
