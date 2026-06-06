@@ -105,15 +105,6 @@ export function ProjectTemplateEditorSkills({
                     disabled={isAdding}
                   >
                     <span>{skill.name}</span>
-                    {skill.confirmed ? (
-                      <span
-                        className={
-                          editorStyles["project-template-editor__skill-category"]
-                        }
-                      >
-                        в профиле
-                      </span>
-                    ) : null}
                     {skill.category ? (
                       <span
                         className={
@@ -144,6 +135,12 @@ export function ProjectTemplateEditorSkills({
       {skillsError ? (
         <p className={editorStyles["project-template-editor__skills-error"]} role="alert">
           {skillsError}
+        </p>
+      ) : null}
+
+      {isVerifying ? (
+        <p className={editorStyles["project-template-editor__skills-meta"]}>
+          Ожидание результата верификации…
         </p>
       ) : null}
 
@@ -192,7 +189,7 @@ export function ProjectTemplateEditorSkills({
           {isVerifying ? "Верификация…" : "Верифицировать навыки"}
         </button>
         <span className={editorStyles["project-template-editor__skills-hint"]}>
-          Сверяет навыки проекта с подтверждёнными в вашем профиле (confirmed)
+          Запускает проверку навыков, привязанных к этому проекту
         </span>
       </div>
     </div>

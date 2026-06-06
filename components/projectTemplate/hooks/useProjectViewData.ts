@@ -85,18 +85,24 @@ export function useProjectViewData(projectId: string) {
   const catalogById = useMemo(() => {
     const map = new Map<string, string>();
     for (const skill of skillsByIds) {
-      map.set(skill.id, skill.name);
+      const id = skill.id.trim();
+      if (id) {
+        map.set(id, skill.name);
+      }
     }
     return map;
   }, [skillsByIds]);
 
   const skills: ProjectViewSkill[] = useMemo(
     () =>
-      projectSkillViews.map((view) => ({
-        key: view.skillId,
-        label: resolveSkillDisplayName(view, catalogById.get(view.skillId)),
-        verified: view.verified,
-      })),
+      projectSkillViews.map((view) => {
+        const skillId = view.skillId.trim();
+        return {
+          key: skillId,
+          label: resolveSkillDisplayName(view, catalogById.get(skillId)),
+          verified: view.verified,
+        };
+      }),
     [projectSkillViews, catalogById]
   );
 

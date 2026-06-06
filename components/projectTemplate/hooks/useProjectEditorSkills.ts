@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { extractApiErrorMessage } from "@/lib/apiError";
 import { resolveSkillDisplayName } from "@/lib/normalizeProjectSkills";
+import { normalizeSkillIdList } from "@/lib/skillId";
 import {
   useAddProjectSkillMutation,
   useDeleteProjectSkillMutation,
@@ -15,6 +17,11 @@ import {
 } from "@/stores/skill/skillApi";
 
 const CATALOG_PAGE_SIZE = 200;
+const VERIFY_SETTLE_DELAY_MS = 1500;
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function catalogSkillId(skill: Skill): string {
   return skill.id.trim();
@@ -24,6 +31,7 @@ export function useProjectEditorSkills(projectId: string) {
   const [skillSearch, setSkillSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [skillsError, setSkillsError] = useState<string | null>(null);
+  const [isVerificationSettling, setIsVerificationSettling] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(skillSearch.trim()), 300);
@@ -38,7 +46,7 @@ export function useProjectEditorSkills(projectId: string) {
   } = useGetProjectSkillsQuery(projectId, { skip: !projectId });
 
   const skillIds = useMemo(
-    () => projectSkillViews.map((a) => a.skillId),
+    () => normalizeSkillIdList(projectSkillViews.map((view) => view.skillId)),
     [projectSkillViews]
   );
 
@@ -50,7 +58,10 @@ export function useProjectEditorSkills(projectId: string) {
   const catalogById = useMemo(() => {
     const map = new Map<string, Skill>();
     for (const skill of skillsByIds) {
-      map.set(skill.id, skill);
+      const id = skill.id.trim();
+      if (id) {
+        map.set(id, skill);
+      }
     }
     return map;
   }, [skillsByIds]);
@@ -58,9 +69,10 @@ export function useProjectEditorSkills(projectId: string) {
   const attachedSkills = useMemo(
     () =>
       projectSkillViews.map((view) => {
-        const catalog = catalogById.get(view.skillId);
+        const skillId = view.skillId.trim();
+        const catalog = catalogById.get(skillId);
         return {
-          skillId: view.skillId,
+          skillId,
           name: resolveSkillDisplayName(view, catalog?.name),
           category: view.category ?? catalog?.category ?? "",
           verified: view.verified,
@@ -70,7 +82,7 @@ export function useProjectEditorSkills(projectId: string) {
   );
 
   const attachedIds = useMemo(
-    () => new Set(attachedSkills.map((s) => s.skillId)),
+    () => new Set(attachedSkills.map((skill) => skill.skillId)),
     [attachedSkills]
   );
 
@@ -97,28 +109,31 @@ export function useProjectEditorSkills(projectId: string) {
   const selectableCatalogSkills = useMemo(
     () =>
       catalogList
-        .map((s) => ({ ...s, id: catalogSkillId(s) }))
-        .filter((s) => s.id && !attachedIds.has(s.id)),
+        .map((skill) => ({ ...skill, id: catalogSkillId(skill) }))
+        .filter((skill) => skill.id && !attachedIds.has(skill.id)),
     [catalogList, attachedIds]
   );
 
   const isCatalogBusy =
     isCatalogLoading || (isCatalogFetching && catalogList.length === 0);
 
-  const [addProjectSkill, { isLoading: isAdding }] = useAddProjectSkillMutation();
+  const [addProjectSkill, { isLoading: isAdding }] =
+    useAddProjectSkillMutation();
   const [deleteProjectSkill, { isLoading: isRemoving }] =
     useDeleteProjectSkillMutation();
   const [verifyProjectSkills, { isLoading: isVerifying }] =
     useVerifyProjectSkillsMutation();
 
-  const verifiedCount = attachedSkills.filter((s) => s.verified).length;
+  const verifiedCount = attachedSkills.filter((skill) => skill.verified).length;
 
   const addSkill = async (skillId: string) => {
     setSkillsError(null);
     try {
       await addProjectSkill({ projectId, skillId }).unwrap();
-    } catch {
-      setSkillsError("Не удалось добавить навык");
+    } catch (error) {
+      setSkillsError(
+        extractApiErrorMessage(error, "Не удалось добавить навык")
+      );
     }
   };
 
@@ -126,20 +141,31 @@ export function useProjectEditorSkills(projectId: string) {
     setSkillsError(null);
     try {
       await deleteProjectSkill({ projectId, skillId }).unwrap();
-    } catch {
-      setSkillsError("Не удалось удалить навык");
+    } catch (error) {
+      setSkillsError(
+        extractApiErrorMessage(error, "Не удалось удалить навык")
+      );
     }
   };
 
   const verifySkills = async () => {
     setSkillsError(null);
+    setIsVerificationSettling(true);
+
     try {
       await verifyProjectSkills(projectId).unwrap();
+      await delay(VERIFY_SETTLE_DELAY_MS);
       await refetchProjectSkills();
-    } catch {
-      setSkillsError("Не удалось верифицировать навыки");
+    } catch (error) {
+      setSkillsError(
+        extractApiErrorMessage(error, "Не удалось верифицировать навыки")
+      );
+    } finally {
+      setIsVerificationSettling(false);
     }
   };
+
+  const isVerifyInProgress = isVerifying || isVerificationSettling;
 
   return {
     skillSearch,
@@ -155,7 +181,7 @@ export function useProjectEditorSkills(projectId: string) {
     isCatalogNamesLoading,
     isAdding,
     isRemoving,
-    isVerifying,
+    isVerifying: isVerifyInProgress,
     verifiedCount,
     skillsError,
     addSkill,
