@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { Project, ProjectInfoFields, ProjectLikeStatus } from '@/types/types'
+import { Project, ProjectInfoFields, ProjectLikeStatus, SkillCategory } from '@/types/types'
 import { normalizeProjectSkillViews, type ProjectSkillView } from '@/lib/normalizeProjectSkills';
 import { normalizeProjectLikeStatus } from '@/lib/projectLikeStatus';
 import { normalizeProjectPayload } from '@/lib/projectNormalize';
@@ -7,10 +7,40 @@ import { normalizeFavoritesResponse } from '@/lib/normalizeFavorites';
 import { normalizeListResponse } from '@/lib/normalizeList';
 import { axiosBaseQuery } from '../axios';
 
-interface ProjectsListParams {
+export interface ProjectsListParams {
     page: number;
     size: number;
     sort: string[];
+    name?: string;
+    skillIds?: string[];
+    categories?: SkillCategory[];
+}
+
+function buildProjectsListParams(params: ProjectsListParams): URLSearchParams {
+    const searchParams = new URLSearchParams();
+    searchParams.set('page', String(params.page));
+    searchParams.set('size', String(params.size));
+
+    if (params.sort?.length) {
+        searchParams.set('sort', params.sort.join(','));
+    }
+
+    const name = params.name?.trim();
+    if (name) {
+        searchParams.set('name', name);
+    }
+
+    for (const skillId of params.skillIds ?? []) {
+        if (skillId.trim()) {
+            searchParams.append('skillIds', skillId.trim());
+        }
+    }
+
+    for (const category of params.categories ?? []) {
+        searchParams.append('categories', category);
+    }
+
+    return searchParams;
 }
 
 function omitUndefinedParams(params: Record<string, unknown>): Record<string, unknown> {
@@ -94,10 +124,7 @@ export const projectsApi = createApi({
                 url: `api/projects/${encodeURIComponent(projectId)}/verifications`,
                 method: 'POST',
             }),
-            invalidatesTags: (_result, _error, projectId) => [
-                { type: 'ProjectSkills', id: projectId },
-                'ProjectsList',
-            ],
+            invalidatesTags: ['ProjectsList'],
         }),
         addProjectSkill: builder.mutation<void, { projectId: string, skillId: string }>({
             query: ({ projectId, skillId }) => ({
@@ -160,11 +187,7 @@ export const projectsApi = createApi({
             query: (params) => ({
                 url: `api/projects`,
                 method: 'GET',
-                params: {
-                    page: params.page,
-                    size: params.size,
-                    sort: params.sort?.length ? params.sort.join(',') : undefined,
-                },
+                params: buildProjectsListParams(params),
             }),
             transformResponse: normalizeProjectsListResponse,
             providesTags: ['ProjectsList'],

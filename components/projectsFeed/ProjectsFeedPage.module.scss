@@ -280,6 +280,21 @@
     }
   }
 
+  &__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: tokens.$space-m;
+  }
+
+  &__page-label {
+    min-width: 96px;
+    text-align: center;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    color: tokens.$color-text-light;
+  }
+
   @media (max-width: 768px) {
     &__filters-row {
       flex-direction: column;
