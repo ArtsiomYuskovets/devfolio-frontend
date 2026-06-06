@@ -1,6 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { Button } from "@/components/ui/button/Button";
 import { ProjectLikeButton } from "@/components/projects/ProjectLikeButton";
+import { useMyUserType } from "@/hooks/useMyUserType";
 import styles from "./ProjectTemplate.module.scss";
 
 type ProjectTemplateActionsProps = {
@@ -14,6 +16,8 @@ export function ProjectTemplateActions({
   likesCount,
   editHref,
 }: ProjectTemplateActionsProps) {
+  const { isJobSeeker } = useMyUserType();
+
   return (
     <div className={styles["project-template__actions"]}>
       {editHref ? (
@@ -21,19 +25,15 @@ export function ProjectTemplateActions({
           Редактировать проект
         </Link>
       ) : null}
-      <Button type="button" variant="outline-dark" size="normal">
-        Откликнуться
-      </Button>
-      <Button type="button" variant="outline-dark" size="normal">
-        Сохранить проект
-      </Button>
-      <ProjectLikeButton
-        projectId={projectId}
-        likesCount={likesCount}
-        size="action"
-        className={styles["project-template__like-action"]}
-        activeClassName={styles["project-template__like-action--active"]}
-      />
+      {isJobSeeker ? (
+        <ProjectLikeButton
+          projectId={projectId}
+          likesCount={likesCount}
+          size="action"
+          className={styles["project-template__like-action"]}
+          activeClassName={styles["project-template__like-action--active"]}
+        />
+      ) : null}
     </div>
   );
 }

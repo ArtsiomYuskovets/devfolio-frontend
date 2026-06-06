@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { FavoriteProjectItem } from "./FavoriteProjectItem";
 import { pickProjectId } from "@/lib/projectId";
+import { useMyUserType } from "@/hooks/useMyUserType";
 import { useGetFavoritesProjectsQuery } from "@/stores/projects/projectsApi";
 import styles from "../projectsFeed/ProjectsFeedPage.module.scss";
 
 export function FavoriteProjectsPage() {
+  const { isRecruiter } = useMyUserType();
   const {
     data: favorites = [],
     isLoading,
@@ -32,7 +34,9 @@ export function FavoriteProjectsPage() {
     <section className={styles["projects-feed"]}>
       <header className={styles["projects-feed__header"]}>
         <div className={styles["projects-feed__header-left"]}>
-          <span className={styles["projects-feed__chip"]}>Избранные проекты</span>
+          <span className={styles["projects-feed__chip"]}>
+            {isRecruiter ? "Сохранённое" : "Избранные проекты"}
+          </span>
         </div>
         <Link href="/projects" className={styles["projects-feed__brand"]}>
           Devfolio
