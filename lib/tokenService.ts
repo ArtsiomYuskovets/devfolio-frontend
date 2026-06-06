@@ -31,7 +31,7 @@ export const tokenService = {
 
   logout: async (dispatch: AppDispatch): Promise<void> => {
     try {
-      await api.post("api/auth/logout");
+      await api.post("api/auth/logout", undefined, { withCredentials: true });
     } catch {
       // Session may already be invalid on the server.
     } finally {
@@ -47,6 +47,7 @@ export const tokenService = {
     refreshInFlight = (async () => {
       try {
         const res = await api.post<TokensResponse>("api/auth/refresh", undefined, {
+          withCredentials: true,
           _skipAuth: true,
         } as InternalAxiosRequestConfig & { _skipAuth: boolean });
         tokenService.setTokens(res.data, dispatch);

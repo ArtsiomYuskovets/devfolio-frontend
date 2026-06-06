@@ -12,7 +12,11 @@ export async function loginOrRegistr(
 ): Promise<boolean> {
   try {
     const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
-    const res = await api.post<TokensResponse>(endpoint, { email, password });
+    const res = await api.post<TokensResponse>(
+      endpoint,
+      { email, password },
+      { withCredentials: true }
+    );
     resetApiCaches(dispatch);
     tokenService.setTokens(res.data, dispatch);
     return true;

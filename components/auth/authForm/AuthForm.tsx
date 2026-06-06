@@ -37,7 +37,7 @@ export default function AuthForm() {
       dispatch(setTokens({ accessToken, expiresAt }));
     });
     if (isAuthenticated) {
-      router.replace("/dashboard");
+      router.replace("/profile");
     }
   }, [accessToken, accessTokenExpiresAt, dispatch, isAuthenticated, router]);
 
