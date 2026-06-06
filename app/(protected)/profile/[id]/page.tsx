@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useParams } from "next/navigation";
 import { ProfilePage } from "@/components/profile/ProfilePage";
 import { pickProfileUserId } from "@/lib/userId";
@@ -22,13 +23,35 @@ export default function ProfileByIdPage() {
     error: viewedProfileError,
   } = useGetUserProfileQuery(id, {
     skip: !id,
+    refetchOnMountOrArgChange: true,
   });
+
+  const myUserId = myProfile
+    ? pickProfileUserId(myProfile) ?? myProfile.userId
+    : undefined;
+  const viewedUserId = viewedProfile
+    ? pickProfileUserId(viewedProfile) ?? viewedProfile.userId
+    : undefined;
+
+  const isOwnProfile =
+    !myProfileError &&
+    Boolean(myUserId && viewedUserId && myUserId === viewedUserId);
+
+  const displayProfile = useMemo(() => {
+    if (!viewedProfile) {
+      return undefined;
+    }
+    if (isOwnProfile && myProfile) {
+      return { ...viewedProfile, ...myProfile };
+    }
+    return viewedProfile;
+  }, [isOwnProfile, myProfile, viewedProfile]);
 
   if (!id) {
     return <div>Profile not found</div>;
   }
 
-  if (isLoadingViewedProfile) {
+  if (isLoadingViewedProfile || (isOwnProfile && isLoadingMyProfile)) {
     return <div>Loading profile...</div>;
   }
 
@@ -36,22 +59,17 @@ export default function ProfileByIdPage() {
     return <div>Error getting profile</div>;
   }
 
-  if (!viewedProfile) {
+  if (!displayProfile) {
     return <div>Profile not found</div>;
   }
 
-  const myUserId = myProfile
-    ? pickProfileUserId(myProfile) ?? myProfile.userId
-    : undefined;
-  const viewedUserId =
-    pickProfileUserId(viewedProfile) ?? viewedProfile.userId;
-
-  const isOwnProfile =
-    !myProfileError && Boolean(myUserId && viewedUserId && myUserId === viewedUserId);
-
   return (
     <main>
-      <ProfilePage profile={viewedProfile} isOwnProfile={isOwnProfile} />
+      <ProfilePage
+        key={`${displayProfile.userId}-${displayProfile.userType ?? "JOB_SEEKER"}`}
+        profile={displayProfile}
+        isOwnProfile={isOwnProfile}
+      />
     </main>
   );
 }

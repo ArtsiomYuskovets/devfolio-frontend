@@ -1,18 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ProfileProjectsSection } from "./ProfileProjectsSection";
-import { ProfileCareerModal } from "./career/ProfileCareerModal";
-import { CareerTimelinePreview } from "./career/CareerTimelinePreview";
-import {
-  getDefaultCareerEntries,
-  sortCareerEntries,
-} from "./career/career.utils";
-import { ProfileFeatureCard } from "./featureCard/ProfileFeatureCard";
-import { ProfileSkillsCard } from "./skills/ProfileSkillsCard";
-import type { ProfileCareerEntry, UserProfileInfo } from "@/types/types";
+import type { UserProfileInfo } from "@/types/types";
 import { pickUserId } from "@/lib/userId";
+import { formatUserTypeLabel, isRecruiter } from "@/lib/userType";
 import styles from "./ProfilePage.module.scss";
 
 type ProfilePageProps = {
@@ -21,12 +14,9 @@ type ProfilePageProps = {
 };
 
 export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
-  const [isCareerModalOpen, setIsCareerModalOpen] = useState(false);
-  const [careerEntries, setCareerEntries] = useState<ProfileCareerEntry[]>(
-    profile.careerTimeline?.length
-      ? profile.careerTimeline
-      : getDefaultCareerEntries(isOwnProfile)
-  );
+  const profileIsRecruiter = isRecruiter(profile.userType);
+  const showProjectsSection = !(isOwnProfile && profileIsRecruiter);
+  const isCenteredLayout = isOwnProfile && profileIsRecruiter;
 
   const profileLinks = useMemo(() => {
     const linkValues = Object.values(profile.links ?? {}).filter(Boolean);
@@ -42,95 +32,81 @@ export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
     ];
   }, [profile.links]);
 
-  const skills = useMemo(() => profile.skills.filter(Boolean), [profile.skills]);
-  const sortedCareerEntries = useMemo(
-    () => sortCareerEntries(careerEntries),
-    [careerEntries]
-  );
-
-  const handleCareerModalOpen = useCallback(
-    () => setIsCareerModalOpen(true),
-    []
-  );
-  const handleCareerModalClose = useCallback(
-    () => {
-      setCareerEntries((currentEntries) => sortCareerEntries(currentEntries));
-      setIsCareerModalOpen(false);
-    },
-    []
-  );
+  const contentClassName = [
+    styles["profile-view__content"],
+    isCenteredLayout ? styles["profile-view__content--centered"] : "",
+    showProjectsSection ? styles["profile-view__content--with-main"] : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <>
-      <section className={styles["profile-view"]}>
-        <header className={styles["profile-view__hero"]}>
-          <Link href="/projects" className={styles["profile-view__brand"]}>
-            Devfolio
-          </Link>
-        </header>
+    <section
+      className={`${styles["profile-view"]} ${
+        isCenteredLayout ? styles["profile-view--recruiter-own"] : ""
+      }`}
+    >
+      <header className={styles["profile-view__hero"]}>
+        <Link href="/projects" className={styles["profile-view__brand"]}>
+          Devfolio
+        </Link>
+      </header>
 
-        <div className={styles["profile-view__content"]}>
-          <aside className={styles["profile-view__sidebar"]}>
-            <div className={styles["profile-view__avatar-wrap"]}>
-              <div className={styles["profile-view__avatar"]} />
+      <div className={contentClassName}>
+        <aside className={styles["profile-view__sidebar"]}>
+          <div className={styles["profile-view__avatar-wrap"]}>
+            <div className={styles["profile-view__avatar"]}>
+              {profile.avatarURL ? (
+                <img
+                  src={profile.avatarURL}
+                  alt={`${profile.nickname || "Пользователь"} avatar`}
+                  className={styles["profile-view__avatar-img"]}
+                />
+              ) : null}
             </div>
+          </div>
 
-            <p className={styles["profile-view__nickname"]}>
-              @{profile.nickname || "nickname"}
-            </p>
+          <p className={styles["profile-view__nickname"]}>
+            @{profile.nickname || "nickname"}
+          </p>
 
-            <h1 className={styles["profile-view__name"]}>
-              {profile.firstName || "Имя"} {profile.lastName || "Фамилия"}
-            </h1>
+          <h1 className={styles["profile-view__name"]}>
+            {profile.firstName || "Имя"} {profile.lastName || "Фамилия"}
+          </h1>
 
-            <div className={styles["profile-view__stats"]}>
-              <div className={styles["profile-view__stat"]}>1 подписчик</div>
-              <div className={styles["profile-view__stat"]}>7 подписок</div>
-            </div>
+          <span className={styles["profile-view__type-badge"]}>
+            {formatUserTypeLabel(profile.userType)}
+          </span>
 
-            <div className={styles["profile-view__links-box"]}>
-              {profileLinks.map((link) => (
-                <p key={link} className={styles["profile-view__link-text"]}>
-                  {link}
-                </p>
-              ))}
-            </div>
-
-            <div className={styles["profile-view__bio"]}>
-              {profile.bio || "Описание профиля появится здесь, когда пользователь заполнит блок о себе."}
-            </div>
-          </aside>
-
-          <div className={styles["profile-view__main"]}>
-            <section className={styles["profile-view__features"]}>
-              <ProfileFeatureCard
-                title="Карьера и развитие"
-                actionLabel="Открыть"
-                onClick={handleCareerModalOpen}
+          <div className={styles["profile-view__links-box"]}>
+            {profileLinks.map((link) => (
+              <a
+                key={link}
+                className={styles["profile-view__link-text"]}
+                href={link}
+                target="_blank"
+                rel="noreferrer"
               >
-                <CareerTimelinePreview entries={sortedCareerEntries} />
-              </ProfileFeatureCard>
+                {link}
+              </a>
+            ))}
+          </div>
 
-              <ProfileFeatureCard title="Навыки">
-                <ProfileSkillsCard skills={skills} />
-              </ProfileFeatureCard>
-            </section>
+          <div className={styles["profile-view__bio"]}>
+            {profile.bio ||
+              "Описание профиля появится здесь, когда пользователь заполнит блок о себе."}
+          </div>
+        </aside>
 
+        {showProjectsSection ? (
+          <div className={styles["profile-view__main"]}>
             <ProfileProjectsSection
               userId={pickUserId(profile) ?? profile.userId}
               isOwnProfile={isOwnProfile}
             />
           </div>
-        </div>
-      </section>
-
-      <ProfileCareerModal
-        isOpen={isCareerModalOpen}
-        isOwnProfile={isOwnProfile}
-        entries={careerEntries}
-        onClose={handleCareerModalClose}
-        onChange={setCareerEntries}
-      />
-    </>
+        ) : null}
+      </div>
+    </section>
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button/Button";
 import { ProfileProjectCard } from "./ProfileProjectCard";
+import { useMyUserType } from "@/hooks/useMyUserType";
 import { useGetUsersProjectsQuery } from "@/stores/projects/projectsApi";
 import { pickProjectId } from "@/lib/projectId";
 import { pickUserId } from "@/lib/userId";
@@ -23,6 +24,7 @@ export function ProfileProjectsSection({
   isOwnProfile,
 }: ProfileProjectsSectionProps) {
   const router = useRouter();
+  const { isJobSeeker } = useMyUserType();
   const {
     data: projects = [],
     isLoading,
@@ -37,35 +39,22 @@ export function ProfileProjectsSection({
     { skip: !userId }
   );
   const hasProjects = projects.length > 0;
+  const showCreateButton = isOwnProfile && isJobSeeker;
 
   return (
     <section className={styles["profile-projects"]}>
-      <div className={styles["profile-projects__actions"]}>
-        {isOwnProfile ? (
-          <>
-            <Button
-              type="button"
-              variant="outline-dark"
-              size="normal"
-              onClick={() => router.push("/projects/new")}
-            >
-              + Добавить проект
-            </Button>
-            <Button type="button" variant="outline-dark" size="normal">
-              Редактировать текущие
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button type="button" variant="outline-dark" size="large">
-              Написать исполнителю
-            </Button>
-            <Button type="button" variant="outline-dark" size="large">
-              Подписаться
-            </Button>
-          </>
-        )}
-      </div>
+      {showCreateButton ? (
+        <div className={styles["profile-projects__actions"]}>
+          <Button
+            type="button"
+            variant="outline-dark"
+            size="normal"
+            onClick={() => router.push("/projects/new")}
+          >
+            + Добавить проект
+          </Button>
+        </div>
+      ) : null}
 
       {hasProjects ? (
         <div className={styles["profile-projects__list"]}>

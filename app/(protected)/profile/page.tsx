@@ -29,7 +29,7 @@ export default function ProfileRedirectPage() {
       return;
     }
 
-    router.replace("/dashboard");
+    router.replace("/auth");
   }, [isLoading, isFetching, isError, userId, router]);
 
   return null;

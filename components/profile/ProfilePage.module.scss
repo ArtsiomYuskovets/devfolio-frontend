@@ -54,6 +54,27 @@
     max-width: tokens.$layout-profile-max-width;
     margin: 0 auto;
     padding: tokens.$space-xl tokens.$space-xl tokens.$space-xxxl;
+
+    &--centered {
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+      max-width: 720px;
+      padding-top: tokens.$space-xxl;
+    }
+
+    &--with-main {
+      align-items: start;
+    }
+  }
+
+  &--recruiter-own {
+    .profile-view__bio {
+      min-height: 180px;
+    }
+
+    .profile-view__links-box {
+      padding: tokens.$space-l;
+    }
   }
 
   &__sidebar {
@@ -63,6 +84,25 @@
     gap: tokens.$space-l;
     padding: 0 0 tokens.$space-xl;
     min-width: 0;
+    width: 100%;
+
+    .profile-view__content--centered & {
+      max-width: 640px;
+    }
+  }
+
+  &__type-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: tokens.$space-xs tokens.$space-l;
+    border-radius: tokens.$radius-pill;
+    background: tokens.$color-button-dark-bg;
+    color: tokens.$color-text-light;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   &__avatar-wrap {
@@ -81,6 +121,14 @@
       tokens.$color-gradient-avatar-end
     );
     box-shadow: tokens.$shadow-avatar;
+    overflow: hidden;
+  }
+
+  &__avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 
   &__nickname {
@@ -133,46 +181,78 @@
 
   &__bio {
     min-height: tokens.$size-profile-bio-min-height;
-    padding: tokens.$space-l;
+    padding: tokens.$space-xl;
     font-family: tokens.$font-family-primary;
     font-size: tokens.$font-size-m;
-    line-height: tokens.$line-height-body;
+    line-height: tokens.$line-height-relaxed;
+
+    .profile-view__content--with-main & {
+      min-height: 140px;
+    }
   }
 
   &__link-text {
+    display: block;
     margin: 0;
+    padding: tokens.$space-xs 0;
     font-family: tokens.$font-family-primary;
     font-size: tokens.$font-size-s;
     line-height: tokens.$line-height-body;
+    color: rgba(tokens.$color-text-dark, 0.92);
+    text-decoration: underline;
+    text-decoration-color: rgba(tokens.$color-text-dark, 0.55);
+    text-underline-offset: 2px;
+    transition: color 0.18s ease, text-decoration-color 0.18s ease;
+
+    &:hover {
+      color: tokens.$color-text-dark;
+      text-decoration-color: tokens.$color-text-dark;
+    }
 
     & + & {
       margin-top: tokens.$space-xs;
+      border-top: tokens.$border-width-thin solid rgba(tokens.$color-text-dark, 0.16);
+      padding-top: tokens.$space-s;
     }
   }
 
   &__main {
     display: flex;
     flex-direction: column;
-    gap: tokens.$space-xl;
+    gap: tokens.$space-xxl;
     min-width: 0;
+    width: 100%;
   }
 
   &__features {
     display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: tokens.$space-l;
     align-items: start;
+    width: 100%;
+
+    &--single {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   @media (max-width: 1180px) {
     &__content {
       grid-template-columns: 1fr;
       max-width: tokens.$layout-profile-tablet-max-width;
+
+      &--centered {
+        max-width: 720px;
+      }
     }
 
     &__sidebar {
       max-width: tokens.$layout-profile-sidebar-max-width;
       margin: 0 auto;
+
+      .profile-view__content--centered & {
+        max-width: 640px;
+      }
     }
   }
 
