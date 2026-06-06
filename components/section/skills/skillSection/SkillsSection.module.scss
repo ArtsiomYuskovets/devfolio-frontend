@@ -19,6 +19,58 @@
       gap: tokens.$space-s;
       flex: 1;
     }
+
+    &__hint {
+      margin: 0;
+      font-family: tokens.$font-family-primary;
+      font-size: tokens.$font-size-s;
+      color: tokens.$color-text-dark-soft;
+      line-height: tokens.$line-height-body;
+    }
+
+    &__picker {
+      display: flex;
+      flex-direction: column;
+      gap: tokens.$space-s;
+      padding: tokens.$space-m;
+      border: tokens.$border-width-thin solid tokens.$color-border-dark-soft;
+      border-radius: tokens.$radius-m;
+      background: tokens.$color-surface-card-soft;
+    }
+
+    &__options {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      max-height: 220px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: tokens.$space-xs;
+    }
+
+    &__option {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: tokens.$space-m;
+      padding: tokens.$space-s tokens.$space-m;
+      border: 0;
+      border-radius: tokens.$radius-s;
+      background: tokens.$color-text-light;
+      color: tokens.$color-text-dark;
+      font-family: tokens.$font-family-primary;
+      font-size: tokens.$font-size-s;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    &__option-meta {
+      font-size: tokens.$font-size-xs;
+      color: tokens.$color-text-dark-soft;
+      text-transform: uppercase;
+    }
   }
 
 .skill-tag {
