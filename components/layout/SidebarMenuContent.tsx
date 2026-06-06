@@ -1,25 +1,31 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button/Button";
 import { tokenService } from "@/lib/tokenService";
 import { useAppDispatch } from "@/stores/auth/hooks";
+import { useMyUserType } from "@/hooks/useMyUserType";
 import styles from "@/components/profile/ProfileSidebarMenu.module.scss";
 
-const navigationItems: { label: string; href?: string }[] = [
-  { label: "Главная", href: "/dashboard" },
+type NavItem = { label: string; href: string };
+
+const seekerNavigationItems: NavItem[] = [
   { label: "Профиль", href: "/profile" },
   { label: "Лента проектов", href: "/projects" },
-  { label: "Чаты" },
+  { label: "Лента профилей", href: "/profiles" },
   { label: "Избранные проекты", href: "/projects/favorites" },
-  { label: "Просмотренные проекты" },
+];
+
+const recruiterNavigationItems: NavItem[] = [
+  { label: "Профиль", href: "/profile" },
+  { label: "Лента проектов", href: "/projects" },
+  { label: "Кандидаты", href: "/profiles" },
+  { label: "Сохранённое", href: "/projects/favorites" },
 ];
 
 function isActiveHref(href: string, pathname: string): boolean {
-  if (href === "/dashboard") {
-    return pathname === "/dashboard";
-  }
   if (href === "/profile") {
     if (
       pathname.startsWith("/profile/edit") ||
@@ -37,6 +43,9 @@ function isActiveHref(href: string, pathname: string): boolean {
   }
   if (href === "/projects/favorites") {
     return pathname === "/projects/favorites";
+  }
+  if (href === "/profiles") {
+    return pathname === "/profiles";
   }
   return false;
 }
@@ -57,6 +66,12 @@ export function SidebarMenuContent({
   const pathname = usePathname() ?? "";
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const { isRecruiter, isLoading } = useMyUserType();
+
+  const navigationItems = useMemo(
+    () => (isRecruiter ? recruiterNavigationItems : seekerNavigationItems),
+    [isRecruiter]
+  );
 
   const handleNav = () => {
     onNavigate?.();
@@ -119,36 +134,27 @@ export function SidebarMenuContent({
         className={styles["profile-menu__nav"]}
         aria-label="Разделы приложения"
       >
-        {navigationItems.map((item) =>
-          item.href ? (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`${styles["profile-menu__link"]} ${
-                isActiveHref(item.href, pathname)
-                  ? styles["profile-menu__link--active"]
-                  : ""
-              }`}
-              onClick={handleNav}
-              aria-current={
-                isActiveHref(item.href, pathname) ? "page" : undefined
-              }
-            >
-              <Button type="button" variant="outline-dark" size="wide">
-                {item.label}
-              </Button>
-            </Link>
-          ) : (
-            <Button
-              key={item.label}
-              type="button"
-              variant="outline-dark"
-              size="wide"
-            >
-              {item.label}
-            </Button>
-          )
-        )}
+        {!isLoading
+          ? navigationItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`${styles["profile-menu__link"]} ${
+                  isActiveHref(item.href, pathname)
+                    ? styles["profile-menu__link--active"]
+                    : ""
+                }`}
+                onClick={handleNav}
+                aria-current={
+                  isActiveHref(item.href, pathname) ? "page" : undefined
+                }
+              >
+                <Button type="button" variant="outline-dark" size="wide">
+                  {item.label}
+                </Button>
+              </Link>
+            ))
+          : null}
       </nav>
 
       <div className={styles["profile-menu__footer"]}>
