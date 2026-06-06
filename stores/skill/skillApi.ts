@@ -74,8 +74,17 @@ export const skillApi = createApi({
             query: (skillIds) => ({
                 url: `api/skills/by-ids`,
                 method: 'POST',
-                data: skillIds,
+                data: {
+                    skillIds: skillIds.map((id) => id.trim()).filter(Boolean),
+                },
             }),
+            serializeQueryArgs: ({ queryArgs }) => {
+                const ids = [...queryArgs]
+                    .map((id) => id.trim())
+                    .filter(Boolean)
+                    .sort();
+                return `skillsByIds:${ids.join(',')}`;
+            },
             transformResponse: (response: unknown) =>
                 normalizeSkillsListResponse(response),
             providesTags: ['Skills'],
