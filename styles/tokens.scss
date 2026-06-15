@@ -27,21 +27,21 @@ $border-width-base: 2px;
 $border-width-strong: 3px;
 
 // Мелкий текст, подписи, overline
-$font-size-xs: 14px;
+$font-size-xs: 16px;
 // Кнопки, метки, ввод
-$font-size-s: 16px;
+$font-size-s: 18px;
 // Основной текст, параграфы
-$font-size-m: 18px;
+$font-size-m: 20px;
 // Подзаголовки, лид
-$font-size-l: 22px;
+$font-size-l: 24px;
 // Заголовки h3
-$font-size-xl: 28px;
+$font-size-xl: 32px;
 // Заголовки h2, карточки
-$font-size-xxl: 36px;
+$font-size-xxl: 40px;
 // Заголовки h1, hero
-$font-size-xxxl: 44px;
+$font-size-xxxl: 48px;
 // Крупный акцент (secondary — лого/баннер)
-$font-size-display: 52px;
+$font-size-display: 56px;
 
 // Line height 
 $line-height-tight: 1.2;
@@ -128,15 +128,15 @@ $color-button-gray-bg: #3D3F48;
 $color-button-gray-border: #4D4F59;
 
 // Button sizes (width × height)
-$button-height-small: 32px;
-$button-height-normal: 40px;
+$button-height-small: 36px;
+$button-height-normal: 44px;
 $button-height-large: 60px;
 $button-width-large: 300px;
 
 // Button font sizes (крупный текст по высоте кнопки, как на референсе)
-$button-font-size-small: 14px;
-$button-font-size-normal: 20px;
-$button-font-size-large: 26px;
+$button-font-size-small: 16px;
+$button-font-size-normal: 22px;
+$button-font-size-large: 28px;
 
 // Additional neutrals / possible colors
 $color-neutral-800: #1c1f2a;
