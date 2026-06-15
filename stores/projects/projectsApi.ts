@@ -5,12 +5,14 @@ import { normalizeProjectLikeStatus } from '@/lib/projectLikeStatus';
 import { normalizeProjectPayload } from '@/lib/projectNormalize';
 import { normalizeFavoritesResponse } from '@/lib/normalizeFavorites';
 import { normalizeListResponse } from '@/lib/normalizeList';
+import { pickProjectId } from '@/lib/projectId';
+import type { ProjectListSort } from '@/lib/projectListSort';
 import { axiosBaseQuery } from '../axios';
 
 export interface ProjectsListParams {
     page: number;
     size: number;
-    sort: string[];
+    sort?: ProjectListSort;
     name?: string;
     skillIds?: string[];
     categories?: SkillCategory[];
@@ -21,8 +23,8 @@ function buildProjectsListParams(params: ProjectsListParams): URLSearchParams {
     searchParams.set('page', String(params.page));
     searchParams.set('size', String(params.size));
 
-    if (params.sort?.length) {
-        searchParams.set('sort', params.sort.join(','));
+    if (params.sort) {
+        searchParams.set('sort', params.sort);
     }
 
     const name = params.name?.trim();
@@ -47,6 +49,97 @@ function omitUndefinedParams(params: Record<string, unknown>): Record<string, un
     return Object.fromEntries(
         Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
     );
+}
+
+function bumpProjectViewCount(project: Project) {
+    project.viewersCount = (project.viewersCount ?? 0) + 1;
+}
+
+function bumpProjectInListDraft(draft: Project[], normalizedId: string) {
+    for (const project of draft) {
+        const id =
+            pickProjectId(project) ??
+            project.projectId?.trim() ??
+            '';
+        if (id === normalizedId) {
+            bumpProjectViewCount(project);
+            break;
+        }
+    }
+}
+
+type ViewCountPatchResult = {
+    patches: { undo: () => void }[];
+    detailPatched: boolean;
+};
+
+function patchProjectViewCountInCaches(
+    dispatch: (action: unknown) => { undo: () => void },
+    getState: () => unknown,
+    projectId: string,
+    options?: { detailOnly?: boolean }
+): ViewCountPatchResult {
+    const normalizedId = projectId.trim();
+    const patches: { undo: () => void }[] = [];
+    let detailPatched = false;
+    const state = getState();
+
+    const detail = projectsApi.endpoints.getProjectsById.select(normalizedId)(state as never);
+    if (detail?.data) {
+        patches.push(
+            dispatch(
+                projectsApi.util.updateQueryData(
+                    'getProjectsById',
+                    normalizedId,
+                    bumpProjectViewCount
+                )
+            )
+        );
+        detailPatched = true;
+    }
+
+    if (!options?.detailOnly) {
+        for (const args of projectsApi.util.selectCachedArgsForQuery(
+            state as never,
+            'getProjectsList'
+        )) {
+            patches.push(
+                dispatch(
+                    projectsApi.util.updateQueryData('getProjectsList', args, (draft) => {
+                        bumpProjectInListDraft(draft, normalizedId);
+                    })
+                )
+            );
+        }
+
+        for (const args of projectsApi.util.selectCachedArgsForQuery(
+            state as never,
+            'getUsersProjects'
+        )) {
+            patches.push(
+                dispatch(
+                    projectsApi.util.updateQueryData('getUsersProjects', args, (draft) => {
+                        bumpProjectInListDraft(draft, normalizedId);
+                    })
+                )
+            );
+        }
+
+        for (const args of projectsApi.util.selectCachedArgsForQuery(
+            state as never,
+            'getFavoritesProjects'
+        )) {
+            patches.push(
+                dispatch(
+                    projectsApi.util.updateQueryData('getFavoritesProjects', args, (draft) => {
+                        bumpProjectInListDraft(draft, normalizedId);
+                    })
+                )
+            );
+        }
+    }
+
+    return { patches, detailPatched };
 }
 
 function normalizeProjectsListResponse(response: unknown): Project[] {
@@ -165,7 +258,7 @@ export const projectsApi = createApi({
             createdBefore?: string;
             page?: number;
             size?: number;
-            sort?: string[];
+            sort?: ProjectListSort;
         }>({
             query: ({ userId, search, projectPublic, createdAfter, createdBefore, page, size, sort }) => ({
                 url: `api/users/${encodeURIComponent(userId)}/projects`,
@@ -177,7 +270,7 @@ export const projectsApi = createApi({
                     createdBefore,
                     page,
                     size,
-                    sort: sort?.length ? sort.join(',') : undefined,
+                    sort,
                 }),
             }),
             transformResponse: normalizeProjectsListResponse,
@@ -202,7 +295,10 @@ export const projectsApi = createApi({
                     data: formData,
                 };
             },
-            invalidatesTags: ['ProjectsList'],
+            invalidatesTags: (_result, _error, { projectId }) => [
+                { type: 'ProjectsList', id: projectId },
+                'ProjectsList',
+            ],
         }),
         uploadProjectPhoto: builder.mutation<void, { projectId: string, photo: File }>({
             query: ({ projectId, photo }) => {
@@ -214,7 +310,10 @@ export const projectsApi = createApi({
                     data: formData,
                 };
             },
-            invalidatesTags: ['ProjectsList'],
+            invalidatesTags: (_result, _error, { projectId }) => [
+                { type: 'ProjectsList', id: projectId },
+                'ProjectsList',
+            ],
         }),
         deleteProjectImage: builder.mutation<void, { projectId: string, imageUrl: string }>({
             query: ({ projectId, imageUrl }) => ({
@@ -222,14 +321,20 @@ export const projectsApi = createApi({
                 method: 'DELETE',
                 params: { url: imageUrl },
             }),
-            invalidatesTags: ['ProjectsList'],
+            invalidatesTags: (_result, _error, { projectId }) => [
+                { type: 'ProjectsList', id: projectId },
+                'ProjectsList',
+            ],
         }),
         deleteProjectPreviewImage: builder.mutation<void, { projectId: string }>({
             query: ({ projectId }) => ({
                 url: `api/projects/${encodeURIComponent(projectId)}/preview`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['ProjectsList'],
+            invalidatesTags: (_result, _error, { projectId }) => [
+                { type: 'ProjectsList', id: projectId },
+                'ProjectsList',
+            ],
         }),
         addProjectToFavorites: builder.mutation<void, { projectId: string }>({
             query: ({ projectId }) => ({
@@ -258,10 +363,30 @@ export const projectsApi = createApi({
                 url: `api/projects/${encodeURIComponent(projectId)}/view`,
                 method: 'POST',
             }),
-            invalidatesTags: (_result, _error, projectId) => [
-                { type: 'ProjectsList', id: projectId },
-                { type: 'ProjectInteraction', id: projectId },
-            ],
+            async onQueryStarted(projectId, { dispatch, queryFulfilled, getState }) {
+                const normalizedId = projectId.trim();
+                const { patches, detailPatched } = patchProjectViewCountInCaches(
+                    dispatch,
+                    getState,
+                    normalizedId
+                );
+
+                try {
+                    await queryFulfilled;
+
+                    if (!detailPatched) {
+                        const latePatch = patchProjectViewCountInCaches(
+                            dispatch,
+                            getState,
+                            normalizedId,
+                            { detailOnly: true }
+                        );
+                        patches.push(...latePatch.patches);
+                    }
+                } catch {
+                    patches.forEach((patch) => patch.undo());
+                }
+            },
         }),
         likeProject: builder.mutation<void, string>({
             query: (projectId) => ({
