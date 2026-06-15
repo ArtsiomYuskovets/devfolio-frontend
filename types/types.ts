@@ -22,9 +22,38 @@ type UserBase = {
 
 export type ProfileCareerEntryType = "work" | "education";
 
-export type ProfileCareerDate = {
+export type CareerEntryTypeApi = "WORK" | "EDUCATION";
+
+export type CareerDateResponse = {
     month: number,
     year: number,
+}
+
+export type CareerEntryResponse = {
+    id?: string,
+    type: CareerEntryTypeApi,
+    title: string,
+    organization: string,
+    description: string,
+    startDate: CareerDateResponse,
+    endDate?: CareerDateResponse | null,
+}
+
+export type CareerEntryApiPayload = {
+    type: CareerEntryTypeApi,
+    title: string,
+    organization: string,
+    description: string,
+    startDate: CareerDateResponse,
+    endDate?: CareerDateResponse,
+}
+
+export type CareerListApiPayload = {
+    items: CareerEntryApiPayload[],
+}
+
+export type CareerListResponse = {
+    items: CareerEntryResponse[],
 }
 
 export type ProfileCareerEntry = {
@@ -33,13 +62,12 @@ export type ProfileCareerEntry = {
     title: string,
     organization: string,
     description: string,
-    startDate: ProfileCareerDate,
-    endDate: ProfileCareerDate | null,
+    startDate: CareerDateResponse,
+    endDate: CareerDateResponse | null,
 }
 
-export type ProfileCareerPayload = {
-    items: ProfileCareerEntry[],
-}
+export type ProfileCareerDate = CareerDateResponse;
+export type ProfileCareerPayload = CareerListApiPayload;
 
 export type UserInfo = UserBase & {
     email: string,
