@@ -3,24 +3,18 @@ import {
     UserProfileInfo,
     DataForFillProfile,
     UserProfileFeed,
+    CareerListApiPayload,
+    ProfileCareerEntry,
 } from "@/types/types";
+import { normalizeCareerResponse } from "@/lib/normalizeCareer";
 import { normalizeListResponse } from "@/lib/normalizeList";
+import {
+    normalizeUploadAvatarResponse,
+    pickAvatarUrlFromPayload,
+    resolveProfileAvatarUrl,
+} from "@/lib/profileAvatar";
 import { pickProfileUserId } from "@/lib/userId";
 import { axiosBaseQuery } from "../axios";
-
-const API_ORIGIN = "http://localhost:8080";
-
-function normalizeAvatarUrl(value: unknown): string {
-    if (typeof value !== "string" || !value.trim()) {
-        return "";
-    }
-    const url = value.trim();
-    if (url.startsWith("http://") || url.startsWith("https://")) {
-        return url;
-    }
-    const normalizedPath = url.startsWith("/") ? url : `/${url}`;
-    return `${API_ORIGIN}${normalizedPath}`;
-}
 
 function normalizeUserProfile(response: unknown): UserProfileInfo {
     if (!response || typeof response !== "object") {
@@ -32,8 +26,10 @@ function normalizeUserProfile(response: unknown): UserProfileInfo {
     if (userId) {
         base.userId = userId;
     }
-    const normalizedAvatar = normalizeAvatarUrl(
-        raw.avatarURL ?? raw.avatarUrl ?? raw.avatar_url
+    const profileUserId = userId ?? undefined;
+    const normalizedAvatar = resolveProfileAvatarUrl(
+        pickAvatarUrlFromPayload(raw),
+        profileUserId
     );
     if (normalizedAvatar) {
         base.avatarURL = normalizedAvatar;
@@ -61,9 +57,12 @@ function normalizeUserFeedItem(response: unknown): UserProfileFeed {
             (typeof raw.display_name === "string" && raw.display_name) ||
             (typeof raw.fullName === "string" && raw.fullName) ||
             "",
-        avatarURL: normalizeAvatarUrl(
-            raw.avatarURL ?? raw.avatarUrl ?? raw.avatar_url
-        ),
+        avatarURL: resolveProfileAvatarUrl(
+            pickAvatarUrlFromPayload(raw),
+            (typeof raw.userId === "string" && raw.userId) ||
+                (typeof raw.id === "string" && raw.id) ||
+                undefined
+        ) ?? "",
         userType:
             (raw.userType as UserProfileFeed["userType"]) ??
             (raw.user_type as UserProfileFeed["userType"]) ??
@@ -86,8 +85,32 @@ type PagedQueryParams = {
     sort: string[];
 };
 
-interface ProfilesSearchParams extends PagedQueryParams {
-    skills: string[];
+export interface ProfilesFeedParams extends PagedQueryParams {
+    search?: string;
+    skills?: string[];
+}
+
+function buildProfilesListParams(params: ProfilesFeedParams): URLSearchParams {
+    const searchParams = new URLSearchParams();
+    searchParams.set("page", String(params.page));
+    searchParams.set("size", String(params.size));
+
+    if (params.sort?.length) {
+        searchParams.set("sort", params.sort.join(","));
+    }
+
+    const search = params.search?.trim();
+    if (search) {
+        searchParams.set("search", search);
+    }
+
+    for (const skillId of params.skills ?? []) {
+        if (skillId.trim()) {
+            searchParams.append("skills", skillId.trim());
+        }
+    }
+
+    return searchParams;
 }
 
 function profileCacheTags(profile?: UserProfileInfo) {
@@ -103,14 +126,24 @@ function profileCacheTags(profile?: UserProfileInfo) {
 export const userApi = createApi({
     reducerPath: "userApi",
     baseQuery: axiosBaseQuery({ baseUrl: "http://localhost:8080/" }),
-    tagTypes: ["UserProfile", "ProfilesList"],
+    tagTypes: ["UserProfile", "ProfilesList", "UserCareer"],
     endpoints: (builder) => ({
-        getMyProfile: builder.query<UserProfileInfo, void>({
-            query: () => ({
-                url: "api/profiles/me",
-                method: "GET",
-            }),
-            transformResponse: normalizeUserProfile,
+        getMyProfile: builder.query<UserProfileInfo | null, void>({
+            async queryFn(_arg, _api, _extraOptions, baseQuery) {
+                const result = await baseQuery({
+                    url: "api/profiles/me",
+                    method: "GET",
+                });
+
+                if (result.error) {
+                    if (result.error.status === 404) {
+                        return { data: null };
+                    }
+                    return { error: result.error };
+                }
+
+                return { data: normalizeUserProfile(result.data) };
+            },
             providesTags: [{ type: "UserProfile", id: "ME" }],
         }),
 
@@ -125,18 +158,11 @@ export const userApi = createApi({
             ],
         }),
 
-        getProfilesList: builder.query<UserProfileInfo[], ProfilesSearchParams>({
+        getProfilesList: builder.query<UserProfileInfo[], ProfilesFeedParams>({
             query: (searchParams) => ({
                 url: "api/profiles",
                 method: "GET",
-                params: {
-                    skills: searchParams.skills,
-                    page: searchParams.page,
-                    size: searchParams.size,
-                    sort: searchParams.sort?.length
-                        ? searchParams.sort.join(",")
-                        : undefined,
-                },
+                params: buildProfilesListParams(searchParams),
             }),
             transformResponse: (response: unknown) =>
                 normalizeListResponse<unknown>(response).map((item) =>
@@ -178,15 +204,11 @@ export const userApi = createApi({
             }),
             invalidatesTags: [{ type: "UserProfile", id: "ME" }, "ProfilesList"],
         }),
-        getUserFeed: builder.query<UserProfileFeed[], PagedQueryParams>({
+        getUserFeed: builder.query<UserProfileFeed[], ProfilesFeedParams>({
             query: (params) => ({
                 url: "api/profiles",
                 method: "GET",
-                params: {
-                    page: params.page,
-                    size: params.size,
-                    sort: params.sort?.length ? params.sort.join(",") : undefined,
-                },
+                params: buildProfilesListParams(params),
             }),
             transformResponse: (response: unknown) =>
                 normalizeListResponse<unknown>(response).map((item) =>
@@ -204,13 +226,14 @@ export const userApi = createApi({
                     };
                 }
                 const formData = new FormData();
-                formData.append("avatar", file);
+                formData.append("file", file);
                 return {
                     url: "api/profiles/me/avatar",
                     method: "POST",
                     data: formData,
                 };
             },
+            transformResponse: normalizeUploadAvatarResponse,
             invalidatesTags: () => profileCacheTags(),
         }),
         deleteAvatar: builder.mutation<void, void>({
@@ -219,6 +242,40 @@ export const userApi = createApi({
                 method: "DELETE",
             }),
             invalidatesTags: () => profileCacheTags(),
+        }),
+        getUserCareer: builder.query<ProfileCareerEntry[], string>({
+            async queryFn(userId, _api, _extraOptions, baseQuery) {
+                const result = await baseQuery({
+                    url: `api/profiles/${encodeURIComponent(userId)}/career`,
+                    method: "GET",
+                });
+
+                if (result.error) {
+                    if (result.error.status === 404) {
+                        return { data: [] };
+                    }
+                    return { error: result.error };
+                }
+
+                return { data: normalizeCareerResponse(result.data) };
+            },
+            providesTags: (_result, _error, userId) => [
+                { type: "UserCareer", id: userId },
+            ],
+        }),
+        updateMyCareer: builder.mutation<
+            ProfileCareerEntry[],
+            { userId: string; payload: CareerListApiPayload }
+        >({
+            query: ({ payload }) => ({
+                url: "api/profiles/me/career",
+                method: "PUT",
+                data: payload,
+            }),
+            transformResponse: normalizeCareerResponse,
+            invalidatesTags: (_result, _error, { userId }) => [
+                { type: "UserCareer", id: userId },
+            ],
         }),
     }),
 });
@@ -233,4 +290,6 @@ export const {
     useGetUserFeedQuery,
     useUploadAvatarMutation,
     useDeleteAvatarMutation,
+    useGetUserCareerQuery,
+    useUpdateMyCareerMutation,
 } = userApi;
