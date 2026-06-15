@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ProfileProjectCard } from "@/components/profile/ProfileProjectCard";
 import { isProjectDisplayReady } from "@/lib/normalizeFavorites";
 import { projectCardDescription } from "@/lib/projectDisplay";
+import { projectLikesCount, projectViewsCount } from "@/lib/projectEngagement";
 import { projectCardPreviewSrc } from "@/lib/projectImage";
 import { useGetProjectsByIdQuery } from "@/stores/projects/projectsApi";
 import type { Project } from "@/types/types";
@@ -57,8 +58,8 @@ export function FavoriteProjectItem({
       <ProfileProjectCard
         title={project.name || "Без названия"}
         description={projectCardDescription(project)}
-        likes={project.likesCount}
-        views={project.viewersCount}
+        likes={projectLikesCount(project)}
+        views={projectViewsCount(project)}
         previewSrc={projectCardPreviewSrc(project)}
         projectId={projectId}
         ownerUserId={project.userId}

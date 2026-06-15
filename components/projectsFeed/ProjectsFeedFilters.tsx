@@ -3,22 +3,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button/Button";
 import { Input } from "@/components/ui/input/Input";
+import { useGetSkillsListQuery, useSkillsByIdsQuery } from "@/stores/skill/skillApi";
 import {
-  useGetSkillsListQuery,
-  useSkillsByIdsQuery,
-} from "@/stores/skill/skillApi";
-import type { Skill, SkillCategory } from "@/types/types";
+  DEFAULT_PROJECT_LIST_SORT,
+  PROJECT_LIST_SORT_OPTIONS,
+  type ProjectListSort,
+} from "@/lib/projectListSort";
+import type { SkillCategory } from "@/types/types";
 import styles from "./ProjectsFeedFilters.module.scss";
 
 export type ProjectsFeedFiltersState = {
   name: string;
   skillIds: string[];
   categories: SkillCategory[];
+  sort: ProjectListSort;
 };
 
 type ProjectsFeedFiltersProps = {
-  value: ProjectsFeedFiltersState;
-  onChange: (next: ProjectsFeedFiltersState) => void;
+  applied: ProjectsFeedFiltersState;
+  onApply: (next: ProjectsFeedFiltersState) => void;
   showCreateProject?: boolean;
   onCreateProject?: () => void;
 };
@@ -30,46 +33,50 @@ const SKILL_CATEGORIES: { value: SkillCategory; label: string }[] = [
   { value: "PLATFORM", label: "Платформы" },
 ];
 
-const CATALOG_PAGE_SIZE = 100;
+const CATALOG_PAGE_SIZE = 50;
 
-function toggleCategory(
-  current: SkillCategory[],
-  category: SkillCategory
-): SkillCategory[] {
-  return current.includes(category)
-    ? current.filter((item) => item !== category)
-    : [...current, category];
+const EMPTY_FILTERS: ProjectsFeedFiltersState = {
+  name: "",
+  skillIds: [],
+  categories: [],
+  sort: DEFAULT_PROJECT_LIST_SORT,
+};
+
+function toggleValue<T>(current: T[], value: T): T[] {
+  return current.includes(value)
+    ? current.filter((item) => item !== value)
+    : [...current, value];
+}
+
+function filtersEqual(
+  a: ProjectsFeedFiltersState,
+  b: ProjectsFeedFiltersState
+): boolean {
+  return (
+    a.name === b.name &&
+    a.skillIds.join(",") === b.skillIds.join(",") &&
+    a.categories.join(",") === b.categories.join(",") &&
+    a.sort === b.sort
+  );
 }
 
 export function ProjectsFeedFilters({
-  value,
-  onChange,
+  applied,
+  onApply,
   showCreateProject = false,
   onCreateProject,
 }: ProjectsFeedFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [nameInput, setNameInput] = useState(value.name);
+  const [isSkillPickerOpen, setIsSkillPickerOpen] = useState(false);
+  const [draft, setDraft] = useState<ProjectsFeedFiltersState>(applied);
+  const [nameInput, setNameInput] = useState(applied.name);
   const [skillSearch, setSkillSearch] = useState("");
   const [debouncedSkillSearch, setDebouncedSkillSearch] = useState("");
-  const [isSkillPickerOpen, setIsSkillPickerOpen] = useState(false);
 
   useEffect(() => {
-    setNameInput(value.name);
-  }, [value.name]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const trimmed = nameInput.trim();
-      if (trimmed !== value.name) {
-        onChange({
-          name: trimmed,
-          skillIds: value.skillIds,
-          categories: value.categories,
-        });
-      }
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [nameInput, value.name, value.skillIds, value.categories, onChange]);
+    setDraft(applied);
+    setNameInput(applied.name);
+  }, [applied]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -88,83 +95,86 @@ export function ProjectsFeedFilters({
         size: CATALOG_PAGE_SIZE,
         sort: [],
       },
-      { skip: !isSkillPickerOpen }
+      { skip: !isOpen || !isSkillPickerOpen }
     );
 
-  const selectedSkillIds = useMemo(
-    () => new Set(value.skillIds),
-    [value.skillIds]
-  );
+  const draftSkillIds = useMemo(() => new Set(draft.skillIds), [draft.skillIds]);
 
-  const selectableSkills = useMemo(
-    () =>
-      catalogSkills.filter(
-        (skill) => skill.id.trim() && !selectedSkillIds.has(skill.id)
-      ),
-    [catalogSkills, selectedSkillIds]
-  );
-
-  const { data: skillsByIds = [] } = useSkillsByIdsQuery(value.skillIds, {
-    skip: value.skillIds.length === 0,
+  const { data: skillsByIds = [] } = useSkillsByIdsQuery(draft.skillIds, {
+    skip: draft.skillIds.length === 0,
   });
 
   const selectedSkillLabels = useMemo(() => {
-    const byId = new Map<string, Skill>();
-    for (const skill of skillsByIds) {
-      byId.set(skill.id, skill);
+    const byId = new Map(skillsByIds.map((skill) => [skill.id, skill.name]));
+    for (const skill of catalogSkills) {
+      byId.set(skill.id, skill.name);
     }
-    return value.skillIds.map((id) => ({
+    return draft.skillIds.map((id) => ({
       id,
-      name: byId.get(id)?.name ?? id,
+      name: byId.get(id) ?? id.slice(0, 8),
     }));
-  }, [skillsByIds, value.skillIds]);
+  }, [catalogSkills, draft.skillIds, skillsByIds]);
 
   const hasActiveFilters =
-    Boolean(value.name.trim()) ||
-    value.skillIds.length > 0 ||
-    value.categories.length > 0;
+    Boolean(applied.name.trim()) ||
+    applied.skillIds.length > 0 ||
+    applied.categories.length > 0 ||
+    applied.sort !== DEFAULT_PROJECT_LIST_SORT;
 
-  const applyNameSearch = () => {
-    onChange({ ...value, name: nameInput.trim() });
+  const hasPendingChanges =
+    nameInput.trim() !== draft.name ||
+    !filtersEqual({ ...draft, name: nameInput.trim() }, applied);
+
+  const applyFilters = () => {
+    const next = { ...draft, name: nameInput.trim() };
+    onApply(next);
+    setDraft(next);
+    setNameInput(next.name);
+    setIsOpen(false);
+    setIsSkillPickerOpen(false);
   };
 
   const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      applyNameSearch();
+      applyFilters();
     }
   };
 
   const handleToggleCategory = (category: SkillCategory) => {
-    onChange({
-      ...value,
-      categories: toggleCategory(value.categories, category),
-    });
+    setDraft((prev) => ({
+      ...prev,
+      categories: toggleValue(prev.categories, category),
+    }));
   };
 
-  const handleAddSkill = (skill: Skill) => {
-    const id = skill.id.trim();
-    if (!id || selectedSkillIds.has(id)) {
+  const handleToggleSkill = (skillId: string) => {
+    const id = skillId.trim();
+    if (!id) {
       return;
     }
-    onChange({
-      ...value,
-      skillIds: [...value.skillIds, id],
-    });
-    setSkillSearch("");
-    setIsSkillPickerOpen(false);
+    setDraft((prev) => ({
+      ...prev,
+      skillIds: toggleValue(prev.skillIds, id),
+    }));
   };
 
   const handleRemoveSkill = (skillId: string) => {
-    onChange({
-      ...value,
-      skillIds: value.skillIds.filter((id) => id !== skillId),
-    });
+    setDraft((prev) => ({
+      ...prev,
+      skillIds: prev.skillIds.filter((id) => id !== skillId),
+    }));
+  };
+
+  const handleSortChange = (sort: ProjectListSort) => {
+    setDraft((prev) => ({ ...prev, sort }));
   };
 
   const handleResetFilters = () => {
     setNameInput("");
-    onChange({ name: "", skillIds: [], categories: [] });
+    setDraft(EMPTY_FILTERS);
+    onApply(EMPTY_FILTERS);
+    setIsSkillPickerOpen(false);
   };
 
   return (
@@ -214,8 +224,8 @@ export function ProjectsFeedFilters({
           <button
             type="button"
             className={styles["projects-feed-filters__search-button"]}
-            aria-label="Искать проекты"
-            onClick={applyNameSearch}
+            aria-label="Применить поиск"
+            onClick={applyFilters}
           >
             ⌕
           </button>
@@ -224,34 +234,74 @@ export function ProjectsFeedFilters({
 
       {isOpen ? (
         <div className={styles["projects-feed-filters__panel"]}>
-          <div className={styles["projects-feed-filters__group"]}>
-            <span className={styles["projects-feed-filters__label"]}>
-              Категории навыков
-            </span>
-            <div className={styles["projects-feed-filters__chips"]}>
-              {SKILL_CATEGORIES.map((category) => {
-                const isActive = value.categories.includes(category.value);
-                return (
-                  <button
-                    key={category.value}
-                    type="button"
-                    className={`${styles["projects-feed-filters__chip"]} ${
-                      isActive ? styles["projects-feed-filters__chip--active"] : ""
-                    }`}
-                    onClick={() => handleToggleCategory(category.value)}
-                    aria-pressed={isActive}
-                  >
-                    {category.label}
-                  </button>
-                );
-              })}
+          <div className={styles["projects-feed-filters__panel-grid"]}>
+            <div className={styles["projects-feed-filters__group"]}>
+              <span className={styles["projects-feed-filters__label"]}>
+                Сортировка
+              </span>
+              <div className={styles["projects-feed-filters__chip-row"]}>
+                {PROJECT_LIST_SORT_OPTIONS.map((option) => {
+                  const isActive = draft.sort === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={`${styles["projects-feed-filters__chip"]} ${
+                        isActive ? styles["projects-feed-filters__chip--active"] : ""
+                      }`}
+                      onClick={() => handleSortChange(option.value)}
+                      aria-pressed={isActive}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className={styles["projects-feed-filters__group"]}>
+              <span className={styles["projects-feed-filters__label"]}>
+                Категории
+              </span>
+              <div className={styles["projects-feed-filters__chip-row"]}>
+                {SKILL_CATEGORIES.map((category) => {
+                  const isActive = draft.categories.includes(category.value);
+                  return (
+                    <button
+                      key={category.value}
+                      type="button"
+                      className={`${styles["projects-feed-filters__chip"]} ${
+                        isActive ? styles["projects-feed-filters__chip--active"] : ""
+                      }`}
+                      onClick={() => handleToggleCategory(category.value)}
+                      aria-pressed={isActive}
+                    >
+                      {category.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
           <div className={styles["projects-feed-filters__group"]}>
-            <span className={styles["projects-feed-filters__label"]}>Навыки</span>
+            <div className={styles["projects-feed-filters__skills-head"]}>
+              <span className={styles["projects-feed-filters__label"]}>
+                Навыки
+              </span>
+              <Button
+                type="button"
+                variant="outline-light"
+                size="normal"
+                onClick={() => setIsSkillPickerOpen((open) => !open)}
+                aria-expanded={isSkillPickerOpen}
+              >
+                {isSkillPickerOpen ? "Скрыть" : "Выбрать"}
+              </Button>
+            </div>
+
             {selectedSkillLabels.length > 0 ? (
-              <div className={styles["projects-feed-filters__selected"]}>
+              <div className={styles["projects-feed-filters__tags"]}>
                 {selectedSkillLabels.map((skill) => (
                   <span key={skill.id} className={styles["projects-feed-filters__tag"]}>
                     {skill.name}
@@ -266,61 +316,66 @@ export function ProjectsFeedFilters({
                   </span>
                 ))}
               </div>
-            ) : (
-              <p className={styles["projects-feed-filters__hint"]}>
-                Выберите навыки для фильтрации проектов
-              </p>
-            )}
+            ) : null}
 
-            <div className={styles["projects-feed-filters__skill-picker"]}>
-              <Button
-                type="button"
-                variant="outline-light"
-                size="small"
-                onClick={() => setIsSkillPickerOpen((open) => !open)}
-                aria-expanded={isSkillPickerOpen}
-              >
-                {isSkillPickerOpen ? "Скрыть каталог" : "Добавить навык"}
-              </Button>
-
-              {isSkillPickerOpen ? (
-                <div className={styles["projects-feed-filters__skill-dropdown"]}>
-                  <Input
-                    variant="outline-light"
-                    className={styles["projects-feed-filters__input"]}
-                    placeholder="Поиск в каталоге навыков"
-                    value={skillSearch}
-                    onChange={(e) => setSkillSearch(e.target.value)}
-                  />
-                  {isCatalogLoading ? (
-                    <p className={styles["projects-feed-filters__hint"]}>
-                      Загрузка каталога…
-                    </p>
-                  ) : selectableSkills.length > 0 ? (
-                    <ul className={styles["projects-feed-filters__skill-list"]}>
-                      {selectableSkills.map((skill) => (
-                        <li key={skill.id}>
+            {isSkillPickerOpen ? (
+              <div className={styles["projects-feed-filters__skills-picker"]}>
+                <Input
+                  variant="outline-light"
+                  className={styles["projects-feed-filters__input"]}
+                  placeholder="Поиск навыка"
+                  value={skillSearch}
+                  onChange={(e) => setSkillSearch(e.target.value)}
+                />
+                {isCatalogLoading ? (
+                  <p className={styles["projects-feed-filters__hint"]}>
+                    Загрузка…
+                  </p>
+                ) : catalogSkills.length > 0 ? (
+                  <ul className={styles["projects-feed-filters__skills-list"]}>
+                    {catalogSkills.map((skill) => {
+                      const id = skill.id.trim();
+                      if (!id) {
+                        return null;
+                      }
+                      const isSelected = draftSkillIds.has(id);
+                      return (
+                        <li key={id}>
                           <button
                             type="button"
-                            className={styles["projects-feed-filters__skill-option"]}
-                            onClick={() => handleAddSkill(skill)}
+                            className={`${styles["projects-feed-filters__skill-option"]} ${
+                              isSelected
+                                ? styles["projects-feed-filters__skill-option--active"]
+                                : ""
+                            }`}
+                            onClick={() => handleToggleSkill(id)}
+                            aria-pressed={isSelected}
                           >
-                            <span>{skill.name}</span>
-                            <span className={styles["projects-feed-filters__skill-meta"]}>
-                              {skill.category}
-                            </span>
+                            {skill.name}
                           </button>
                         </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className={styles["projects-feed-filters__hint"]}>
-                      Навыки не найдены
-                    </p>
-                  )}
-                </div>
-              ) : null}
-            </div>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <p className={styles["projects-feed-filters__hint"]}>
+                    Навыки не найдены
+                  </p>
+                )}
+              </div>
+            ) : null}
+          </div>
+
+          <div className={styles["projects-feed-filters__panel-actions"]}>
+            <Button
+              type="button"
+              variant="outline-light"
+              size="normal"
+              onClick={applyFilters}
+              disabled={!hasPendingChanges}
+            >
+              Применить
+            </Button>
           </div>
         </div>
       ) : null}
