@@ -236,11 +236,17 @@
     padding: tokens.$space-m;
     transition:
       border-color 0.2s ease,
-      box-shadow 0.2s ease;
+      box-shadow 0.2s ease,
+      opacity 0.2s ease;
 
     &:hover {
       border-color: rgba(tokens.$color-text-light, 0.4);
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+    }
+
+    &--fetching {
+      opacity: 0.72;
+      pointer-events: none;
     }
   }
 
