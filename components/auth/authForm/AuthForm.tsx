@@ -9,7 +9,9 @@ import { checkEmail, checkPassword } from "@/lib/validation";
 import { useAppSelector, useAppDispatch } from "@/stores/auth/hooks";
 import { setTokens } from "@/stores/auth/authSlice";
 import { Input } from "@/components/ui/input/Input";
+import Link from "next/link";
 import { Button } from "@/components/ui/button/Button";
+import { WELCOME_PATH } from "@/lib/routes";
 
 
 export default function AuthForm() {
@@ -117,6 +119,9 @@ export default function AuthForm() {
 
   return (
     <div className={styles.auth}>
+      <Link href={WELCOME_PATH} className={styles.auth__back}>
+        ← На главную
+      </Link>
       <div
         className={`${styles.auth__strip} ${!isLogin ? styles["auth__strip--shifted"] : ""}`}
       >
