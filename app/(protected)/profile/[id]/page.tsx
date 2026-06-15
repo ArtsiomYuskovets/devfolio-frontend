@@ -12,11 +12,8 @@ import {
 export default function ProfileByIdPage() {
   const params = useParams<{ id: string }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const {
-    data: myProfile,
-    isLoading: isLoadingMyProfile,
-    error: myProfileError,
-  } = useGetMyProfileQuery(undefined, { refetchOnMountOrArgChange: true });
+  const { data: myProfile, isLoading: isLoadingMyProfile } =
+    useGetMyProfileQuery(undefined, { refetchOnMountOrArgChange: true });
   const {
     data: viewedProfile,
     isLoading: isLoadingViewedProfile,
@@ -33,16 +30,23 @@ export default function ProfileByIdPage() {
     ? pickProfileUserId(viewedProfile) ?? viewedProfile.userId
     : undefined;
 
-  const isOwnProfile =
-    !myProfileError &&
-    Boolean(myUserId && viewedUserId && myUserId === viewedUserId);
+  const isOwnProfile = Boolean(
+    myUserId && viewedUserId && myUserId === viewedUserId
+  );
 
   const displayProfile = useMemo(() => {
     if (!viewedProfile) {
       return undefined;
     }
     if (isOwnProfile && myProfile) {
-      return { ...viewedProfile, ...myProfile };
+      const avatarURL =
+        myProfile.avatarURL?.trim() || viewedProfile.avatarURL?.trim() || "";
+      return {
+        ...viewedProfile,
+        ...myProfile,
+        avatarURL,
+        links: { ...viewedProfile.links, ...myProfile.links },
+      };
     }
     return viewedProfile;
   }, [isOwnProfile, myProfile, viewedProfile]);

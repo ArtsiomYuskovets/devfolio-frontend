@@ -1,9 +1,10 @@
 import type {
+  CareerListApiPayload,
   ProfileCareerDate,
   ProfileCareerEntry,
   ProfileCareerEntryType,
-  ProfileCareerPayload,
 } from "@/types/types";
+import { mapCareerEntriesToApiPayload } from "@/lib/normalizeCareer";
 import {
   CAREER_MONTH_OPTIONS,
   CAREER_TYPE_OPTIONS,
@@ -114,12 +115,10 @@ export function formatCareerDateRange(entry: ProfileCareerEntry) {
 
 export function mapCareerEntriesToPayload(
   entries: ProfileCareerEntry[]
-): ProfileCareerPayload {
-  return {
-    items: sortCareerEntries(entries).map((entry) =>
-      normalizeCareerEntryDates(entry)
-    ),
-  };
+): CareerListApiPayload {
+  return mapCareerEntriesToApiPayload(
+    sortCareerEntries(entries).map((entry) => normalizeCareerEntryDates(entry))
+  );
 }
 
 export function getDefaultCareerEntries(

@@ -9,6 +9,7 @@ import { useGetUsersProjectsQuery } from "@/stores/projects/projectsApi";
 import { pickProjectId } from "@/lib/projectId";
 import { pickUserId } from "@/lib/userId";
 import { projectCardDescription } from "@/lib/projectDisplay";
+import { projectLikesCount, projectViewsCount } from "@/lib/projectEngagement";
 import { projectCardPreviewSrc } from "@/lib/projectImage";
 import styles from "./ProfileProjectsSection.module.scss";
 
@@ -73,8 +74,8 @@ export function ProfileProjectsSection({
                 <ProfileProjectCard
                   title={project.name || "Без названия"}
                   description={projectCardDescription(project)}
-                  likes={project.likesCount}
-                  views={project.viewersCount}
+                  likes={projectLikesCount(project)}
+                  views={projectViewsCount(project)}
                   previewSrc={projectCardPreviewSrc(project)}
                   projectId={id}
                   ownerUserId={pickUserId(project) ?? project.userId ?? userId}

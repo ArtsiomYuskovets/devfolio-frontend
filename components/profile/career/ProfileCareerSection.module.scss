@@ -1,0 +1,11 @@
+@use "@/styles/tokens" as tokens;
+
+.profile-career-section {
+  &__status {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    line-height: tokens.$line-height-body;
+    color: rgba(tokens.$color-text-dark, 0.92);
+  }
+}

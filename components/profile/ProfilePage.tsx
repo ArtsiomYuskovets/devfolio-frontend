@@ -1,8 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { ProfileCareerSection } from "./career/ProfileCareerSection";
+import { ProfileAvatarImg } from "./ProfileAvatarImg";
 import { ProfileProjectsSection } from "./ProfileProjectsSection";
+import { ImageLightbox } from "@/components/ui/image-lightbox/ImageLightbox";
+import { useProfileAvatarSrc } from "@/hooks/useProfileAvatarSrc";
 import type { UserProfileInfo } from "@/types/types";
 import { pickUserId } from "@/lib/userId";
 import { formatUserTypeLabel, isRecruiter } from "@/lib/userType";
@@ -16,7 +20,14 @@ type ProfilePageProps = {
 export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
   const profileIsRecruiter = isRecruiter(profile.userType);
   const showProjectsSection = !(isOwnProfile && profileIsRecruiter);
+  const showCareerSection = !profileIsRecruiter;
+  const showMainColumn =
+    showProjectsSection || (showCareerSection && Boolean(profile.userId));
   const isCenteredLayout = isOwnProfile && profileIsRecruiter;
+  const profileUserId = pickUserId(profile) ?? profile.userId;
+  const showBioInMain = showMainColumn && !isCenteredLayout;
+  const avatarSrc = useProfileAvatarSrc(profile.avatarURL, profileUserId);
+  const [isAvatarLightboxOpen, setIsAvatarLightboxOpen] = useState(false);
 
   const profileLinks = useMemo(() => {
     const linkValues = Object.values(profile.links ?? {}).filter(Boolean);
@@ -35,7 +46,7 @@ export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
   const contentClassName = [
     styles["profile-view__content"],
     isCenteredLayout ? styles["profile-view__content--centered"] : "",
-    showProjectsSection ? styles["profile-view__content--with-main"] : "",
+    showMainColumn ? styles["profile-view__content--with-main"] : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -55,15 +66,22 @@ export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
       <div className={contentClassName}>
         <aside className={styles["profile-view__sidebar"]}>
           <div className={styles["profile-view__avatar-wrap"]}>
-            <div className={styles["profile-view__avatar"]}>
-              {profile.avatarURL ? (
-                <img
-                  src={profile.avatarURL}
-                  alt={`${profile.nickname || "Пользователь"} avatar`}
-                  className={styles["profile-view__avatar-img"]}
-                />
-              ) : null}
-            </div>
+            <button
+              type="button"
+              className={`${styles["profile-view__avatar"]} ${
+                avatarSrc ? styles["profile-view__avatar--clickable"] : ""
+              }`}
+              onClick={() => avatarSrc && setIsAvatarLightboxOpen(true)}
+              disabled={!avatarSrc}
+              aria-label="Открыть фото профиля полностью"
+            >
+              <ProfileAvatarImg
+                avatarURL={profile.avatarURL}
+                userId={profileUserId}
+                alt={`${profile.nickname || "Пользователь"} avatar`}
+                className={styles["profile-view__avatar-img"]}
+              />
+            </button>
           </div>
 
           <p className={styles["profile-view__nickname"]}>
@@ -79,34 +97,63 @@ export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
           </span>
 
           <div className={styles["profile-view__links-box"]}>
-            {profileLinks.map((link) => (
-              <a
-                key={link}
-                className={styles["profile-view__link-text"]}
-                href={link}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {link}
-              </a>
-            ))}
+            <h2 className={styles["profile-view__links-title"]}>Ссылки</h2>
+            <div className={styles["profile-view__links-list"]}>
+              {profileLinks.map((link) => (
+                <a
+                  key={link}
+                  className={styles["profile-view__link-text"]}
+                  href={link}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {link}
+                </a>
+              ))}
+            </div>
           </div>
 
-          <div className={styles["profile-view__bio"]}>
-            {profile.bio ||
-              "Описание профиля появится здесь, когда пользователь заполнит блок о себе."}
-          </div>
+          {!showBioInMain ? (
+            <div className={styles["profile-view__bio"]}>
+              {profile.bio ||
+                "Описание профиля появится здесь, когда пользователь заполнит блок о себе."}
+            </div>
+          ) : null}
         </aside>
 
-        {showProjectsSection ? (
+        {showMainColumn ? (
           <div className={styles["profile-view__main"]}>
-            <ProfileProjectsSection
-              userId={pickUserId(profile) ?? profile.userId}
-              isOwnProfile={isOwnProfile}
-            />
+            {showCareerSection && profileUserId ? (
+              <ProfileCareerSection
+                userId={profileUserId}
+                isOwnProfile={isOwnProfile}
+              />
+            ) : null}
+            {showBioInMain ? (
+              <div className={styles["profile-view__bio"]}>
+                <h2 className={styles["profile-view__bio-title"]}>О себе</h2>
+                <p className={styles["profile-view__bio-text"]}>
+                  {profile.bio ||
+                    "Описание профиля появится здесь, когда пользователь заполнит блок о себе."}
+                </p>
+              </div>
+            ) : null}
+            {showProjectsSection ? (
+              <ProfileProjectsSection
+                userId={profileUserId}
+                isOwnProfile={isOwnProfile}
+              />
+            ) : null}
           </div>
         ) : null}
       </div>
+
+      <ImageLightbox
+        images={avatarSrc ? [avatarSrc] : []}
+        isOpen={isAvatarLightboxOpen}
+        onClose={() => setIsAvatarLightboxOpen(false)}
+        alt={`${profile.nickname || "Пользователь"} avatar`}
+      />
     </section>
   );
 }

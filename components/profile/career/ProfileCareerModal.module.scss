@@ -115,6 +115,13 @@
     margin-bottom: tokens.$space-l;
   }
 
+  &__error {
+    margin: 0 0 tokens.$space-l;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    color: #e53935;
+  }
+
   &__list {
     display: flex;
     flex-direction: column;
