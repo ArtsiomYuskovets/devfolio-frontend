@@ -126,6 +126,67 @@ export function pickProjectGalleryUrls(response: unknown): string[] {
   return urls;
 }
 
+export type ProjectEditorPhotoSlot = {
+  role: "preview" | "gallery";
+  displayUrl: string;
+  deleteUrl: string;
+};
+
+export function buildProjectEditorPhotoSlots(
+  project: unknown,
+  slotCount = 5
+): Array<ProjectEditorPhotoSlot | null> {
+  const slots: Array<ProjectEditorPhotoSlot | null> = Array.from(
+    { length: slotCount },
+    () => null
+  );
+
+  if (!project || typeof project !== "object") {
+    return slots;
+  }
+
+  const raw = project as Record<string, unknown>;
+  const previewRaw = pickProjectPreviewUrl(raw);
+  if (previewRaw) {
+    slots[0] = {
+      role: "preview",
+      displayUrl: resolveApiAssetUrl(previewRaw),
+      deleteUrl: previewRaw,
+    };
+  }
+
+  const images = raw.images;
+  if (!Array.isArray(images)) {
+    return slots;
+  }
+
+  let galleryIndex = 1;
+  for (const item of images) {
+    if (galleryIndex >= slotCount) {
+      break;
+    }
+
+    const imageRaw = pickImageUrlFromItem(item);
+    if (!imageRaw) {
+      continue;
+    }
+
+    const displayUrl = resolveApiAssetUrl(imageRaw);
+    if (slots[0]?.displayUrl === displayUrl) {
+      continue;
+    }
+
+    slots[galleryIndex] = {
+      role: "gallery",
+      displayUrl,
+      deleteUrl: imageRaw,
+    };
+    galleryIndex += 1;
+  }
+
+  return slots;
+}
+
 export function projectCardPreviewSrc(project: Project): string | undefined {
   const gallery = pickProjectGalleryUrls(project);
   if (gallery.length > 0) {

@@ -215,7 +215,9 @@ export function normalizeProjectPayload(response: unknown): Project {
     "view_count",
     "totalViews",
     "total_views",
-    "views"
+    "views",
+    "numberOfViews",
+    "number_of_views"
   );
   const likesCount = readCount(
     raw,
