@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button/Button";
-import type { UserProfileInfo } from "@/types/types";
+import type { DataForFillProfile, UserProfileInfo } from "@/types/types";
 import { SectionTitle } from "@/components/ui/section-title/SectionTitle";
 import { Input } from "@/components/ui/input/Input";
 import { TextareaField } from "@/components/ui/textarea-field/TextareaField";
@@ -10,19 +10,27 @@ import styles from "./ProfileEditForm.module.scss";
 import { useState, useCallback, useEffect, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
+  useFillMyProfileMutation,
   useUpdateMyProfileMutation,
   useUploadAvatarMutation,
 } from "@/stores/user/userApi";
+import { ProfileAvatarImg } from "@/components/profile/ProfileAvatarImg";
+import { resolveProfileAvatarUrl } from "@/lib/profileAvatar";
 import { LinksSection } from "@/components/section/linkSection/LinkSection";
 
 type ProfileEditFormProps = {
   profile?: Partial<UserProfileInfo>;
+  isNewProfile?: boolean;
 };
 
-export function ProfileEditForm({ profile }: ProfileEditFormProps) {
+export function ProfileEditForm({
+  profile,
+  isNewProfile = false,
+}: ProfileEditFormProps) {
   const router = useRouter();
   const [myProfile, setMyProfile] = useState<Partial<UserProfileInfo>>(profile ?? {});
   const [updateMyProfile] = useUpdateMyProfileMutation();
+  const [fillMyProfile] = useFillMyProfileMutation();
   const [uploadAvatar, { isLoading: isAvatarUploading }] = useUploadAvatarMutation();
   const [links, setLinks] = useState<Array<{ key: string; value: string }>>(() => {
     const initialLinks = profile?.links ?? {};
@@ -79,19 +87,29 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
           .filter(({ key, value }) => key && value)
           .map(({ key, value }) => [key, value])
       );
-      const { skills: _skills, ...profileWithoutSkills } = myProfile;
-      const profileToSave = {
-        ...profileWithoutSkills,
+      const { skills: _skills, userId: _userId, ...profileWithoutSkills } = myProfile;
+      const profileToSave: DataForFillProfile = {
+        nickname: profileWithoutSkills.nickname ?? "",
+        firstName: profileWithoutSkills.firstName ?? "",
+        lastName: profileWithoutSkills.lastName ?? "",
+        bio: profileWithoutSkills.bio ?? "",
+        avatarURL: profileWithoutSkills.avatarURL ?? "",
+        skills: [],
         links: linksObject,
+        userType: profileWithoutSkills.userType ?? "JOB_SEEKER",
       };
-      const updatedProfile = await updateMyProfile(profileToSave).unwrap();
-      if (updatedProfile) {
-        setMyProfile(updatedProfile);
-        const userId = updatedProfile.userId;
+
+      const savedProfile = isNewProfile
+        ? await fillMyProfile(profileToSave).unwrap()
+        : await updateMyProfile(profileToSave).unwrap();
+
+      if (savedProfile) {
+        setMyProfile(savedProfile);
+        const userId = savedProfile.userId;
         if (userId) {
           router.push(`/profile/${userId}`);
         }
-        alert("Профиль успешно обновлен");
+        alert(isNewProfile ? "Профиль успешно создан" : "Профиль успешно обновлен");
       }
     } catch (error) {
       console.error(error);
@@ -112,9 +130,12 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
         return;
       }
       try {
-        const result = await uploadAvatar(file).unwrap();
-        if (typeof result === "string" && result.trim()) {
-          setMyProfile((prev) => ({ ...prev, avatarURL: result.trim() }));
+        const uploadedAvatar = await uploadAvatar(file).unwrap();
+        const nextAvatar =
+          uploadedAvatar.trim() ||
+          resolveProfileAvatarUrl(undefined, myProfile.userId);
+        if (nextAvatar) {
+          setMyProfile((prev) => ({ ...prev, avatarURL: nextAvatar }));
         }
       } catch {
         alert("Не удалось загрузить аватар");
@@ -122,7 +143,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
         input.value = "";
       }
     },
-    [uploadAvatar]
+    [uploadAvatar, myProfile.userId]
   );
 
   return (
@@ -131,13 +152,12 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
         <div className={styles["profile-edit__card"]}>
           <div className={styles["profile-edit__hero"]}>
             <div className={styles["profile-edit__avatar"]}>
-              {myProfile.avatarURL ? (
-                <img
-                  src={myProfile.avatarURL}
-                  alt="Аватар профиля"
-                  className={styles["profile-edit__avatar-img"]}
-                />
-              ) : null}
+              <ProfileAvatarImg
+                avatarURL={myProfile.avatarURL}
+                userId={myProfile.userId}
+                alt="Аватар профиля"
+                className={styles["profile-edit__avatar-img"]}
+              />
             </div>
           </div>
 
@@ -162,7 +182,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
                     accept="image/*"
                     className={styles["profile-edit__avatar-file-input"]}
                     onChange={handleAvatarUpload}
-                    disabled={isAvatarUploading}
+                    disabled={isAvatarUploading || isNewProfile}
                   />
                   <Button
                     type="button"
@@ -171,10 +191,15 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
                     onClick={() =>
                       document.getElementById("profile-avatar-upload")?.click()
                     }
-                    disabled={isAvatarUploading}
+                    disabled={isAvatarUploading || isNewProfile}
                   >
                     {isAvatarUploading ? "Загрузка..." : "Загрузить файл"}
                   </Button>
+                  {isNewProfile ? (
+                    <p className={styles["profile-edit__hint"]}>
+                      Загрузка файла будет доступна после создания профиля
+                    </p>
+                  ) : null}
                 </div>
               </div>
               <div className={styles["profile-edit__field"]}>
@@ -243,14 +268,16 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
               </div>
 
               <div className={styles["profile-edit__field--full"]}>
-                <Input
-                  label="ID-пользователя"
-                  className={styles["profile-edit__input"]}
-                  variant="primary-light"
-                  placeholder="id-000000000"
-                  value={myProfile.userId ?? ""}
-                  readOnly
-                />
+                {!isNewProfile ? (
+                  <Input
+                    label="ID-пользователя"
+                    className={styles["profile-edit__input"]}
+                    variant="primary-light"
+                    placeholder="id-000000000"
+                    value={myProfile.userId ?? ""}
+                    readOnly
+                  />
+                ) : null}
               </div>
 
               <TextareaField
@@ -274,7 +301,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
             />
             <div className={styles["profile-edit__actions"]}>
               <Button type="button" variant="outline-dark" size="wide" onClick={handleSave}>
-                Сохранить
+                {isNewProfile ? "Создать профиль" : "Сохранить"}
               </Button>
             </div>
           </div>

@@ -7,7 +7,7 @@ import { useGetMyProfileQuery } from "@/stores/user/userApi";
 
 export default function ProfileRedirectPage() {
   const router = useRouter();
-  const { data: profile, isLoading, isFetching, isError } = useGetMyProfileQuery(
+  const { data: profile, isLoading, isFetching } = useGetMyProfileQuery(
     undefined,
     { refetchOnMountOrArgChange: true }
   );
@@ -24,13 +24,8 @@ export default function ProfileRedirectPage() {
       return;
     }
 
-    if (!isError) {
-      router.replace("/profile/edit");
-      return;
-    }
-
-    router.replace("/auth");
-  }, [isLoading, isFetching, isError, userId, router]);
+    router.replace("/profile/edit");
+  }, [isLoading, isFetching, userId, router]);
 
   return null;
 }
