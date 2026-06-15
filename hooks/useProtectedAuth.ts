@@ -10,8 +10,7 @@ import {
 import { tokenService } from "@/lib/tokenService";
 import { useAppDispatch, useAppSelector } from "@/stores/auth/hooks";
 import { setAuthCheckComplete } from "@/stores/auth/authSlice";
-
-const AUTH_PATH = "/auth";
+import { WELCOME_PATH } from "@/lib/routes";
 const PERIODIC_CHECK_MS = 30_000;
 
 type SessionStatus = "checking" | "authenticated" | "unauthenticated";
@@ -130,7 +129,7 @@ export function useProtectedAuth() {
       return;
     }
     void tokenService.clearTokens(dispatch);
-    router.replace(AUTH_PATH);
+    router.replace(WELCOME_PATH);
   }, [isAuthCheckComplete, status, router, dispatch]);
 
   useEffect(() => clearRefreshTimer, [clearRefreshTimer]);

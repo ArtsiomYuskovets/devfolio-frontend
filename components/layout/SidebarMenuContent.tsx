@@ -4,9 +4,13 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button/Button";
+import { ProfileAvatarImg } from "@/components/profile/ProfileAvatarImg";
+import { WELCOME_PATH } from "@/lib/routes";
 import { tokenService } from "@/lib/tokenService";
+import { pickProfileUserId } from "@/lib/userId";
 import { useAppDispatch } from "@/stores/auth/hooks";
 import { useMyUserType } from "@/hooks/useMyUserType";
+import { useGetMyProfileQuery } from "@/stores/user/userApi";
 import styles from "@/components/profile/ProfileSidebarMenu.module.scss";
 
 type NavItem = { label: string; href: string };
@@ -27,10 +31,7 @@ const recruiterNavigationItems: NavItem[] = [
 
 function isActiveHref(href: string, pathname: string): boolean {
   if (href === "/profile") {
-    if (
-      pathname.startsWith("/profile/edit") ||
-      pathname.startsWith("/profile/settings")
-    ) {
+    if (pathname.startsWith("/profile/edit")) {
       return false;
     }
     return pathname === "/profile" || /^\/profile\/[^/]+\/?$/.test(pathname);
@@ -67,6 +68,10 @@ export function SidebarMenuContent({
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isRecruiter, isLoading } = useMyUserType();
+  const { data: myProfile } = useGetMyProfileQuery();
+  const myUserId = myProfile
+    ? pickProfileUserId(myProfile) ?? myProfile.userId
+    : undefined;
 
   const navigationItems = useMemo(
     () => (isRecruiter ? recruiterNavigationItems : seekerNavigationItems),
@@ -80,16 +85,22 @@ export function SidebarMenuContent({
   const handleLogout = async () => {
     await tokenService.logout(dispatch);
     onNavigate?.();
-    router.replace("/auth");
+    router.replace(WELCOME_PATH);
   };
 
   const isEditActive = pathname.startsWith("/profile/edit");
-  const isSettingsActive = pathname.startsWith("/profile/settings");
 
   return (
     <>
       <div className={styles["profile-menu__header"]}>
-        <div className={styles["profile-menu__avatar"]} />
+        <div className={styles["profile-menu__avatar"]}>
+          <ProfileAvatarImg
+            avatarURL={myProfile?.avatarURL}
+            userId={myUserId}
+            alt="Аватар профиля"
+            className={styles["profile-menu__avatar-img"]}
+          />
+        </div>
         {showClose ? (
           <button
             type="button"
@@ -113,19 +124,6 @@ export function SidebarMenuContent({
         >
           <Button type="button" variant="outline-light" size="wide">
             Редактировать профиль
-          </Button>
-        </Link>
-
-        <Link
-          href="/profile/settings"
-          className={`${styles["profile-menu__link"]} ${
-            isSettingsActive ? styles["profile-menu__link--active"] : ""
-          }`}
-          onClick={handleNav}
-          aria-current={isSettingsActive ? "page" : undefined}
-        >
-          <Button type="button" variant="outline-light" size="wide">
-            Настройки
           </Button>
         </Link>
       </div>
