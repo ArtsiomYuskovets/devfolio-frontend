@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { Button } from "@/components/ui/button/Button";
+import { useProfileAvatarSrc } from "@/hooks/useProfileAvatarSrc";import { pickUserId } from "@/lib/userId";
 import type { UserProfileInfo } from "@/types/types";
 import styles from "./ProjectTemplate.module.scss";
 
@@ -14,14 +16,22 @@ export function ProjectTemplateAuthorAside({
   authorProfile,
   authorProfileHref,
 }: ProjectTemplateAuthorAsideProps) {
+  const authorUserId = authorProfile
+    ? pickUserId(authorProfile) ?? authorProfile.userId
+    : undefined;
+  const avatarSrc = useProfileAvatarSrc(
+    authorProfile?.avatarURL,
+    authorUserId
+  );
+
   return (
     <aside className={styles["project-template__author"]}>
       <div
         className={styles["project-template__avatar"]}
         style={
-          authorProfile?.avatarURL
+          avatarSrc
             ? {
-                backgroundImage: `url(${authorProfile.avatarURL})`,
+                backgroundImage: `url(${avatarSrc})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }
@@ -37,14 +47,5 @@ export function ProjectTemplateAuthorAside({
           Открыть профиль
         </Link>
       ) : null}
-      <div className={styles["project-template__author-actions"]}>
-        <Button type="button" variant="outline-dark" size="normal">
-          Написать исполнителю
-        </Button>
-        <Button type="button" variant="outline-dark" size="normal">
-          Подписаться
-        </Button>
-      </div>
-    </aside>
-  );
+    </aside>  );
 }

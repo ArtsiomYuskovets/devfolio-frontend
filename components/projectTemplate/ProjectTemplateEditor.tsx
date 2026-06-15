@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input/Input";
 import { Button } from "@/components/ui/button/Button";
 import {
@@ -9,8 +10,10 @@ import {
   useUpdateProjectMutation,
 } from "@/stores/projects/projectsApi";
 import { useGetMyProfileQuery } from "@/stores/user/userApi";
+import { useProfileAvatarSrc } from "@/hooks/useProfileAvatarSrc";
 import { pickUserId } from "@/lib/userId";
 import { ProjectTemplateEditorSkills } from "./ProjectTemplateEditorSkills";
+import { ProjectTemplateEditorPhotos } from "./ProjectTemplateEditorPhotos";
 import styles from "./ProjectTemplate.module.scss";
 import editorStyles from "./ProjectTemplateEditor.module.scss";
 
@@ -19,6 +22,7 @@ export type ProjectTemplateEditorProps = {
 };
 
 export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps) {
+  const router = useRouter();
   const { data: project, isLoading, error } = useGetProjectsByIdQuery(projectId, {
     skip: !projectId,
   });
@@ -27,6 +31,7 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
 
   const ownerId = project ? pickUserId(project) ?? project.userId : undefined;
   const myId = pickUserId(myProfile) ?? myProfile?.userId;
+  const myAvatarSrc = useProfileAvatarSrc(myProfile?.avatarURL, myId);
   const isOwner = Boolean(myId && ownerId && myId === ownerId);
 
   const [updateProject, { isLoading: isSaving }] = useUpdateProjectMutation();
@@ -59,10 +64,11 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
         shortDescription,
         githubUrl,
       }).unwrap();
+      router.push(`/project/${projectId}`);
     } catch {
       setSaveError("Не удалось сохранить проект");
     }
-  }, [project, updateProject, name, description, shortDescription, githubUrl]);
+  }, [project, projectId, router, updateProject, name, description, shortDescription, githubUrl]);
 
   const authorName = myProfile
     ? `${myProfile.firstName} ${myProfile.lastName}`.trim() || myProfile.nickname
@@ -137,9 +143,9 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
           <div
             className={styles["project-template__avatar"]}
             style={
-              myProfile?.avatarURL
+              myAvatarSrc
                 ? {
-                    backgroundImage: `url(${myProfile.avatarURL})`,
+                    backgroundImage: `url(${myAvatarSrc})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                   }
@@ -164,6 +170,8 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
             value={githubUrl}
             onChange={(e) => setGithubUrl(e.target.value)}
           />
+
+          <ProjectTemplateEditorPhotos projectId={projectId} project={project} />
 
           <div className={styles["project-template__details"]}>
             <textarea

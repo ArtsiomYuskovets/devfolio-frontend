@@ -8,7 +8,7 @@ type ProjectTemplateInfoProps = {
   viewsCount: number;
 };
 
-export function ProjectTemplateInfo({
+export function ProjectTemplateHeaderInfo({
   project,
   likesCount,
   viewsCount,
@@ -43,26 +43,36 @@ export function ProjectTemplateInfo({
           Ссылка на репозиторий не указана
         </p>
       )}
-
-      <div className={styles["project-template__details"]}>
-        <article className={styles["project-template__panel"]}>
-          <h2 className={styles["project-template__panel-title"]}>
-            Краткое описание
-          </h2>
-          <p className={styles["project-template__panel-text"]}>
-            {project.shortDescription?.trim() ||
-              "Краткое описание не добавлено."}
-          </p>
-        </article>
-
-        <article className={styles["project-template__panel"]}>
-          <h2 className={styles["project-template__panel-title"]}>Описание</h2>
-          <p className={styles["project-template__panel-text"]}>
-            {project.description?.trim() ||
-              "Полное описание проекта пока не добавлено."}
-          </p>
-        </article>
-      </div>
     </>
+  );
+}
+
+export function ProjectTemplateDescriptions({
+  project,
+}: {
+  project: Project;
+}) {
+  return (
+    <div className={styles["project-template__descriptions"]}>
+      <article
+        className={`${styles["project-template__panel"]} ${styles["project-template__panel--summary"]}`}
+      >
+        <h2 className={styles["project-template__panel-title"]}>
+          Краткое описание
+        </h2>
+        <p className={styles["project-template__panel-text"]}>
+          {project.shortDescription?.trim() ||
+            "Краткое описание не добавлено."}
+        </p>
+      </article>
+
+      <article className={styles["project-template__panel"]}>
+        <h2 className={styles["project-template__panel-title"]}>Описание</h2>
+        <p className={styles["project-template__panel-text"]}>
+          {project.description?.trim() ||
+            "Полное описание проекта пока не добавлено."}
+        </p>
+      </article>
+    </div>
   );
 }

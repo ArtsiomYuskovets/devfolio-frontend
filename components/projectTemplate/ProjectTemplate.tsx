@@ -5,7 +5,7 @@ import { ProjectTemplateActions } from "./ProjectTemplateActions";
 import { ProjectTemplateAuthorAside } from "./ProjectTemplateAuthorAside";
 import { ProjectTemplateGallery } from "./ProjectTemplateGallery";
 import { ProjectTemplateHeader } from "./ProjectTemplateHeader";
-import { ProjectTemplateInfo } from "./ProjectTemplateInfo";
+import { ProjectTemplateHeaderInfo, ProjectTemplateDescriptions } from "./ProjectTemplateInfo";
 import { ProjectTemplateSkills } from "./ProjectTemplateSkills";
 import { ProjectFavoriteButton } from "@/components/projects/ProjectFavoriteButton";
 import styles from "./ProjectTemplate.module.scss";
@@ -85,12 +85,17 @@ export function ProjectTemplate({ projectId }: ProjectTemplateProps) {
             disabledClassName={styles["project-template__favorite--disabled"]}
           />
 
-          <ProjectTemplateGallery images={gallery} />
-          <ProjectTemplateInfo
+          <ProjectTemplateHeaderInfo
             project={project}
             likesCount={likesCount}
             viewsCount={viewsCount}
           />
+
+          <div className={styles["project-template__gallery-section"]}>
+            <ProjectTemplateGallery images={gallery} />
+          </div>
+
+          <ProjectTemplateDescriptions project={project} />
           <ProjectTemplateSkills skills={skills} isLoading={isSkillsLoading} />
           <ProjectTemplateActions
             projectId={projectId}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { resolveSkillDisplayName } from "@/lib/normalizeProjectSkills";
+import { projectLikesCount, projectViewsCount } from "@/lib/projectEngagement";
 import { pickProjectGalleryUrls } from "@/lib/projectImage";
 import { pickUserId } from "@/lib/userId";
 import {
@@ -16,19 +17,8 @@ import {
 } from "@/stores/user/userApi";
 import type { ProjectViewSkill } from "../projectTemplate.utils";
 
-const VIEW_SESSION_PREFIX = "project-view:";
-
-function markViewRecorded(projectId: string): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-  const key = `${VIEW_SESSION_PREFIX}${projectId}`;
-  if (sessionStorage.getItem(key) === "1") {
-    return false;
-  }
-  sessionStorage.setItem(key, "1");
-  return true;
-}
+const recordedProjectViews = new Set<string>();
+const pendingProjectViews = new Set<string>();
 
 export function useProjectViewData(projectId: string) {
   const {
@@ -38,25 +28,48 @@ export function useProjectViewData(projectId: string) {
     isError,
   } = useGetProjectsByIdQuery(projectId, { skip: !projectId });
 
-  const [recordProjectView] = useRecordProjectViewMutation();
-  const viewRecordedRef = useRef<string | null>(null);
+  const { data: myProfile } = useGetMyProfileQuery();
 
-  useEffect(() => {
-    if (!projectId || viewRecordedRef.current === projectId) {
+  const [recordProjectView] = useRecordProjectViewMutation();
+  const recordProjectViewRef = useRef(recordProjectView);
+  recordProjectViewRef.current = recordProjectView;
+
+  useLayoutEffect(() => {
+    const normalizedId = projectId.trim();
+    if (!normalizedId || !project || !myProfile) {
       return;
     }
-    if (!markViewRecorded(projectId)) {
-      viewRecordedRef.current = projectId;
+
+    const ownerId = pickUserId(project) ?? project.userId;
+    const myId = pickUserId(myProfile) ?? myProfile.userId;
+    if (myId && ownerId && myId === ownerId) {
+      recordedProjectViews.add(normalizedId);
       return;
     }
-    viewRecordedRef.current = projectId;
-    void recordProjectView(projectId);
-  }, [projectId, recordProjectView]);
+
+    if (
+      recordedProjectViews.has(normalizedId) ||
+      pendingProjectViews.has(normalizedId)
+    ) {
+      return;
+    }
+
+    pendingProjectViews.add(normalizedId);
+
+    void (async () => {
+      try {
+        await recordProjectViewRef.current(normalizedId).unwrap();
+        recordedProjectViews.add(normalizedId);
+      } catch {
+        // allow retry on next navigation
+      } finally {
+        pendingProjectViews.delete(normalizedId);
+      }
+    })();
+  }, [projectId, project, myProfile]);
 
   const { data: projectSkillViews = [], isLoading: isSkillsLoading } =
     useGetProjectSkillsQuery(projectId, { skip: !projectId });
-
-  const { data: myProfile } = useGetMyProfileQuery();
 
   const ownerId = project ? pickUserId(project) ?? project.userId : undefined;
 
@@ -121,8 +134,8 @@ export function useProjectViewData(projectId: string) {
   const editHref =
     isOwner && projectId ? `/project/${projectId}/template` : undefined;
 
-  const likesCount = project?.likesCount ?? 0;
-  const viewsCount = project?.viewersCount ?? 0;
+  const likesCount = projectLikesCount(project);
+  const viewsCount = projectViewsCount(project);
 
   return {
     project,

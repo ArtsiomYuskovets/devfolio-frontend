@@ -111,4 +111,114 @@
     font-size: tokens.$font-size-xs;
     color: rgba(tokens.$color-text-dark, 0.65);
   }
+
+  &__photos {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-s;
+    margin-bottom: tokens.$space-l;
+  }
+
+  &__photos-title {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(tokens.$color-text-dark, 0.75);
+  }
+
+  &__photos-hint {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xs;
+    line-height: tokens.$line-height-body;
+    color: rgba(tokens.$color-text-dark, 0.65);
+  }
+
+  &__photo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: tokens.$space-m;
+
+    @media (min-width: 720px) {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  &__photo-slot {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: tokens.$radius-m;
+    border: tokens.$border-width-thin dashed rgba(tokens.$color-text-dark, 0.28);
+    background: rgba(tokens.$color-text-light, 0.55);
+    overflow: hidden;
+
+    &--filled {
+      border-style: solid;
+      border-color: rgba(tokens.$color-text-dark, 0.2);
+    }
+
+    &--preview {
+      @media (min-width: 720px) {
+        grid-column: span 1;
+      }
+    }
+  }
+
+  &__photo-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__photo-remove {
+    position: absolute;
+    top: tokens.$space-xs;
+    right: tokens.$space-xs;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(tokens.$color-surface-dark, 0.72);
+    color: tokens.$color-text-light;
+    font-size: tokens.$font-size-l;
+    line-height: 1;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__photo-add {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: tokens.$space-xs;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    color: rgba(tokens.$color-text-dark, 0.72);
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xs;
+  }
+
+  &__photo-input {
+    display: none;
+  }
+
+  &__photo-add-icon {
+    font-size: tokens.$font-size-xxl;
+    line-height: 1;
+  }
+
+  &__photo-add-text {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
 }

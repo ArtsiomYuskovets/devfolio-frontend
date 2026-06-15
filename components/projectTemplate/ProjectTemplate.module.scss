@@ -113,10 +113,10 @@
 
   &__main {
     display: grid;
-    grid-template-columns: 220px minmax(0, 1fr);
-    gap: tokens.$space-xl;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: tokens.$space-xxl;
     align-items: start;
-    padding: 0 tokens.$space-l tokens.$space-xxxl;
+    padding: 0 tokens.$space-xl tokens.$space-xxxl;
   }
 
   &__author {
@@ -170,61 +170,120 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: tokens.$space-m;
-    padding: tokens.$space-l;
+    gap: tokens.$space-xl;
+    padding: tokens.$space-xl;
     border-radius: tokens.$radius-l;
     background: tokens.$color-surface-card-soft;
     border: tokens.$border-width-thin solid tokens.$color-border-dark-soft;
     box-shadow: tokens.$shadow-card;
   }
 
+  &__gallery-section {
+    width: 100%;
+  }
+
   &__preview-wrap {
-    display: grid;
-    grid-template-columns: 40px minmax(0, 1fr) 40px;
-    align-items: center;
-    gap: tokens.$space-m;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  &__preview-frame {
+    position: relative;
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
   }
 
   &__arrow {
-    width: 36px;
-    height: 36px;
-    border: 0;
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.88);
     border-radius: 50%;
-    background: rgba(tokens.$color-text-dark, 0.1);
-    color: tokens.$color-text-dark;
-    font-size: tokens.$font-size-xxl;
-    line-height: 1;
+    background: rgba(tokens.$color-surface-dark, 0.58);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: tokens.$color-text-light;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+    transform: translateY(-50%);
     cursor: pointer;
+    transition:
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      transform 0.18s ease,
+      box-shadow 0.18s ease;
+
+    &:hover {
+      background: rgba(tokens.$color-surface-dark, 0.82);
+      border-color: tokens.$color-text-light;
+      transform: translateY(-50%) scale(1.04);
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    &:active {
+      transform: translateY(-50%) scale(0.98);
+    }
+
+    &--prev {
+      left: tokens.$space-m;
+    }
+
+    &--next {
+      right: tokens.$space-m;
+    }
+  }
+
+  &__arrow-icon {
+    width: 22px;
+    height: 22px;
+    display: block;
+  }
+
+  &__preview {
+    width: 100%;
+    height: clamp(320px, 52vh, 520px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: tokens.$color-surface-card-light;
+    border-radius: tokens.$radius-l;
+    overflow: hidden;
+    line-height: 0;
+
+    &--clickable {
+      cursor: zoom-in;
+    }
+
+    &--empty {
+      color: tokens.$color-text-light;
+      background: linear-gradient(
+        145deg,
+        tokens.$color-neutral-600,
+        tokens.$color-neutral-800
+      );
+      border: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.2);
+    }
 
     &:disabled {
-      opacity: 0.35;
       cursor: default;
     }
   }
 
-  &__preview {
-    width: min(100%, 520px);
-    aspect-ratio: 4 / 3;
-    border-radius: tokens.$radius-l;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    justify-self: center;
-    overflow: hidden;
-    color: tokens.$color-text-light;
-    background: linear-gradient(
-      145deg,
-      tokens.$color-neutral-600,
-      tokens.$color-neutral-800
-    );
-    border: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.2);
-  }
-
   &__preview-img {
+    display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    display: block;
+    object-fit: contain;
+    object-position: center;
   }
 
   &__preview-icon {
@@ -235,16 +294,17 @@
   &__thumbs {
     display: flex;
     flex-wrap: wrap;
-    gap: tokens.$space-s;
+    gap: tokens.$space-m;
     justify-content: center;
+    margin-top: tokens.$space-m;
   }
 
   &__thumb {
-    width: 72px;
-    height: 54px;
+    width: 104px;
+    height: 78px;
     padding: 0;
-    border: tokens.$border-width-thin solid tokens.$color-border-dark-soft;
-    border-radius: tokens.$radius-s;
+    border: tokens.$border-width-base solid tokens.$color-border-dark-soft;
+    border-radius: tokens.$radius-m;
     overflow: hidden;
     cursor: pointer;
     background: tokens.$color-surface-card-light;
@@ -341,12 +401,24 @@
     gap: tokens.$space-m;
   }
 
+  &__descriptions {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-l;
+    width: 100%;
+  }
+
   &__panel {
     border: tokens.$border-width-thin solid tokens.$color-border-dark-soft;
-    border-radius: tokens.$radius-m;
+    border-radius: tokens.$radius-l;
     background: tokens.$color-surface-card-light;
-    padding: tokens.$space-m tokens.$space-l;
-    min-height: 100px;
+    padding: tokens.$space-l tokens.$space-xl;
+    min-height: auto;
+
+    &--summary {
+      background: rgba(tokens.$color-text-light, 0.82);
+      border-color: tokens.$color-border-dark-medium;
+    }
 
     &--skills {
       grid-column: 1 / -1;
@@ -354,10 +426,11 @@
   }
 
   &__panel-title {
-    margin: 0 0 tokens.$space-s;
+    margin: 0 0 tokens.$space-m;
     font-family: tokens.$font-family-primary;
-    font-size: tokens.$font-size-s;
-    letter-spacing: 0.04em;
+    font-size: tokens.$font-size-l;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: tokens.$color-text-dark;
   }
@@ -366,9 +439,18 @@
     margin: 0;
     font-family: tokens.$font-family-primary;
     font-size: tokens.$font-size-m;
-    line-height: tokens.$line-height-body;
-    color: tokens.$color-text-dark;
+    line-height: tokens.$line-height-relaxed;
+    color: rgba(tokens.$color-text-dark, 0.96);
     white-space: pre-wrap;
+  }
+
+  &__descriptions &__panel-text {
+    font-size: tokens.$font-size-l;
+  }
+
+  &__descriptions &__panel--summary &__panel-text {
+    font-size: tokens.$font-size-m;
+    font-weight: 500;
   }
 
   &__skills-head {
@@ -579,7 +661,25 @@
     }
 
     &__preview-wrap {
-      grid-template-columns: 32px minmax(0, 1fr) 32px;
+      padding: 0 tokens.$space-xs;
+    }
+
+    &__arrow {
+      width: 40px;
+      height: 40px;
+
+      &--prev {
+        left: tokens.$space-s;
+      }
+
+      &--next {
+        right: tokens.$space-s;
+      }
+    }
+
+    &__arrow-icon {
+      width: 20px;
+      height: 20px;
     }
 
     &__title {
