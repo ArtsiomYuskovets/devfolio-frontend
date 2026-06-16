@@ -35,16 +35,20 @@ export function ProjectsFeedList({ filters }: ProjectsFeedListProps) {
     isFetching,
     isError,
     error,
-  } = useGetProjectsListQuery(
-    {
-      page,
-      size: FEED_PAGE_SIZE,
-      sort: filters.sort,
-      name: filters.name || undefined,
-      skillIds: filters.skillIds.length ? filters.skillIds : undefined,
-      categories: filters.categories.length ? filters.categories : undefined,
+  } = useGetProjectsListQuery({
+    page,
+    size: FEED_PAGE_SIZE,
+    sort: filters.sort,
+    name: filters.name || undefined,
+    skillIds: filters.skillIds.length ? filters.skillIds : undefined,
+    categories: filters.categories.length ? filters.categories : undefined,
+  });
+
+  useEffect(() => {
+    if (!isLoading && !isFetching && page > 0 && projects.length === 0) {
+      setPage((currentPage) => Math.max(0, currentPage - 1));
     }
-  );
+  }, [isLoading, isFetching, page, projects.length]);
 
   const canGoPrev = page > 0;
   const canGoNext = projects.length === FEED_PAGE_SIZE;
@@ -74,11 +78,26 @@ export function ProjectsFeedList({ filters }: ProjectsFeedListProps) {
 
   if (projects.length === 0) {
     return (
-      <p className={styles["projects-feed__status"]}>
-        {hasActiveFilters
-          ? "По выбранным фильтрам проектов не найдено."
-          : "Пока нет проектов."}
-      </p>
+      <>
+        <p className={styles["projects-feed__status"]}>
+          {hasActiveFilters
+            ? "По выбранным фильтрам проектов не найдено."
+            : "Пока нет проектов."}
+        </p>
+        {canGoPrev ? (
+          <div className={styles["projects-feed__pagination"]}>
+            <Button
+              type="button"
+              variant="outline-light"
+              size="small"
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={isFetching}
+            >
+              Назад
+            </Button>
+          </div>
+        ) : null}
+      </>
     );
   }
 
