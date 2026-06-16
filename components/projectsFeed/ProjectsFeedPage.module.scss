@@ -11,6 +11,7 @@
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
+  background-attachment: fixed;
   color: tokens.$color-text-light;
 
   &__header {
@@ -234,6 +235,7 @@
     border-radius: tokens.$radius-l;
     background: rgba(8, 12, 22, 0.72);
     padding: tokens.$space-m;
+    min-height: 160px;
     transition:
       border-color 0.2s ease,
       box-shadow 0.2s ease,
@@ -248,6 +250,15 @@
       opacity: 0.72;
       pointer-events: none;
     }
+  }
+
+  &__list-placeholder {
+    margin: 0;
+    padding: tokens.$space-l 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    color: tokens.$color-text-muted-light;
+    text-align: center;
   }
 
   &__project-link {

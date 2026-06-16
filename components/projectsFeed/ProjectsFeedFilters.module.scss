@@ -57,11 +57,28 @@ $filters-font-size-search: 18px;
   }
 
   &__panel {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.2s ease;
+  }
+
+  &__panel-inner {
     display: flex;
     flex-direction: column;
     gap: tokens.$space-m;
     padding-top: tokens.$space-m;
     border-top: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.12);
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  &__panel--collapsed {
+    grid-template-rows: 0fr;
+  }
+
+  &__panel--collapsed &__panel-inner {
+    padding-top: 0;
+    border-top-color: transparent;
   }
 
   &__panel-grid {
