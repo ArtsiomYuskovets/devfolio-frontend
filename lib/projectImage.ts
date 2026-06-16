@@ -1,7 +1,6 @@
 import type { Project } from "@/types/types";
 import { pickProjectId } from "@/lib/projectId";
-
-const API_ORIGIN = "http://localhost:8080";
+import { API_ORIGIN } from "@/lib/env";
 
 function readString(v: unknown): string | undefined {
   if (typeof v !== "string") return undefined;

@@ -1,9 +1,10 @@
 import axios, { type InternalAxiosRequestConfig } from "axios";
 import type { AppDispatch } from "@/stores/store";
 import { isAuthRequestUrl } from "@/lib/authTokenUtils";
+import { API_ORIGIN } from "@/lib/env";
 
 export const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: API_ORIGIN,
   // Bearer-only API calls: do not send session cookies cross-origin (localhost:3000 → 8080).
   // Otherwise Spring may treat POST as cookie-session auth and reject with 403 (CSRF).
   withCredentials: false,
