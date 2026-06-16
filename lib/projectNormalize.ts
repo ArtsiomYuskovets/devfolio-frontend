@@ -1,6 +1,7 @@
 import type { Project } from "@/types/types";
 import { pickProjectId } from "@/lib/projectId";
 import { pickProjectPreviewUrl } from "@/lib/projectImage";
+import { pickProjectSkillViewsFromProject } from "@/lib/normalizeProjectSkills";
 import { pickUserId } from "@/lib/userId";
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
@@ -229,6 +230,7 @@ export function normalizeProjectPayload(response: unknown): Project {
     "total_likes",
     "likes"
   );
+  const projectSkillViews = pickProjectSkillViewsFromProject(raw);
 
   return {
     ...(raw as Project),
@@ -244,5 +246,6 @@ export function normalizeProjectPayload(response: unknown): Project {
     ...(updatedAt !== undefined ? { updatedAt } : {}),
     viewersCount: viewersCount ?? 0,
     likesCount: likesCount ?? 0,
+    ...(projectSkillViews.length > 0 ? { projectSkillViews } : {}),
   };
 }

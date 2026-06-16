@@ -17,6 +17,15 @@ import {
 import { ProfileAvatarImg } from "@/components/profile/ProfileAvatarImg";
 import { resolveProfileAvatarUrl } from "@/lib/profileAvatar";
 import { LinksSection } from "@/components/section/linkSection/LinkSection";
+import {
+  getApiErrorCode,
+  getProfileSaveErrorMessage,
+} from "@/lib/apiError";
+
+type ProfileSaveError = {
+  message: string;
+  field?: "nickname";
+};
 
 type ProfileEditFormProps = {
   profile?: Partial<UserProfileInfo>;
@@ -32,6 +41,7 @@ export function ProfileEditForm({
   const [updateMyProfile] = useUpdateMyProfileMutation();
   const [fillMyProfile] = useFillMyProfileMutation();
   const [uploadAvatar, { isLoading: isAvatarUploading }] = useUploadAvatarMutation();
+  const [saveError, setSaveError] = useState<ProfileSaveError | null>(null);
   const [links, setLinks] = useState<Array<{ key: string; value: string }>>(() => {
     const initialLinks = profile?.links ?? {};
     const linksArray = Object.entries(initialLinks).map(([key, value]) => ({
@@ -44,6 +54,9 @@ export function ProfileEditForm({
 
   const handleChange = (field: keyof UserProfileInfo, value: string) => {
     setMyProfile(prev => ({ ...prev, [field]: value }));
+    if (field === "nickname" && saveError?.field === "nickname") {
+      setSaveError(null);
+    }
   };
 
   const selectedUserType = myProfile.userType ?? "JOB_SEEKER";
@@ -81,6 +94,7 @@ export function ProfileEditForm({
   }, []);
   const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setSaveError(null);
     try {
       const linksObject: Record<string, string> = Object.fromEntries(
         links
@@ -113,7 +127,11 @@ export function ProfileEditForm({
       }
     } catch (error) {
       console.error(error);
-      alert('Ошибка при обновлении профиля');
+      const code = getApiErrorCode(error);
+      setSaveError({
+        message: getProfileSaveErrorMessage(error),
+        field: code === "NICKNAME_ALREADY_EXISTS" ? "nickname" : undefined,
+      });
     }
   };
   const handleAddLink = useCallback(() => {
@@ -212,6 +230,11 @@ export function ProfileEditForm({
                   onChange={(e) => handleChange('nickname', e.target.value)}
                   rightAdornment={<EditAdornment />}
                 />
+                {saveError?.field === "nickname" ? (
+                  <p className={styles["profile-edit__error"]} role="alert">
+                    {saveError.message}
+                  </p>
+                ) : null}
               </div>
               <div className={styles["profile-edit__field"]}>
                 <span className={styles["profile-edit__radio-label"]}>
@@ -300,6 +323,11 @@ export function ProfileEditForm({
               onRemoveLink={handleRemoveLink}
             />
             <div className={styles["profile-edit__actions"]}>
+              {saveError && saveError.field !== "nickname" ? (
+                <p className={styles["profile-edit__error"]} role="alert">
+                  {saveError.message}
+                </p>
+              ) : null}
               <Button type="button" variant="outline-dark" size="wide" onClick={handleSave}>
                 {isNewProfile ? "Создать профиль" : "Сохранить"}
               </Button>

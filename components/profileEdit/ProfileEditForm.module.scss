@@ -176,6 +176,14 @@
     color: rgba(tokens.$color-text-dark, 0.68);
   }
 
+  &__error {
+    margin: tokens.$space-xs 0 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xs;
+    line-height: tokens.$line-height-body;
+    color: #8b1e1e;
+  }
+
   &__actions {
     padding-top: tokens.$space-s;
   }

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { extractApiErrorMessage } from "@/lib/apiError";
+import { VERIFY_TIMEOUT_MS } from "@/lib/env";
 import { resolveSkillDisplayName } from "@/lib/normalizeProjectSkills";
 import { normalizeSkillIdList } from "@/lib/skillId";
 import {
@@ -17,7 +18,6 @@ import {
 } from "@/stores/skill/skillApi";
 
 const CATALOG_PAGE_SIZE = 200;
-const VERIFY_SETTLE_DELAY_MS = 1500;
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -154,7 +154,7 @@ export function useProjectEditorSkills(projectId: string) {
 
     try {
       await verifyProjectSkills(projectId).unwrap();
-      await delay(VERIFY_SETTLE_DELAY_MS);
+      await delay(VERIFY_TIMEOUT_MS);
       await refetchProjectSkills();
     } catch (error) {
       setSkillsError(

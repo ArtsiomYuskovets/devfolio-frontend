@@ -7,10 +7,7 @@ import { useGetMyProfileQuery } from "@/stores/user/userApi";
 
 export default function ProfileRedirectPage() {
   const router = useRouter();
-  const { data: profile, isLoading, isFetching } = useGetMyProfileQuery(
-    undefined,
-    { refetchOnMountOrArgChange: true }
-  );
+  const { data: profile, isLoading, isFetching } = useGetMyProfileQuery();
 
   const userId = profile ? pickProfileUserId(profile) ?? profile.userId : undefined;
 

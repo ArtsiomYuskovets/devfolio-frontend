@@ -98,6 +98,35 @@ function readVerified(o: Record<string, unknown>): boolean {
   return false;
 }
 
+function pickProjectSkillsRaw(response: unknown): unknown {
+  if (!response || typeof response !== "object") {
+    return null;
+  }
+
+  const raw = response as Record<string, unknown>;
+  const keys = ["skills", "skillAttachments", "projectSkills", "skillViews"];
+
+  for (const key of keys) {
+    const value = raw[key];
+    if (Array.isArray(value) && value.length > 0) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+export function pickProjectSkillViewsFromProject(
+  project: unknown
+): ProjectSkillView[] {
+  const raw = pickProjectSkillsRaw(project);
+  if (!raw) {
+    return [];
+  }
+
+  return normalizeProjectSkillViews(raw);
+}
+
 export function normalizeProjectSkillsResponse(
   response: unknown
 ): ProjectSkillAttachment[] {

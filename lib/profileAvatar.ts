@@ -1,6 +1,5 @@
 import { resolveApiAssetUrl } from "@/lib/projectImage";
-
-export const API_ORIGIN = "http://localhost:8080";
+import { API_ORIGIN } from "@/lib/env";
 
 export function pickAvatarUrlFromPayload(
   response: unknown

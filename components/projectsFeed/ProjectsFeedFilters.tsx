@@ -232,8 +232,13 @@ export function ProjectsFeedFilters({
         </div>
       </div>
 
-      {isOpen ? (
-        <div className={styles["projects-feed-filters__panel"]}>
+      <div
+        className={`${styles["projects-feed-filters__panel"]} ${
+          isOpen ? "" : styles["projects-feed-filters__panel--collapsed"]
+        }`}
+        aria-hidden={!isOpen}
+      >
+        <div className={styles["projects-feed-filters__panel-inner"]}>
           <div className={styles["projects-feed-filters__panel-grid"]}>
             <div className={styles["projects-feed-filters__group"]}>
               <span className={styles["projects-feed-filters__label"]}>
@@ -378,7 +383,7 @@ export function ProjectsFeedFilters({
             </Button>
           </div>
         </div>
-      ) : null}
+      </div>
     </section>
   );
 }

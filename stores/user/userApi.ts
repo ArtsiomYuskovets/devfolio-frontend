@@ -15,6 +15,7 @@ import {
 } from "@/lib/profileAvatar";
 import { pickProfileUserId } from "@/lib/userId";
 import { axiosBaseQuery } from "../axios";
+import { API_BASE_URL } from "@/lib/env";
 
 function normalizeUserProfile(response: unknown): UserProfileInfo {
     if (!response || typeof response !== "object") {
@@ -125,7 +126,7 @@ function profileCacheTags(profile?: UserProfileInfo) {
 
 export const userApi = createApi({
     reducerPath: "userApi",
-    baseQuery: axiosBaseQuery({ baseUrl: "http://localhost:8080/" }),
+    baseQuery: axiosBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ["UserProfile", "ProfilesList", "UserCareer"],
     endpoints: (builder) => ({
         getMyProfile: builder.query<UserProfileInfo | null, void>({

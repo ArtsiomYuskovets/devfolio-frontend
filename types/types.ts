@@ -123,7 +123,16 @@ export type ProjectStats = {
 
 export type ProjectInfo = ProjectInfoFields & ProjectStats;
 
-export type Project = ProjectData & ProjectInfo;
+export type ProjectSkillViewInfo = {
+    skillId: string;
+    name: string;
+    category?: string;
+    verified: boolean;
+};
+
+export type Project = ProjectData & ProjectInfo & {
+    projectSkillViews?: ProjectSkillViewInfo[];
+};
 
 export type ProjectLikeStatus = {
     liked: boolean,

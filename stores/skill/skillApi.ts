@@ -2,6 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { Skill } from '@/types/types';
 import { normalizeSkillPayload, normalizeSkillsListResponse } from '@/lib/normalizeSkill';
 import { axiosBaseQuery } from '../axios';
+import { API_BASE_URL } from '@/lib/env';
 
 interface SkillsSearchParams {
     search: string;
@@ -14,7 +15,7 @@ interface SkillsSearchParams {
 
 export const skillApi = createApi({
     reducerPath: 'skillApi',
-    baseQuery: axiosBaseQuery({ baseUrl: 'http://localhost:8080/' }),
+    baseQuery: axiosBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ['Skills', 'SkillList'],
     endpoints: (builder) => ({
         getSkillsList: builder.query<Skill[], SkillsSearchParams>({

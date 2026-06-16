@@ -8,6 +8,7 @@ import { normalizeListResponse } from '@/lib/normalizeList';
 import { pickProjectId } from '@/lib/projectId';
 import type { ProjectListSort } from '@/lib/projectListSort';
 import { axiosBaseQuery } from '../axios';
+import { API_BASE_URL } from '@/lib/env';
 
 export interface ProjectsListParams {
     page: number;
@@ -164,7 +165,7 @@ function normalizeProjectsListResponse(response: unknown): Project[] {
 
 export const projectsApi = createApi({
     reducerPath: 'projectsApi',
-    baseQuery: axiosBaseQuery({ baseUrl: 'http://localhost:8080/' }),
+    baseQuery: axiosBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ['ProjectsList', 'Favorites', 'ProjectSkills', 'ProjectInteraction'],
     endpoints: (builder) => ({
         getProjectsById: builder.query<Project, string>({
@@ -198,10 +199,14 @@ export const projectsApi = createApi({
         }),
         deleteProject: builder.mutation<void, string>({
             query: (projectId) => ({
-                url: `api/projects/${projectId}`,
+                url: `api/projects/${encodeURIComponent(projectId)}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['ProjectsList'],
+            invalidatesTags: (_result, _error, projectId) => [
+                { type: 'ProjectsList', id: projectId },
+                'ProjectsList',
+                'Favorites',
+            ],
         }),
         createProject: builder.mutation<Project, ProjectInfoFields>({
             query: (body) => ({

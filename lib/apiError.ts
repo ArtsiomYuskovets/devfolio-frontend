@@ -6,6 +6,37 @@ export function getApiErrorStatus(error: unknown): number | undefined {
   return typeof status === "number" ? status : undefined;
 }
 
+export function getApiErrorCode(error: unknown): string | undefined {
+  if (!error || typeof error !== "object") {
+    return undefined;
+  }
+
+  const record = error as Record<string, unknown>;
+  const data = record.data;
+
+  if (data && typeof data === "object") {
+    const code = (data as Record<string, unknown>).code;
+    if (typeof code === "string" && code.trim()) {
+      return code.trim();
+    }
+  }
+
+  return undefined;
+}
+
+const KNOWN_API_ERROR_MESSAGES: Record<string, string> = {
+  NICKNAME_ALREADY_EXISTS: "Этот никнейм уже занят. Выберите другой.",
+};
+
+export function getKnownApiErrorMessage(error: unknown): string | undefined {
+  const code = getApiErrorCode(error);
+  if (!code) {
+    return undefined;
+  }
+
+  return KNOWN_API_ERROR_MESSAGES[code];
+}
+
 export function isProfileNotFoundError(error: unknown): boolean {
   return getApiErrorStatus(error) === 404;
 }
@@ -40,4 +71,11 @@ export function extractApiErrorMessage(
   }
 
   return fallback;
+}
+
+export function getProfileSaveErrorMessage(error: unknown): string {
+  return (
+    getKnownApiErrorMessage(error) ??
+    extractApiErrorMessage(error, "Не удалось сохранить профиль")
+  );
 }
