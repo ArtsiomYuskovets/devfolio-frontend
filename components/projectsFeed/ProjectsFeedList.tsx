@@ -43,8 +43,7 @@ export function ProjectsFeedList({ filters }: ProjectsFeedListProps) {
       name: filters.name || undefined,
       skillIds: filters.skillIds.length ? filters.skillIds : undefined,
       categories: filters.categories.length ? filters.categories : undefined,
-    },
-    { keepPreviousData: true }
+    }
   );
 
   const canGoPrev = page > 0;
