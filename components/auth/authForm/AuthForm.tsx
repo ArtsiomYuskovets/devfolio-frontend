@@ -69,7 +69,7 @@ export default function AuthForm() {
     if (isLogin) {
       const success = await loginOrRegistr(isLogin, email, password, dispatch);
       if (success) {
-        router.replace("/profile/edit");
+        router.replace("/profile");
       } else {
         setLoginError("Неверная почта или пароль");
       }
