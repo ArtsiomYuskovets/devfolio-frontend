@@ -7,7 +7,6 @@ import { pickProjectGalleryUrls } from "@/lib/projectImage";
 import { pickUserId } from "@/lib/userId";
 import {
   useGetProjectsByIdQuery,
-  useGetProjectSkillsQuery,
   useRecordProjectViewMutation,
 } from "@/stores/projects/projectsApi";
 import { useSkillsByIdsQuery } from "@/stores/skill/skillApi";
@@ -68,8 +67,10 @@ export function useProjectViewData(projectId: string) {
     })();
   }, [projectId, project, myProfile]);
 
-  const { data: projectSkillViews = [], isLoading: isSkillsLoading } =
-    useGetProjectSkillsQuery(projectId, { skip: !projectId });
+  const projectSkillViews = useMemo(
+    () => project?.projectSkillViews ?? [],
+    [project]
+  );
 
   const ownerId = project ? pickUserId(project) ?? project.userId : undefined;
 
@@ -85,14 +86,18 @@ export function useProjectViewData(projectId: string) {
     skip: !ownerId,
   });
 
-  const skillIdsList = useMemo(
-    () => projectSkillViews.map((a) => a.skillId).filter(Boolean),
+  const skillIdsNeedingCatalog = useMemo(
+    () =>
+      projectSkillViews
+        .filter((view) => !view.name?.trim() || view.name === view.skillId)
+        .map((view) => view.skillId)
+        .filter(Boolean),
     [projectSkillViews]
   );
 
   const { data: skillsByIds = [], isFetching: isSkillsCatalogLoading } =
-    useSkillsByIdsQuery(skillIdsList, {
-      skip: !projectId || skillIdsList.length === 0,
+    useSkillsByIdsQuery(skillIdsNeedingCatalog, {
+      skip: !projectId || skillIdsNeedingCatalog.length === 0,
     });
 
   const catalogById = useMemo(() => {
@@ -144,7 +149,7 @@ export function useProjectViewData(projectId: string) {
     error,
     gallery,
     skills,
-    isSkillsLoading: isSkillsLoading || isSkillsCatalogLoading,
+    isSkillsLoading: isLoading || isSkillsCatalogLoading,
     authorProfile,
     authorName,
     authorProfileHref,
