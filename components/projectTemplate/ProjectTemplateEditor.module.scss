@@ -57,6 +57,20 @@
     margin-top: tokens.$space-s;
   }
 
+  &__delete-button {
+    color: #8b1e1e;
+    border-color: rgba(139, 30, 30, 0.45);
+
+    &:hover:not(:disabled) {
+      background: rgba(139, 30, 30, 0.08);
+      border-color: rgba(139, 30, 30, 0.7);
+    }
+
+    &:disabled {
+      opacity: 0.55;
+    }
+  }
+
   &__skills-meta {
     margin: tokens.$space-xs 0 0;
     font-family: tokens.$font-family-primary;

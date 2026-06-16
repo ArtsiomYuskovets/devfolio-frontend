@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input/Input";
 import { Button } from "@/components/ui/button/Button";
 import {
+  useDeleteProjectMutation,
   useGetProjectsByIdQuery,
   useUpdateProjectMutation,
 } from "@/stores/projects/projectsApi";
@@ -35,12 +36,14 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
   const isOwner = Boolean(myId && ownerId && myId === ownerId);
 
   const [updateProject, { isLoading: isSaving }] = useUpdateProjectMutation();
+  const [deleteProject, { isLoading: isDeleting }] = useDeleteProjectMutation();
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [githubUrl, setGithubUrl] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (project) {
@@ -69,6 +72,29 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
       setSaveError("Не удалось сохранить проект");
     }
   }, [project, projectId, router, updateProject, name, description, shortDescription, githubUrl]);
+
+  const handleDelete = useCallback(async () => {
+    if (!project) {
+      return;
+    }
+
+    const projectTitle = name.trim() || project.name?.trim() || "без названия";
+    const confirmed = window.confirm(
+      `Удалить проект «${projectTitle}»? Это действие нельзя отменить.`
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    setDeleteError(null);
+
+    try {
+      await deleteProject(projectId).unwrap();
+      router.replace("/projects");
+    } catch {
+      setDeleteError("Не удалось удалить проект");
+    }
+  }, [deleteProject, name, project, projectId, router]);
 
   const authorName = myProfile
     ? `${myProfile.firstName} ${myProfile.lastName}`.trim() || myProfile.nickname
@@ -199,15 +225,34 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
               </p>
             ) : null}
 
+            {deleteError ? (
+              <p
+                className={editorStyles["project-template-editor__skills-error"]}
+                role="alert"
+              >
+                {deleteError}
+              </p>
+            ) : null}
+
             <div className={editorStyles["project-template-editor__actions"]}>
               <Button
                 type="button"
                 variant="outline-dark"
                 size="small"
                 onClick={() => void handleSave()}
-                disabled={isSaving}
+                disabled={isSaving || isDeleting}
               >
                 {isSaving ? "Сохранение…" : "Сохранить проект"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline-light"
+                size="small"
+                className={editorStyles["project-template-editor__delete-button"]}
+                onClick={() => void handleDelete()}
+                disabled={isSaving || isDeleting}
+              >
+                {isDeleting ? "Удаление…" : "Удалить проект"}
               </Button>
             </div>
           </div>
