@@ -1,0 +1,29 @@
+@use "@/styles/tokens" as tokens;
+
+.trigger {
+  position: fixed;
+  top: tokens.$space-l;
+  left: tokens.$space-l;
+  z-index: 35;
+  display: inline-flex;
+  flex-direction: column;
+  gap: tokens.$size-hamburger-gap;
+  padding: tokens.$space-s;
+  border: 0;
+  border-radius: tokens.$radius-m;
+  background: rgba(tokens.$color-text-dark, 0.35);
+  cursor: pointer;
+  isolation: isolate;
+
+  &:focus-visible {
+    outline: tokens.$border-width-base solid rgba(tokens.$color-text-light, 0.6);
+    outline-offset: 2px;
+  }
+}
+
+.trigger span {
+  width: tokens.$size-hamburger-width;
+  height: tokens.$size-hamburger-height;
+  border-radius: tokens.$radius-pill;
+  background: tokens.$color-text-light;
+}

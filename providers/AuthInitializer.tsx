@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { store } from '@/stores/auth/store';
-import { useAppDispatch } from '@/stores/auth/hooks';
-import { setTokens } from '@/stores/auth/authSlice';
-import { tokenService } from '@/lib/tokenService';
-import { setAccessTokenGetter, setupInterceptors } from '@/lib/authApi';
+import { useEffect } from "react";
+import { store } from "@/stores/store";
+import { useAppDispatch } from "@/stores/auth/hooks";
+import { setTokens } from "@/stores/auth/authSlice";
+import { tokenService } from "@/lib/tokenService";
+import { setAccessTokenGetter, setupInterceptors } from "@/lib/authApi";
 
 export function AuthInitializer({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
@@ -16,11 +16,8 @@ export function AuthInitializer({ children }: { children: React.ReactNode }) {
     });
 
     setAccessTokenGetter(() => {
-      const { accessToken, accessTokenExpiresAt } = store.getState().auth;
-      if (accessToken && accessTokenExpiresAt && Date.now() <= accessTokenExpiresAt) {
-        return accessToken;
-      }
-      return null;
+      const { accessToken } = store.getState().auth;
+      return accessToken ?? null;
     });
 
     setupInterceptors(dispatch);

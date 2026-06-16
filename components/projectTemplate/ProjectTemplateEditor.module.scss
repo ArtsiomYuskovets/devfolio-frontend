@@ -1,0 +1,224 @@
+@use "@/styles/tokens" as tokens;
+
+.project-template-editor {
+  .project-template__top::after {
+    background: linear-gradient(
+      120deg,
+      rgba(tokens.$color-neutral-800, 0.92),
+      rgba(tokens.$color-surface-dark, 0.9)
+    );
+  }
+
+  &__input {
+    color: tokens.$color-text-dark;
+  }
+
+  &__textarea {
+    width: 100%;
+    min-height: 120px;
+    resize: vertical;
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-medium;
+    border-radius: tokens.$radius-m;
+    background: tokens.$color-surface-card-light;
+    color: tokens.$color-text-dark;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    line-height: tokens.$line-height-body;
+    padding: tokens.$space-m tokens.$space-l;
+  }
+
+  &__skills {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-s;
+    position: relative;
+    overflow: visible;
+    z-index: 5;
+  }
+
+  &__skills-dropdown {
+    z-index: 200;
+    min-width: min(320px, 90vw);
+    max-height: min(280px, 50vh);
+    padding: tokens.$space-s;
+    gap: tokens.$space-xs;
+  }
+
+  :global(.project-template__details),
+  :global(.project-template__project) {
+    overflow: visible;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$space-m;
+    margin-top: tokens.$space-s;
+  }
+
+  &__skills-meta {
+    margin: tokens.$space-xs 0 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    color: rgba(tokens.$color-text-dark, 0.65);
+  }
+
+  &__skills-error {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    color: tokens.$color-text-dark;
+  }
+
+  &__skill-search {
+    margin-bottom: tokens.$space-s;
+  }
+
+  &__skill-category {
+    display: block;
+    font-size: tokens.$font-size-xs;
+    opacity: 0.7;
+  }
+
+  &__verify-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: tokens.$space-xs;
+    margin-top: tokens.$space-s;
+  }
+
+  &__verify-button {
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-strong;
+    border-radius: tokens.$radius-pill;
+    background: tokens.$color-surface-card-light;
+    color: tokens.$color-text-dark;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    font-weight: 700;
+    padding: tokens.$space-s tokens.$space-l;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__skills-hint {
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xs;
+    color: rgba(tokens.$color-text-dark, 0.65);
+  }
+
+  &__photos {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-s;
+    margin-bottom: tokens.$space-l;
+  }
+
+  &__photos-title {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(tokens.$color-text-dark, 0.75);
+  }
+
+  &__photos-hint {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xs;
+    line-height: tokens.$line-height-body;
+    color: rgba(tokens.$color-text-dark, 0.65);
+  }
+
+  &__photo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: tokens.$space-m;
+
+    @media (min-width: 720px) {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  &__photo-slot {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: tokens.$radius-m;
+    border: tokens.$border-width-thin dashed rgba(tokens.$color-text-dark, 0.28);
+    background: rgba(tokens.$color-text-light, 0.55);
+    overflow: hidden;
+
+    &--filled {
+      border-style: solid;
+      border-color: rgba(tokens.$color-text-dark, 0.2);
+    }
+
+    &--preview {
+      @media (min-width: 720px) {
+        grid-column: span 1;
+      }
+    }
+  }
+
+  &__photo-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__photo-remove {
+    position: absolute;
+    top: tokens.$space-xs;
+    right: tokens.$space-xs;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(tokens.$color-surface-dark, 0.72);
+    color: tokens.$color-text-light;
+    font-size: tokens.$font-size-l;
+    line-height: 1;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__photo-add {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: tokens.$space-xs;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    color: rgba(tokens.$color-text-dark, 0.72);
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xs;
+  }
+
+  &__photo-input {
+    display: none;
+  }
+
+  &__photo-add-icon {
+    font-size: tokens.$font-size-xxl;
+    line-height: 1;
+  }
+
+  &__photo-add-text {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+}

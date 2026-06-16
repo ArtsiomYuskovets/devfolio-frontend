@@ -9,7 +9,9 @@ import { checkEmail, checkPassword } from "@/lib/validation";
 import { useAppSelector, useAppDispatch } from "@/stores/auth/hooks";
 import { setTokens } from "@/stores/auth/authSlice";
 import { Input } from "@/components/ui/input/Input";
+import Link from "next/link";
 import { Button } from "@/components/ui/button/Button";
+import { WELCOME_PATH } from "@/lib/routes";
 
 
 export default function AuthForm() {
@@ -33,13 +35,12 @@ export default function AuthForm() {
     Date.now() < accessTokenExpiresAt;
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.replace("/dashboard");
-      return;
-    }
     tokenService.setDispatchCallback((dispatch, accessToken, expiresAt) => {
       dispatch(setTokens({ accessToken, expiresAt }));
     });
+    if (isAuthenticated) {
+      router.replace("/profile");
+    }
   }, [accessToken, accessTokenExpiresAt, dispatch, isAuthenticated, router]);
 
   useEffect(() => {
@@ -48,10 +49,6 @@ export default function AuthForm() {
       setIsLogin(false);
     }
   }, []);
-
-  useEffect(() => {
-    tokenService.logout(dispatch);
-  }, [dispatch]);
 
   const handleSwitch = (toLogin: boolean) => {
     setIsLogin(toLogin);
@@ -122,6 +119,9 @@ export default function AuthForm() {
 
   return (
     <div className={styles.auth}>
+      <Link href={WELCOME_PATH} className={styles.auth__back}>
+        ← На главную
+      </Link>
       <div
         className={`${styles.auth__strip} ${!isLogin ? styles["auth__strip--shifted"] : ""}`}
       >

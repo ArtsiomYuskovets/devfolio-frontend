@@ -35,7 +35,8 @@
     top: 0;
     left: 0;
     width: min(tokens.$size-profile-menu-width, 100%);
-    min-height: 100vh;
+    height: 100vh;
+    max-height: 100dvh;
     display: flex;
     flex-direction: column;
     gap: tokens.$space-xl;
@@ -45,6 +46,7 @@
     transition: transform 0.25s ease;
     isolation: isolate;
     overflow: hidden;
+    overscroll-behavior: none;
     @include blur.blur(
       url("../../../public/background/black-background-1.png"),
       tokens.$blur-strong
@@ -79,6 +81,14 @@
       tokens.$color-gradient-avatar-menu-end
     );
     box-shadow: tokens.$shadow-menu-avatar;
+    overflow: hidden;
+  }
+
+  &__avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 
   &__close {
@@ -105,8 +115,18 @@
     margin-top: tokens.$space-s;
   }
 
+  &__footer {
+    margin-top: auto;
+    padding-top: tokens.$space-l;
+  }
+
   &__link {
     display: block;
     text-decoration: none;
+  }
+
+  &__link--active {
+    border-radius: tokens.$radius-m;
+    outline: tokens.$border-width-base solid rgba(tokens.$color-text-light, 0.35);
   }
 }

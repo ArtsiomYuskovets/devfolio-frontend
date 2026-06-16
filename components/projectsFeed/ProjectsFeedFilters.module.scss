@@ -1,0 +1,218 @@
+@use "@/styles/tokens" as tokens;
+
+$filters-font-size: 16px;
+$filters-font-size-search: 18px;
+
+.projects-feed-filters {
+  border: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.2);
+  border-radius: tokens.$radius-m;
+  background: rgba(8, 12, 22, 0.72);
+  padding: tokens.$space-m;
+  display: flex;
+  flex-direction: column;
+  gap: tokens.$space-m;
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    gap: tokens.$space-m;
+    align-items: center;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$space-xs;
+  }
+
+  &__search {
+    position: relative;
+    width: 280px;
+    max-width: 100%;
+  }
+
+  &__input {
+    background: tokens.$color-text-light;
+    border-color: rgba(tokens.$color-text-dark, 0.22);
+    color: tokens.$color-text-dark;
+    min-height: 42px;
+    font-size: $filters-font-size-search;
+
+    &::placeholder {
+      color: tokens.$color-text-dark-soft;
+      opacity: 1;
+    }
+  }
+
+  &__search-button {
+    position: absolute;
+    right: tokens.$space-s;
+    top: 0;
+    bottom: 0;
+    border: 0;
+    background: transparent;
+    color: tokens.$color-text-dark;
+    font-size: $filters-font-size-search;
+    cursor: pointer;
+  }
+
+  &__panel {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-m;
+    padding-top: tokens.$space-m;
+    border-top: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.12);
+  }
+
+  &__panel-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: tokens.$space-m;
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-s;
+    min-width: 0;
+  }
+
+  &__label {
+    font-family: tokens.$font-family-primary;
+    font-size: $filters-font-size;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(tokens.$color-text-light, 0.92);
+  }
+
+  &__chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$space-s;
+  }
+
+  &__chip {
+    min-height: 36px;
+    padding: tokens.$space-xs tokens.$space-m;
+    border-radius: tokens.$radius-pill;
+    border: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.35);
+    background: transparent;
+    color: tokens.$color-text-light;
+    font-family: tokens.$font-family-primary;
+    font-size: $filters-font-size;
+    line-height: 1.25;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+
+    &--active {
+      background: tokens.$color-text-light;
+      color: tokens.$color-text-dark;
+      border-color: tokens.$color-text-light;
+    }
+  }
+
+  &__skills-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: tokens.$space-s;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$space-xs;
+  }
+
+  &__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: tokens.$space-xs;
+    min-height: 34px;
+    padding: tokens.$space-xs tokens.$space-m;
+    border-radius: tokens.$radius-pill;
+    background: rgba(tokens.$color-text-light, 0.12);
+    color: tokens.$color-text-light;
+    font-family: tokens.$font-family-primary;
+    font-size: $filters-font-size;
+  }
+
+  &__tag-remove {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: $filters-font-size-search;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  &__skills-picker {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-s;
+    padding: tokens.$space-m;
+    border-radius: tokens.$radius-s;
+    border: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.14);
+    background: rgba(5, 5, 11, 0.45);
+  }
+
+  &__skills-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$space-s;
+    max-height: 148px;
+    overflow-y: auto;
+  }
+
+  &__skill-option {
+    min-height: 34px;
+    padding: tokens.$space-xs tokens.$space-m;
+    border: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.28);
+    border-radius: tokens.$radius-pill;
+    background: rgba(tokens.$color-text-light, 0.06);
+    color: tokens.$color-text-light;
+    font-family: tokens.$font-family-primary;
+    font-size: $filters-font-size;
+    cursor: pointer;
+
+    &--active {
+      background: tokens.$color-text-light;
+      color: tokens.$color-text-dark;
+      border-color: tokens.$color-text-light;
+    }
+  }
+
+  &__panel-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__hint {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: $filters-font-size;
+    color: rgba(tokens.$color-text-light, 0.85);
+  }
+
+  @media (max-width: 768px) {
+    &__row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    &__search {
+      width: 100%;
+    }
+
+    &__panel-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

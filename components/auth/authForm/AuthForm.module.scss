@@ -8,7 +8,24 @@
   height: 100vh;
   overflow: hidden;
 
-  
+  &__back {
+    position: absolute;
+    top: tokens.$space-l;
+    left: tokens.$space-l;
+    z-index: 2;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    font-weight: 500;
+    color: tokens.$color-text-light;
+    text-decoration: none;
+    opacity: 0.9;
+
+    &:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+  }
+
   &__strip {
     display: flex;
     width: 200%;

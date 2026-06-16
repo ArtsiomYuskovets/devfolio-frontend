@@ -87,6 +87,58 @@
     border: 3px solid tokens.$color-text-light;
     background: linear-gradient(180deg, #3e4358, #2f3347);
     box-shadow: 0 14px 32px rgba(11, 11, 20, 0.24);
+    overflow: hidden;
+  }
+
+  &__avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__avatar-upload-row {
+    margin-top: tokens.$space-s;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  &__avatar-file-input {
+    display: none;
+  }
+
+  &__radio-label {
+    display: block;
+    margin-bottom: tokens.$space-xs;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    font-weight: 700;
+    color: tokens.$color-text-dark;
+  }
+
+  &__radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$space-s;
+  }
+
+  &__radio-option {
+    display: inline-flex;
+    align-items: center;
+    gap: tokens.$space-xs;
+    padding: tokens.$space-xs tokens.$space-m;
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-medium;
+    border-radius: tokens.$radius-pill;
+    background: tokens.$color-surface-card-light;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    color: tokens.$color-text-dark;
+    cursor: pointer;
+
+    input {
+      margin: 0;
+      accent-color: tokens.$color-text-dark;
+    }
   }
 
   &__content {

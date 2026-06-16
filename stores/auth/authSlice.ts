@@ -1,4 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { loadAuth } from '@/lib/authStorage';
+import { isTokenValid } from '@/lib/authTokenUtils';
 
 interface AuthState {
   accessToken: string | null;
@@ -6,11 +8,23 @@ interface AuthState {
   isAuthCheckComplete: boolean;
 }
 
-const initialState: AuthState = {
-  accessToken: null,
-  accessTokenExpiresAt: null,
-  isAuthCheckComplete: false,
-};
+function buildInitialState(): AuthState {
+  const stored = loadAuth();
+  if (stored && isTokenValid(stored.expiresAt)) {
+    return {
+      accessToken: stored.accessToken,
+      accessTokenExpiresAt: stored.expiresAt,
+      isAuthCheckComplete: false,
+    };
+  }
+  return {
+    accessToken: null,
+    accessTokenExpiresAt: null,
+    isAuthCheckComplete: false,
+  };
+}
+
+const initialState: AuthState = buildInitialState();
 
 const authSlice = createSlice({
   name: 'auth',
@@ -26,6 +40,7 @@ const authSlice = createSlice({
     clearTokens: (state) => {
       state.accessToken = null;
       state.accessTokenExpiresAt = null;
+      state.isAuthCheckComplete = false;
     },
     setAuthCheckComplete: (state, action: PayloadAction<boolean>) => {
       state.isAuthCheckComplete = action.payload;

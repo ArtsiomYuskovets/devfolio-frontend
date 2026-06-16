@@ -88,35 +88,96 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: calc(tokens.$space-xxxl * 3);
+    gap: tokens.$space-xxl;
+  }
+
+  &__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: tokens.$space-m;
+    text-align: center;
+  }
+
+  &__brand {
+    margin: 0;
+    font-family: tokens.$font-family-secondary;
+    font-size: tokens.$font-size-s;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: tokens.$color-text-dark-muted;
   }
 
   &__title {
     margin: 0;
     font-family: tokens.$font-family-primary;
     font-size: calc(tokens.$font-size-xxxl * 1.5);
-    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__subtitle {
+    margin: 0;
+    max-width: 36rem;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    line-height: 1.6;
+    color: tokens.$color-text-dark-muted;
   }
 
   &__buttons {
-    width: 50%;
+    width: min(100%, 320px);
     display: flex;
     flex-direction: column;
-    gap: tokens.$space-xxxl;
-  }
-
-  &__footer-icons {
-    margin-top: tokens.$space-m;
-    display: flex;
     gap: tokens.$space-l;
   }
 
-  &__footer-icon {
-    width: 26px;
-    height: 26px;
-    border-radius: tokens.$radius-pill;
-    border: 1px solid tokens.$color-text-dark;
-    background-color: tokens.$color-text-light;
+  &__features {
+    width: 100%;
+    max-width: 36rem;
+    padding: tokens.$space-xl;
+    border-radius: tokens.$radius-m;
+    border: 1px solid rgba(tokens.$color-text-dark, 0.12);
+    background-color: rgba(tokens.$color-text-light, 0.72);
+  }
+
+  &__features-title {
+    margin: 0 0 tokens.$space-m;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-l;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  &__features-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-m;
+  }
+
+  &__features-item {
+    position: relative;
+    padding-left: tokens.$space-l;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    line-height: 1.5;
+    color: tokens.$color-text-dark;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 8px;
+      height: 8px;
+      border-radius: tokens.$radius-pill;
+      background-color: tokens.$color-text-dark;
+    }
   }
 
   @media (max-width: 1024px) {
@@ -154,7 +215,11 @@
 
   @media (max-width: 768px) {
     &__title {
-      font-size: tokens.$font-size-l;
+      font-size: tokens.$font-size-xxl;
+    }
+
+    &__features {
+      padding: tokens.$space-l;
     }
   }
 }

@@ -18,6 +18,9 @@ type ProfileCareerModalProps = {
   entries: ProfileCareerEntry[];
   onClose: () => void;
   onChange: (value: SetStateAction<ProfileCareerEntry[]>) => void;
+  onSave?: () => void;
+  isSaving?: boolean;
+  saveError?: string | null;
 };
 
 function ProfileCareerModalComponent({
@@ -26,6 +29,9 @@ function ProfileCareerModalComponent({
   entries,
   onClose,
   onChange,
+  onSave,
+  isSaving = false,
+  saveError = null,
 }: ProfileCareerModalProps) {
   useEffect(() => {
     if (!isOpen) return;
@@ -107,11 +113,29 @@ function ProfileCareerModalComponent({
                   variant="outline-dark"
                   size="normal"
                   onClick={handleAddEntry}
+                  disabled={isSaving}
                 >
                   + Добавить запись
                 </Button>
+                {onSave ? (
+                  <Button
+                    type="button"
+                    variant="outline-dark"
+                    size="normal"
+                    onClick={onSave}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? "Сохранение…" : "Сохранить"}
+                  </Button>
+                ) : null}
               </div>
             )}
+
+            {saveError ? (
+              <p className={styles["career-modal__error"]} role="alert">
+                {saveError}
+              </p>
+            ) : null}
 
             <div className={styles["career-modal__list"]}>
               {entries.map((entry) =>

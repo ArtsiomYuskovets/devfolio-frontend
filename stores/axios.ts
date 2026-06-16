@@ -28,13 +28,23 @@ export const axiosBaseQuery = (
 ): BaseQueryFn<AxiosBaseQueryArgs, unknown, AxiosBaseQueryError> =>
     async ({ url, method, data, params, headers }) => {
         try {
-            const result = await api({
+            const req: AxiosRequestConfig = {
                 url: baseUrl + url,
                 method,
                 data,
                 params,
                 headers,
-            });
+            };
+            if (typeof FormData !== 'undefined' && data instanceof FormData) {
+                const h: Record<string, unknown> = {
+                    ...(headers && typeof headers === 'object' && !Array.isArray(headers)
+                        ? (headers as Record<string, unknown>)
+                        : {}),
+                };
+                h['Content-Type'] = false;
+                req.headers = h as AxiosRequestConfig['headers'];
+            }
+            const result = await api(req);
 
             return { data: result.data };
 

@@ -1,7 +1,9 @@
 "use client";
 
+import { useMemo } from "react";
 import { useParams } from "next/navigation";
 import { ProfilePage } from "@/components/profile/ProfilePage";
+import { pickProfileUserId } from "@/lib/userId";
 import {
   useGetMyProfileQuery,
   useGetUserProfileQuery,
@@ -10,40 +12,68 @@ import {
 export default function ProfileByIdPage() {
   const params = useParams<{ id: string }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const {
-    data: myProfile,
-    isLoading: isLoadingMyProfile,
-    error: myProfileError,
-  } = useGetMyProfileQuery();
+  const { data: myProfile, isLoading: isLoadingMyProfile } =
+    useGetMyProfileQuery(undefined, { refetchOnMountOrArgChange: true });
   const {
     data: viewedProfile,
     isLoading: isLoadingViewedProfile,
     error: viewedProfileError,
   } = useGetUserProfileQuery(id, {
     skip: !id,
+    refetchOnMountOrArgChange: true,
   });
+
+  const myUserId = myProfile
+    ? pickProfileUserId(myProfile) ?? myProfile.userId
+    : undefined;
+  const viewedUserId = viewedProfile
+    ? pickProfileUserId(viewedProfile) ?? viewedProfile.userId
+    : undefined;
+
+  const isOwnProfile = Boolean(
+    myUserId && viewedUserId && myUserId === viewedUserId
+  );
+
+  const displayProfile = useMemo(() => {
+    if (!viewedProfile) {
+      return undefined;
+    }
+    if (isOwnProfile && myProfile) {
+      const avatarURL =
+        myProfile.avatarURL?.trim() || viewedProfile.avatarURL?.trim() || "";
+      return {
+        ...viewedProfile,
+        ...myProfile,
+        avatarURL,
+        links: { ...viewedProfile.links, ...myProfile.links },
+      };
+    }
+    return viewedProfile;
+  }, [isOwnProfile, myProfile, viewedProfile]);
 
   if (!id) {
     return <div>Profile not found</div>;
   }
 
-  if (isLoadingMyProfile || isLoadingViewedProfile) {
+  if (isLoadingViewedProfile || (isOwnProfile && isLoadingMyProfile)) {
     return <div>Loading profile...</div>;
   }
 
-  if (myProfileError || viewedProfileError) {
+  if (viewedProfileError) {
     return <div>Error getting profile</div>;
   }
 
-  if (!viewedProfile) {
+  if (!displayProfile) {
     return <div>Profile not found</div>;
   }
 
-  const isOwnProfile = myProfile?.userId === viewedProfile.userId;
-
   return (
     <main>
-      <ProfilePage profile={viewedProfile} isOwnProfile={isOwnProfile} />
+      <ProfilePage
+        key={`${displayProfile.userId}-${displayProfile.userType ?? "JOB_SEEKER"}`}
+        profile={displayProfile}
+        isOwnProfile={isOwnProfile}
+      />
     </main>
   );
 }

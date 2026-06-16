@@ -2,8 +2,16 @@
   box-sizing: border-box;
 }
 
+html {
+  background-color: #05050b;
+}
+
 body {
   margin: 0;
   padding: 0;
-  font-family: "Alumni Sans"
+  font-family: "Alumni Sans", sans-serif;
+  font-size: 20px;
+  line-height: 1.5;
+  background-color: #05050b;
+  min-height: 100dvh;
 }
