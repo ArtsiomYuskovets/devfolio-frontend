@@ -98,6 +98,8 @@
   &__body {
     flex: 1;
     min-height: 0;
+    color: tokens.$color-text-dark;
+    background: tokens.$color-surface-card-light;
   }
 
   &__content {
@@ -106,6 +108,7 @@
     padding: tokens.$space-xl;
     overflow-y: auto;
     overscroll-behavior: contain;
+    color: tokens.$color-text-dark;
   }
 
   &__toolbar {
