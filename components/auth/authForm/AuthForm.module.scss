@@ -156,6 +156,10 @@
     }
   }
 
+  &__panel--form-light &__passwordToggle {
+    color: tokens.$color-text-light;
+  }
+
   &__passwordHint {
     margin: calc(-1 * tokens.$space-s) 0 0;
     font-family: tokens.$font-family-primary;
