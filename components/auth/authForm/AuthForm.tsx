@@ -195,15 +195,13 @@ export default function AuthForm() {
               <Button type="submit" variant="outline-dark" size="wide">
                 ВХОД
               </Button>
-              <Button
+              <button
                 type="button"
-                variant="primary-transparent"
-                size="wide"
                 className={styles.auth__mobileSwitch}
                 onClick={() => handleSwitch(false)}
               >
-                Перейти к регистрации
-              </Button>
+                Нет аккаунта? Зарегистрироваться
+              </button>
             </form>
           </div>
         </div>
@@ -262,6 +260,13 @@ export default function AuthForm() {
               <Button type="submit" variant="outline-transparent" size="wide">
                 РЕГИСТРАЦИЯ
               </Button>
+              <button
+                type="button"
+                className={styles.auth__mobileSwitch}
+                onClick={() => handleSwitch(true)}
+              >
+                Уже есть аккаунт? Войти
+              </button>
             </form>
           </div>
         </div>
