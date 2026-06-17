@@ -61,7 +61,7 @@ describe('checkPassword', () => {
   test('should fail for password too short', () => {
     const result = checkPassword('Pass1!');
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('The password must contain between 8 and 60 characters');
+    expect(result.errors).toContain('Пароль должен содержать от 8 до 60 символов');
   });
 
   test('should fail for password too long', () => {
@@ -69,33 +69,33 @@ describe('checkPassword', () => {
     expect(longPassword.length).toBeGreaterThan(60);
     const result = checkPassword(longPassword);
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('The password must contain between 8 and 60 characters');
+    expect(result.errors).toContain('Пароль должен содержать от 8 до 60 символов');
   });
 
   test('should fail for password without uppercase letter', () => {
     const result = checkPassword('password123!');
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('The password must contain at least one capital letter');
+    expect(result.errors).toContain('Пароль должен содержать хотя бы одну заглавную латинскую букву');
   });
 
   test('should fail for password without lowercase letter', () => {
     const result = checkPassword('PASSWORD123!');
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('The password must contain at least one lowercase letter');
+    expect(result.errors).toContain('Пароль должен содержать хотя бы одну строчную латинскую букву');
   });
 
   test('should fail for password without special character', () => {
     const result = checkPassword('Password123');
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('The password must contain at least one special character (!@#$%^&*(),.?":{}|<>)');
+    expect(result.errors).toContain('Пароль должен содержать хотя бы один спецсимвол (!@#$%^&*(),.?":{}|<>)');
   });
 
   test('should fail for empty password', () => {
     const result = checkPassword('');
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('The password must contain between 8 and 60 characters');
-    expect(result.errors).toContain('The password must contain at least one capital letter');
-    expect(result.errors).toContain('The password must contain at least one lowercase letter');
-    expect(result.errors).toContain('The password must contain at least one special character (!@#$%^&*(),.?":{}|<>)');
+    expect(result.errors).toContain('Пароль должен содержать от 8 до 60 символов');
+    expect(result.errors).toContain('Пароль должен содержать хотя бы одну заглавную латинскую букву');
+    expect(result.errors).toContain('Пароль должен содержать хотя бы одну строчную латинскую букву');
+    expect(result.errors).toContain('Пароль должен содержать хотя бы один спецсимвол (!@#$%^&*(),.?":{}|<>)');
   });
 });

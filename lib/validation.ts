@@ -1,16 +1,19 @@
+export const PASSWORD_REQUIREMENTS_HINT =
+  "От 8 до 60 символов: минимум одна заглавная и одна строчная латинская буква, а также спецсимвол (!@#$%^&*(),.?\":{}|<>)";
+
 export const checkPassword = (password: string): { isValid: boolean, errors: string[] } => {
     const errors: string[] = [];
     if (password.length < 8 || password.length > 60) {
-        errors.push("The password must contain between 8 and 60 characters");
+        errors.push("Пароль должен содержать от 8 до 60 символов");
     }
     if (!/[A-Z]/.test(password)) {
-        errors.push("The password must contain at least one capital letter");
+        errors.push("Пароль должен содержать хотя бы одну заглавную латинскую букву");
     }
     if (!/[a-z]/.test(password)) {
-        errors.push("The password must contain at least one lowercase letter");
+        errors.push("Пароль должен содержать хотя бы одну строчную латинскую букву");
     }
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-        errors.push("The password must contain at least one special character (!@#$%^&*(),.?\":{}|<>)");
+        errors.push("Пароль должен содержать хотя бы один спецсимвол (!@#$%^&*(),.?\":{}|<>)");
     }
     return {
         isValid: errors.length === 0,
