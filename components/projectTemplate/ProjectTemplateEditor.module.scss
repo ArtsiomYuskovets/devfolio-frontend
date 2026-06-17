@@ -25,6 +25,37 @@
     gap: tokens.$space-l;
   }
 
+  &__visibility {
+    display: inline-flex;
+    align-items: center;
+    gap: tokens.$space-m;
+    width: fit-content;
+    padding: tokens.$space-s tokens.$space-m;
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-medium;
+    border-radius: tokens.$radius-pill;
+    background: #ffffff;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    color: tokens.$color-text-dark;
+    cursor: pointer;
+
+    input {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: tokens.$color-text-dark;
+      cursor: pointer;
+    }
+  }
+
+  &__visibility-hint {
+    margin: calc(-1 * tokens.$space-xs) 0 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xs;
+    line-height: tokens.$line-height-body;
+    color: rgba(tokens.$color-text-dark, 0.68);
+  }
+
   &__input,
   &__description-field textarea {
     background-color: #ffffff;

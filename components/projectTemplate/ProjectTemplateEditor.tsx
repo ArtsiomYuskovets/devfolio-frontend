@@ -44,6 +44,7 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
   const [description, setDescription] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [githubUrl, setGithubUrl] = useState("");
+  const [projectPublic, setProjectPublic] = useState(true);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -54,6 +55,7 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
       setDescription(project.description ?? "");
       setShortDescription(project.shortDescription ?? "");
       setGithubUrl(project.githubUrl ?? "");
+      setProjectPublic(project.projectPublic ?? true);
     }
   }, [project]);
 
@@ -77,12 +79,13 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
         description,
         shortDescription,
         githubUrl,
+        projectPublic,
       }).unwrap();
       router.push(`/project/${projectId}`);
     } catch {
       setSaveError("Не удалось сохранить проект");
     }
-  }, [project, projectId, router, updateProject, name, description, shortDescription, githubUrl]);
+  }, [project, projectId, router, updateProject, name, description, shortDescription, githubUrl, projectPublic]);
 
   const handleDelete = useCallback(async () => {
     if (!project) {
@@ -232,6 +235,19 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
               }}
               error={fieldErrors.githubUrl}
             />
+            <label className={editorStyles["project-template-editor__visibility"]}>
+              <input
+                type="checkbox"
+                checked={projectPublic}
+                onChange={(e) => setProjectPublic(e.target.checked)}
+              />
+              <span>Публичный проект</span>
+            </label>
+            <p className={editorStyles["project-template-editor__visibility-hint"]}>
+              {projectPublic
+                ? "Проект виден в общей ленте и профиле."
+                : "Проект скрыт из ленты — доступен только вам."}
+            </p>
           </div>
 
           <ProjectTemplateEditorPhotos projectId={projectId} project={project} />
