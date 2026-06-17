@@ -1,6 +1,16 @@
 @use "@/styles/tokens" as tokens;
 
 .project-template-editor {
+  color: tokens.$color-text-dark;
+
+  :global(.project-template__project) {
+    color: tokens.$color-text-dark;
+  }
+
+  :global(.project-template__project) label {
+    color: tokens.$color-text-dark;
+  }
+
   .project-template__top::after {
     background: linear-gradient(
       120deg,
@@ -9,22 +19,35 @@
     );
   }
 
-  &__input {
-    color: tokens.$color-text-dark;
+  &__fields {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-l;
   }
 
-  &__textarea {
-    width: 100%;
-    min-height: 120px;
-    resize: vertical;
-    border: tokens.$border-width-thin solid tokens.$color-border-dark-medium;
-    border-radius: tokens.$radius-m;
-    background: tokens.$color-surface-card-light;
+  &__input,
+  &__description-field textarea {
+    background-color: #ffffff;
     color: tokens.$color-text-dark;
+    outline: tokens.$border-width-thin solid tokens.$color-border-dark-medium;
+    outline-offset: 0;
+    border-color: transparent;
+
+    &::placeholder {
+      color: tokens.$color-text-dark-muted;
+      opacity: 1;
+    }
+  }
+
+  &__section-title {
+    grid-column: 1 / -1;
+    margin: 0 0 tokens.$space-xs;
     font-family: tokens.$font-family-primary;
-    font-size: tokens.$font-size-m;
-    line-height: tokens.$line-height-body;
-    padding: tokens.$space-m tokens.$space-l;
+    font-size: tokens.$font-size-s;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(tokens.$color-text-dark, 0.75);
   }
 
   &__skills {
