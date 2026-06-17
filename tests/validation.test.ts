@@ -10,28 +10,28 @@ describe('checkEmail', () => {
   test('should fail for email without @', () => {
     const result = checkEmail('testexample.com');
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('The email must contain the @ symbol');
-    expect(result.errors).toContain('Email has an incorrect format (for example, user@domain.com)');
+    expect(result.errors).toContain('В адресе почты должен быть символ @');
+    expect(result.errors).toContain('Некорректный формат почты (например, user@domain.com)');
   });
 
   test('should fail for email with spaces', () => {
     const result = checkEmail('test user@example.com');
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('Email should not contain spaces');
-    expect(result.errors).toContain('The email username contains invalid characters');
+    expect(result.errors).toContain('В адресе почты не должно быть пробелов');
+    expect(result.errors).toContain('Имя пользователя в адресе почты содержит недопустимые символы');
   });
 
   test('should fail for email with invalid username characters', () => {
     const result = checkEmail('test#invalid@example.com');
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('The email username contains invalid characters');
+    expect(result.errors).toContain('Имя пользователя в адресе почты содержит недопустимые символы');
   });
 
   test('should fail for email with invalid domain', () => {
     const result = checkEmail('test@domain');
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('Email has an incorrect format (for example, user@domain.com)');
-    expect(result.errors).toContain('The email domain is in an incorrect format (for example, domain.com)');
+    expect(result.errors).toContain('Некорректный формат почты (например, user@domain.com)');
+    expect(result.errors).toContain('Некорректный формат домена (например, domain.com)');
   });
 
   test('should fail for email too long', () => {
@@ -39,15 +39,15 @@ describe('checkEmail', () => {
     expect(longEmail.length).toBeGreaterThan(254);
     const result = checkEmail(longEmail);
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('Email must contain between 3 and 254 characters');
+    expect(result.errors).toContain('Адрес почты должен содержать от 3 до 254 символов');
   });
 
   test('should fail for empty email', () => {
     const result = checkEmail('');
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('Email must contain between 3 and 254 characters');
-    expect(result.errors).toContain('The email must contain the @ symbol');
-    expect(result.errors).toContain('Email has an incorrect format (for example, user@domain.com)');
+    expect(result.errors).toContain('Адрес почты должен содержать от 3 до 254 символов');
+    expect(result.errors).toContain('В адресе почты должен быть символ @');
+    expect(result.errors).toContain('Некорректный формат почты (например, user@domain.com)');
   });
 });
 

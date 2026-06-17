@@ -129,7 +129,7 @@ export function getDefaultCareerEntries(
         createCareerEntry(
           "career-1",
           "work",
-          "Frontend Developer",
+          "Frontend-разработчик",
           "Product Studio",
           "Разработка интерфейсов, дизайн-системы и продуктовых фич для командных проектов.",
           createCareerDate(3, 2024),
@@ -149,7 +149,7 @@ export function getDefaultCareerEntries(
         createCareerEntry(
           "career-1",
           "work",
-          "Frontend Developer",
+          "Frontend-разработчик",
           "Digital Product Team",
           "Разработка клиентской части, работа с дизайн-системой и релизами продуктовых задач.",
           createCareerDate(4, 2023),

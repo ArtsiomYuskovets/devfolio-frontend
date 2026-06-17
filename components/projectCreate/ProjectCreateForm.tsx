@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button/Button";
 import { Input } from "@/components/ui/input/Input";
 import { TextareaField } from "@/components/ui/textarea-field/TextareaField";
+import { getProjectApiErrorMessage } from "@/lib/apiError";
 import { pickProjectId } from "@/lib/projectId";
 import {
   IMAGE_UPLOAD_HINT,
@@ -22,55 +23,6 @@ import styles from "./ProjectCreateForm.module.scss";
 const PHOTO_SLOT_COUNT = 5;
 
 type PhotoSlot = { file: File; previewUrl: string } | null;
-
-function formatApiError(err: unknown): string {
-  if (typeof err === "object" && err !== null) {
-    const e = err as Record<string, unknown>;
-    if (e.status === "FETCH_ERROR" && typeof e.error === "string") {
-      return e.error;
-    }
-  }
-
-  if (typeof err === "object" && err !== null && "status" in err) {
-    const status = (err as { status?: number }).status;
-    const data = (err as { data?: unknown }).data;
-
-    let detail = "";
-    if (typeof data === "string") {
-      detail = data;
-    } else if (data && typeof data === "object") {
-      const o = data as Record<string, unknown>;
-      if (typeof o.message === "string") {
-        detail = o.message;
-      } else if (typeof o.error === "string") {
-        detail = o.error;
-      } else if (Array.isArray(o.errors)) {
-        detail = o.errors.map(String).join("; ");
-      } else {
-        try {
-          detail = JSON.stringify(data);
-        } catch {
-          detail = "";
-        }
-      }
-    }
-
-    const prefix =
-      typeof status === "number" ? `[${status}] ` : "";
-    let msg = `${prefix}${detail || "Ошибка сервера"}`.trim();
-    if (status === 403) {
-      msg +=
-        " Доступ запрещён на сервере: проверьте правила Spring Security для POST /api/projects, …/preview и …/images (роль пользователя), при необходимости CSRF для cookie-сессии.";
-    }
-    return msg;
-  }
-
-  if (err instanceof Error) {
-    return err.message;
-  }
-
-  return "Неизвестная ошибка";
-}
 
 export function ProjectCreateForm() {
   const router = useRouter();
@@ -207,11 +159,11 @@ export function ProjectCreateForm() {
           try {
             await deleteProject(id).unwrap();
             setErrorMessage(
-              `Фото не загрузились; проект не сохранён. ${formatApiError(uploadErr)}`
+              `Фото не загрузились; проект не сохранён. ${getProjectApiErrorMessage(uploadErr, "Ошибка загрузки фото")}`
             );
           } catch (delErr) {
             setErrorMessage(
-              `Фото не загрузились, проект остался без нужных файлов. Не удалось удалить проект: ${formatApiError(delErr)}. Ошибка загрузки: ${formatApiError(uploadErr)}`
+              `Фото не загрузились, проект остался без нужных файлов. Не удалось удалить проект: ${getProjectApiErrorMessage(delErr, "Ошибка удаления проекта")}. Ошибка загрузки: ${getProjectApiErrorMessage(uploadErr, "Ошибка загрузки фото")}`
             );
           }
           return;
@@ -219,7 +171,7 @@ export function ProjectCreateForm() {
 
         router.replace("/profile");
       } catch (err) {
-        setErrorMessage(`Не удалось создать проект. ${formatApiError(err)}`);
+        setErrorMessage(`Не удалось создать проект. ${getProjectApiErrorMessage(err, "Ошибка создания проекта")}`);
       } finally {
         setIsSubmitting(false);
       }

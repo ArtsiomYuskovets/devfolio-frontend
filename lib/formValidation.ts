@@ -180,7 +180,7 @@ export function validateAuthLogin(
 ): Record<string, string> {
   const errors: Record<string, string> = {};
   if (!email.trim()) {
-    errors.email = "Укажите E-mail";
+    errors.email = "Укажите почту";
   }
   if (!password.trim()) {
     errors.password = "Укажите пароль";

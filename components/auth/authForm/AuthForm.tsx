@@ -86,7 +86,7 @@ export default function AuthForm() {
 
     const emailValidation = checkEmail(email);
     if (!emailValidation.isValid) {
-      setEmailError(emailValidation.errors[0] ?? "Неверный формат email");
+      setEmailError(emailValidation.errors[0] ?? "Некорректный формат почты");
       return;
     }
 
@@ -117,7 +117,7 @@ export default function AuthForm() {
     <button
       type="button"
       tabIndex={-1}
-      aria-label={visible ? "Hide password" : "Show password"}
+      aria-label={visible ? "Скрыть пароль" : "Показать пароль"}
       onClick={onClick}
       className={styles.auth__passwordToggle}
     >
@@ -164,10 +164,10 @@ export default function AuthForm() {
               )}
               <Input
                 variant="outline-dark"
-                label="E-mail"
+                label="Почта"
                 requiredMark
                 type="email"
-                placeholder="E-mail"
+                placeholder="example@mail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 error={emailError ?? undefined}
@@ -191,6 +191,15 @@ export default function AuthForm() {
               <Button type="submit" variant="outline-dark" size="wide">
                 ВХОД
               </Button>
+              <Button
+                type="button"
+                variant="primary-transparent"
+                size="wide"
+                className={styles.auth__mobileSwitch}
+                onClick={() => handleSwitch(false)}
+              >
+                Перейти к регистрации
+              </Button>
             </form>
           </div>
         </div>
@@ -206,10 +215,10 @@ export default function AuthForm() {
               )}
               <Input
                 variant="outline-transparent"
-                label="E-mail"
+                label="Почта"
                 requiredMark
                 type="email"
-                placeholder="E-mail"
+                placeholder="example@mail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 error={emailError ?? undefined}
@@ -248,6 +257,15 @@ export default function AuthForm() {
               />
               <Button type="submit" variant="outline-transparent" size="wide">
                 РЕГИСТРАЦИЯ
+              </Button>
+              <Button
+                type="button"
+                variant="outline-light"
+                size="wide"
+                className={styles.auth__mobileSwitch}
+                onClick={() => handleSwitch(true)}
+              >
+                Перейти ко входу
               </Button>
             </form>
           </div>

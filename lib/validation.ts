@@ -25,16 +25,16 @@ export const checkEmail = (email: string): { isValid: boolean; errors: string[] 
     const errors: string[] = [];
 
     if (email.length <= 3 || email.length >= 254) {
-        errors.push("Email must contain between 3 and 254 characters");
+        errors.push("Адрес почты должен содержать от 3 до 254 символов");
     }
 
     if (/\s/.test(email)) {
-        errors.push("Email should not contain spaces");
+        errors.push("В адресе почты не должно быть пробелов");
     }
 
     if (!email.includes('@')) {
-        errors.push("The email must contain the @ symbol");
-        errors.push("Email has an incorrect format (for example, user@domain.com)");
+        errors.push("В адресе почты должен быть символ @");
+        errors.push("Некорректный формат почты (например, user@domain.com)");
         return { isValid: false, errors }; 
     }
 
@@ -42,16 +42,16 @@ export const checkEmail = (email: string): { isValid: boolean; errors: string[] 
 
     const usernameRegex = /^[a-zA-Z0-9._-]+$/;
     if (!usernameRegex.test(username)) {
-        errors.push("The email username contains invalid characters");
+        errors.push("Имя пользователя в адресе почты содержит недопустимые символы");
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-        errors.push("Email has an incorrect format (for example, user@domain.com)");
+        errors.push("Некорректный формат почты (например, user@domain.com)");
     }
 
     if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(domain)) {
-        errors.push("The email domain is in an incorrect format (for example, domain.com)");
+        errors.push("Некорректный формат домена (например, domain.com)");
     }
 
     return {
