@@ -155,4 +155,13 @@
       opacity: 1;
     }
   }
+
+  &__passwordHint {
+    margin: calc(-1 * tokens.$space-s) 0 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xs;
+    line-height: tokens.$line-height-body;
+    color: inherit;
+    opacity: 0.75;
+  }
 }

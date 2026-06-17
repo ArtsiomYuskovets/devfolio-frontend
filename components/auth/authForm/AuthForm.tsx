@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import styles from "@/components/auth/authForm/AuthForm.module.scss";
 import { loginOrRegistr } from "@/services/authService";
 import { tokenService } from "@/lib/tokenService";
-import { checkEmail, checkPassword } from "@/lib/validation";
+import { checkEmail, checkPassword, PASSWORD_REQUIREMENTS_HINT } from "@/lib/validation";
+import { validateAuthLogin } from "@/lib/formValidation";
 import { useAppSelector, useAppDispatch } from "@/stores/auth/hooks";
 import { setTokens } from "@/stores/auth/authSlice";
 import { Input } from "@/components/ui/input/Input";
@@ -67,6 +68,13 @@ export default function AuthForm() {
     setLoginError(null);
 
     if (isLogin) {
+      const loginErrors = validateAuthLogin(email, password);
+      if (Object.keys(loginErrors).length > 0) {
+        setEmailError(loginErrors.email ?? null);
+        setPasswordError(loginErrors.password ?? null);
+        return;
+      }
+
       const success = await loginOrRegistr(isLogin, email, password, dispatch);
       if (success) {
         router.replace("/profile");
@@ -156,18 +164,24 @@ export default function AuthForm() {
               )}
               <Input
                 variant="outline-dark"
+                label="E-mail"
+                requiredMark
                 type="email"
                 placeholder="E-mail"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                error={emailError ?? undefined}
                 autoComplete="email"
               />
               <Input
                 variant="outline-dark"
+                label="Пароль"
+                requiredMark
                 type={passwordVisible ? "text" : "password"}
                 placeholder="Пароль"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                error={passwordError ?? undefined}
                 autoComplete="current-password"
                 rightAdornment={passwordToggleButton(
                   passwordVisible,
@@ -192,6 +206,8 @@ export default function AuthForm() {
               )}
               <Input
                 variant="outline-transparent"
+                label="E-mail"
+                requiredMark
                 type="email"
                 placeholder="E-mail"
                 value={email}
@@ -201,6 +217,8 @@ export default function AuthForm() {
               />
               <Input
                 variant="outline-transparent"
+                label="Пароль"
+                requiredMark
                 type={passwordVisible ? "text" : "password"}
                 placeholder="Пароль"
                 value={password}
@@ -212,8 +230,11 @@ export default function AuthForm() {
                   () => setPasswordVisible((v) => !v)
                 )}
               />
+              <p className={styles.auth__passwordHint}>{PASSWORD_REQUIREMENTS_HINT}</p>
               <Input
                 variant="outline-transparent"
+                label="Повторите пароль"
+                requiredMark
                 type={confirmPasswordVisible ? "text" : "password"}
                 placeholder="Повторите пароль"
                 value={confirmPassword}
