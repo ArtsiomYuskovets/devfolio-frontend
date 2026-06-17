@@ -144,23 +144,8 @@ function patchProjectViewCountInCaches(
 }
 
 function normalizeProjectsListResponse(response: unknown): Project[] {
-    console.log('[project] GET /api/projects (list) raw', {
-        typeofResponse: typeof response,
-        isArray: Array.isArray(response),
-        raw: response,
-    });
-
     const items = normalizeListResponse<unknown>(response);
-    const projects = items.map((item) => normalizeProjectPayload(item));
-
-    if (items[0]) {
-        console.log('[project] list item[0] raw', items[0]);
-    }
-    if (projects[0]) {
-        console.log('[project] list item[0] normalized', projects[0]);
-    }
-
-    return projects;
+    return items.map((item) => normalizeProjectPayload(item));
 }
 
 export const projectsApi = createApi({
@@ -173,17 +158,8 @@ export const projectsApi = createApi({
                 url: `api/projects/${encodeURIComponent(projectId)}`,
                 method: 'GET',
             }),
-            transformResponse: (response: unknown, _meta, projectId) => {
-                console.log('[project] GET /api/projects/:id', {
-                    projectId,
-                    typeofResponse: typeof response,
-                    isArray: Array.isArray(response),
-                    raw: response,
-                });
-                const normalized = normalizeProjectPayload(response);
-                console.log('[project] after normalizeProjectPayload', normalized);
-                return normalized;
-            },
+            transformResponse: (response: unknown) =>
+                normalizeProjectPayload(response),
             providesTags: (_result, _error, projectId) => [
                 { type: 'ProjectsList', id: projectId },
                 { type: 'ProjectInteraction', id: projectId },
