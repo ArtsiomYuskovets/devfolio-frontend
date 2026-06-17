@@ -5,6 +5,22 @@
   border-radius: tokens.$radius-l;
   background: tokens.$color-surface-card-soft;
   padding: tokens.$space-l;
+  color: tokens.$color-text-dark;
+
+  label {
+    color: tokens.$color-text-dark;
+  }
+
+  input:not([type="checkbox"]),
+  select,
+  textarea {
+    color: tokens.$color-text-dark;
+
+    &::placeholder {
+      color: tokens.$color-text-dark-soft;
+      opacity: 1;
+    }
+  }
 
   &__top,
   &__top-actions,

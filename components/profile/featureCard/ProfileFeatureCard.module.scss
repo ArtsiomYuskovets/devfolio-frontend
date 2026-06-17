@@ -8,6 +8,7 @@
   background: tokens.$color-surface-card-muted;
   box-shadow: tokens.$shadow-soft;
   text-align: left;
+  color: tokens.$color-text-dark;
 
   &--interactive {
     width: 100%;

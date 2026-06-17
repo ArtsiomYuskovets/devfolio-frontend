@@ -1,6 +1,8 @@
 @use "@/styles/tokens" as tokens;
 
 .profile-career-section {
+  color: tokens.$color-text-dark;
+
   &__status {
     margin: 0;
     font-family: tokens.$font-family-primary;
