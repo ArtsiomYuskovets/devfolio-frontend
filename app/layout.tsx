@@ -1,9 +1,18 @@
+import type { Metadata } from "next";
 import "./globals.css";
 import { ReduxProvider } from '@/providers/ReduxProvider';
 
+export const metadata: Metadata = {
+  title: {
+    default: "DEVFOLIO",
+    template: "%s | DEVFOLIO",
+  },
+  applicationName: "DEVFOLIO",
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ru">
       <head>
       <link rel="preconnect" href="https://fonts.googleapis.com"/>
       <link rel="preconnect" href="https://fonts.gstatic.com" />
