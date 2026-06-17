@@ -20,7 +20,8 @@ export default function AuthForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
-  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [loginPasswordVisible, setLoginPasswordVisible] = useState(false);
+  const [registerPasswordVisible, setRegisterPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -58,6 +59,9 @@ export default function AuthForm() {
     setConfirmPasswordError(null);
     setLoginError(null);
     setConfirmPassword("");
+    setLoginPasswordVisible(false);
+    setRegisterPasswordVisible(false);
+    setConfirmPasswordVisible(false);
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -177,15 +181,15 @@ export default function AuthForm() {
                 variant="outline-dark"
                 label="Пароль"
                 requiredMark
-                type={passwordVisible ? "text" : "password"}
+                type={loginPasswordVisible ? "text" : "password"}
                 placeholder="Пароль"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 error={passwordError ?? undefined}
                 autoComplete="current-password"
                 rightAdornment={passwordToggleButton(
-                  passwordVisible,
-                  () => setPasswordVisible((v) => !v)
+                  loginPasswordVisible,
+                  () => setLoginPasswordVisible((v) => !v)
                 )}
               />
               <Button type="submit" variant="outline-dark" size="wide">
@@ -228,15 +232,15 @@ export default function AuthForm() {
                 variant="outline-transparent"
                 label="Пароль"
                 requiredMark
-                type={passwordVisible ? "text" : "password"}
+                type={registerPasswordVisible ? "text" : "password"}
                 placeholder="Пароль"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 error={passwordError ?? undefined}
                 autoComplete="new-password"
                 rightAdornment={passwordToggleButton(
-                  passwordVisible,
-                  () => setPasswordVisible((v) => !v)
+                  registerPasswordVisible,
+                  () => setRegisterPasswordVisible((v) => !v)
                 )}
               />
               <p className={styles.auth__passwordHint}>{PASSWORD_REQUIREMENTS_HINT}</p>

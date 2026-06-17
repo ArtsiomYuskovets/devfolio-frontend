@@ -187,16 +187,16 @@
       transform: none !important;
       flex-direction: column;
 
-      &__panel--form-light,
-      &__panel--form-dark {
+      > &__panel--form-light,
+      > &__panel--form-dark {
         display: none;
       }
 
-      &:not(&--shifted) &__panel--form-light {
+      &:not(&--shifted) > &__panel--form-light {
         display: flex;
       }
 
-      &--shifted &__panel--form-dark {
+      &--shifted > &__panel--form-dark {
         display: flex;
       }
     }
