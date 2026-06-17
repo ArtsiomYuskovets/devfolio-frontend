@@ -206,7 +206,9 @@ export function ProfileEditForm({
         const uploadedAvatar = await uploadAvatar(file).unwrap();
         const nextAvatar =
           uploadedAvatar.trim() ||
-          resolveProfileAvatarUrl(undefined, myProfile.userId);
+          resolveProfileAvatarUrl(undefined, myProfile.userId, {
+            fallbackToEndpoint: true,
+          });
         if (nextAvatar) {
           setMyProfile((prev) => ({ ...prev, avatarURL: nextAvatar }));
         }
