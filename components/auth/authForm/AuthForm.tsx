@@ -258,15 +258,6 @@ export default function AuthForm() {
               <Button type="submit" variant="outline-transparent" size="wide">
                 РЕГИСТРАЦИЯ
               </Button>
-              <Button
-                type="button"
-                variant="outline-light"
-                size="wide"
-                className={styles.auth__mobileSwitch}
-                onClick={() => handleSwitch(true)}
-              >
-                Перейти ко входу
-              </Button>
             </form>
           </div>
         </div>
