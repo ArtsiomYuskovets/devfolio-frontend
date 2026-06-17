@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button/Button";
 import { AUTH_PATH } from "@/lib/routes";
@@ -16,7 +16,6 @@ const WELCOME_FEATURES = [
 
 export function WelcomePage() {
   const router = useRouter();
-  const featuresRef = useRef<HTMLElement>(null);
   const { accessToken, accessTokenExpiresAt } = useAppSelector((state) => state.auth);
 
   const isAuthenticated =
@@ -40,10 +39,6 @@ export function WelcomePage() {
     router.push(AUTH_PATH);
   };
 
-  const handleAbout = () => {
-    featuresRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   if (isAuthenticated) {
     return null;
   }
@@ -51,7 +46,7 @@ export function WelcomePage() {
   return (
     <main className={styles.welcome}>
       <section className={styles["welcome__left"]}>
-        <WelcomeCard onAboutClick={handleAbout} />
+        <WelcomeCard />
       </section>
 
       <section className={styles["welcome__right"]}>
@@ -75,7 +70,6 @@ export function WelcomePage() {
           </div>
 
           <section
-            ref={featuresRef}
             className={styles["welcome__features"]}
             aria-label="Возможности платформы"
           >
