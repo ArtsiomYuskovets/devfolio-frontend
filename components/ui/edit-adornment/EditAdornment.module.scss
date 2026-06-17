@@ -1,0 +1,13 @@
+@use "@/styles/tokens" as tokens;
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(tokens.$color-text-dark, 0.72);
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+}

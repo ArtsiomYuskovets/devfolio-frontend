@@ -1,0 +1,348 @@
+@use "@/styles/tokens" as tokens;
+
+.profile-view {
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  background-image: url("../../public/background/light-screen.png");
+  background-repeat: repeat;
+
+  &__hero {
+    min-height: tokens.$size-profile-hero-height;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: tokens.$space-xl tokens.$space-xxl;
+    color: tokens.$color-text-light;
+    background: tokens.$color-surface-dark;
+    overflow: hidden;
+  }
+
+  &__menu-button {
+    display: inline-flex;
+    flex-direction: column;
+    gap: tokens.$size-hamburger-gap;
+    padding: tokens.$space-s;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+
+    span {
+      width: tokens.$size-hamburger-width;
+      height: tokens.$size-hamburger-height;
+      border-radius: tokens.$radius-pill;
+      background: tokens.$color-text-light;
+    }
+  }
+
+  &__brand {
+    flex-shrink: 0;
+    font-family: tokens.$font-family-secondary;
+    font-size: tokens.$font-size-xxl;
+    letter-spacing: 0.06em;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns:
+      minmax(tokens.$layout-profile-sidebar-min-width, tokens.$layout-profile-sidebar-max-column)
+      minmax(0, 1fr);
+    gap: tokens.$space-xl;
+    width: 100%;
+    max-width: tokens.$layout-profile-max-width;
+    margin: 0 auto;
+    padding: tokens.$space-xl tokens.$space-xl tokens.$space-xxxl;
+
+    &--centered {
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+      max-width: 720px;
+      padding-top: tokens.$space-xxl;
+    }
+
+    &--with-main {
+      align-items: start;
+    }
+  }
+
+  &--recruiter-own {
+    .profile-view__bio {
+      min-height: 180px;
+    }
+
+    .profile-view__links-box {
+      padding: tokens.$space-l;
+    }
+  }
+
+  &__sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: tokens.$space-l;
+    padding: 0 0 tokens.$space-xl;
+    min-width: 0;
+    width: 100%;
+
+    .profile-view__content--centered & {
+      max-width: 640px;
+    }
+  }
+
+  &__type-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: tokens.$space-xs tokens.$space-l;
+    border-radius: tokens.$radius-pill;
+    background: tokens.$color-button-dark-bg;
+    color: tokens.$color-text-light;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__avatar-wrap {
+    margin-top: tokens.$size-profile-avatar-overlap;
+    margin-bottom: tokens.$space-m;
+  }
+
+  &__avatar {
+    width: tokens.$size-profile-avatar;
+    height: tokens.$size-profile-avatar;
+    border-radius: 50%;
+    border: tokens.$border-width-strong solid tokens.$color-text-light-strong;
+    background: linear-gradient(
+      180deg,
+      tokens.$color-gradient-avatar-start,
+      tokens.$color-gradient-avatar-end
+    );
+    box-shadow: tokens.$shadow-avatar;
+    overflow: hidden;
+    padding: 0;
+    appearance: none;
+    cursor: default;
+
+    &--clickable {
+      cursor: zoom-in;
+    }
+
+    &:disabled {
+      cursor: default;
+    }
+  }
+
+  &__avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__nickname {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: clamp(tokens.$font-size-xl, 2.8vw, tokens.$font-size-xxl);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    color: tokens.$color-text-dark;
+    text-align: center;
+  }
+
+  &__name {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: clamp(tokens.$font-size-xxl, 4vw, tokens.$font-size-display);
+    line-height: 1;
+    color: tokens.$color-text-dark;
+    text-align: center;
+  }
+
+  &__stats {
+    display: flex;
+    gap: tokens.$space-m;
+    width: 100%;
+  }
+
+  &__stat {
+    flex: 1;
+    padding: tokens.$space-s tokens.$space-l;
+    border-radius: tokens.$radius-pill;
+    background: tokens.$color-button-dark-bg;
+    color: tokens.$color-text-light;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    text-align: center;
+    text-transform: lowercase;
+  }
+
+  &__links-box {
+    width: 100%;
+    padding: tokens.$space-l tokens.$space-xl;
+    border: tokens.$border-width-base solid tokens.$color-border-dark-medium;
+    border-radius: tokens.$radius-l;
+    background: tokens.$color-surface-card-muted;
+    box-shadow: tokens.$shadow-soft;
+  }
+
+  &__links-title {
+    margin: 0 0 tokens.$space-m;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xl;
+    font-weight: 700;
+    line-height: 1.1;
+    color: tokens.$color-text-dark;
+    text-align: center;
+  }
+
+  &__links-list {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-s;
+  }
+
+  &__bio {
+    width: 100%;
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-soft;
+    border-radius: tokens.$radius-l;
+    background: tokens.$color-surface-card-soft;
+    box-shadow: tokens.$shadow-soft;
+    min-height: tokens.$size-profile-bio-min-height;
+    padding: tokens.$space-xl;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    line-height: tokens.$line-height-relaxed;
+    color: tokens.$color-text-dark;
+
+    .profile-view__content--with-main & {
+      min-height: auto;
+    }
+  }
+
+  &__bio-title {
+    margin: 0 0 tokens.$space-m;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xl;
+    line-height: 1.1;
+    color: tokens.$color-text-dark;
+  }
+
+  &__bio-text {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    line-height: tokens.$line-height-relaxed;
+    color: rgba(tokens.$color-text-dark, 0.96);
+    white-space: pre-wrap;
+  }
+
+  &__link-text {
+    display: block;
+    margin: 0;
+    padding: tokens.$space-s tokens.$space-m;
+    border-radius: tokens.$radius-m;
+    border: tokens.$border-width-thin solid tokens.$color-border-dark-soft;
+    background: rgba(tokens.$color-text-light, 0.72);
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    font-weight: 500;
+    line-height: tokens.$line-height-body;
+    color: tokens.$color-text-dark;
+    text-decoration: none;
+    word-break: break-word;
+    transition:
+      color 0.18s ease,
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      transform 0.18s ease;
+
+    &:hover {
+      color: tokens.$color-text-dark;
+      background: tokens.$color-text-light;
+      border-color: tokens.$color-border-dark-medium;
+      transform: translateY(-1px);
+    }
+
+    & + & {
+      margin-top: 0;
+    }
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-xxl;
+    min-width: 0;
+    width: 100%;
+  }
+
+  &__features {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: tokens.$space-l;
+    align-items: start;
+    width: 100%;
+    grid-column: 1 / -1;
+
+    &--single {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 1180px) {
+    &__content {
+      grid-template-columns: 1fr;
+      max-width: tokens.$layout-profile-tablet-max-width;
+
+      &--centered {
+        max-width: 720px;
+      }
+    }
+
+    &__sidebar {
+      max-width: tokens.$layout-profile-sidebar-max-width;
+      margin: 0 auto;
+
+      .profile-view__content--centered & {
+        max-width: 640px;
+      }
+    }
+  }
+
+  @media (max-width: 900px) {
+    &__features {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    &__hero {
+      padding: tokens.$space-l;
+    }
+
+    &__brand {
+      font-size: tokens.$font-size-xl;
+    }
+
+    &__content {
+      padding: 0 tokens.$space-l tokens.$space-xxxl;
+    }
+
+    &__avatar-wrap {
+      margin-top: tokens.$size-profile-avatar-overlap-mobile;
+    }
+
+    &__avatar {
+      width: tokens.$size-profile-avatar-mobile;
+      height: tokens.$size-profile-avatar-mobile;
+    }
+
+    &__stats {
+      flex-direction: column;
+    }
+  }
+}

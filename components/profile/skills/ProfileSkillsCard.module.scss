@@ -1,0 +1,30 @@
+@use "@/styles/tokens" as tokens;
+
+.profile-skills-card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: tokens.$space-s;
+  max-height: 188px;
+  overflow-y: auto;
+  padding-right: tokens.$space-xs;
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: tokens.$space-xs tokens.$space-m;
+    border-radius: tokens.$radius-pill;
+    background: tokens.$color-button-dark-bg;
+    color: tokens.$color-text-light;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+  }
+
+  &__empty {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    line-height: tokens.$line-height-body;
+    color: tokens.$color-text-dark-muted;
+  }
+}

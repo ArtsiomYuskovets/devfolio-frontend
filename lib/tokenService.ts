@@ -1,45 +1,64 @@
 import { TokensResponse } from "@/types/types";
+import type { InternalAxiosRequestConfig } from "axios";
 import { api } from "./authApi";
+import { clearAuthStorage, persistAuth } from "@/lib/authStorage";
+import { accessTokenExpiresAt } from "@/lib/authTokenUtils";
+import { resetApiCaches } from "@/lib/resetApiCaches";
+import { setTokens, clearTokens } from "../stores/auth/authSlice";
+import type { AppDispatch } from "@/stores/store";
 
-const ACCESS_TOKEN_KEY = "accessToken";
-const REFRESH_TOKEN_KEY = "refreshToken";
-const ACCESS_TOKEN_EXP_KEY = "accessTokenExpiresAt";
+let dispatchTokens: (dispatch: AppDispatch, accessToken: string, expiresAt: number) => void = () => {};
+let refreshInFlight: Promise<boolean> | null = null;
 
 export const tokenService = {
-    setTokens: (data: TokensResponse) =>{
-        localStorage.setItem(ACCESS_TOKEN_KEY,data.accessToken);
-        localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken);
-        localStorage.setItem(ACCESS_TOKEN_EXP_KEY, String(Date.now() +  data.accessTokenExpiresIn * 1000));
-    },
-    getAccessToken: () => {
-        const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-        const exp = localStorage.getItem(ACCESS_TOKEN_EXP_KEY);
-        if (token && exp && Date.now()<= Number(exp))
-        {
-            return token;
-        }
-        return null;
-    },
-    getRefreshToken: () => {
-        return localStorage.getItem(REFRESH_TOKEN_KEY);
-    },
-    clearTokens: () => {
-        localStorage.removeItem(ACCESS_TOKEN_KEY);
-        localStorage.removeItem(ACCESS_TOKEN_EXP_KEY);
-        localStorage.removeItem(REFRESH_TOKEN_KEY);
-    },
-    refreshAccessToken: async () : Promise <boolean> => {
-        const refreshToken = tokenService.getRefreshToken();
-        if(!refreshToken) return false;
-        try {
-            const res = await api.post<TokensResponse>('api/auth/refresh', {refreshToken});
-            tokenService.setTokens(res.data);
-            return true;
-        }
-        catch(e){
-            console.log("Ошибка обновления токенов: " + e);
-            return false;
-        }
+  setDispatchCallback: (
+    callback: (dispatch: AppDispatch, accessToken: string, expiresAt: number) => void
+  ) => {
+    dispatchTokens = callback;
+  },
+
+  setTokens: (data: TokensResponse, dispatch: AppDispatch) => {
+    const expiresAt = accessTokenExpiresAt(data.accessTokenExpiresIn);
+    persistAuth(data.accessToken, expiresAt);
+    dispatchTokens(dispatch, data.accessToken, expiresAt);
+  },
+
+  clearTokens: (dispatch: AppDispatch) => {
+    clearAuthStorage();
+    resetApiCaches(dispatch);
+    dispatch(clearTokens());
+  },
+
+  logout: async (dispatch: AppDispatch): Promise<void> => {
+    try {
+      await api.post("api/auth/logout", undefined, { withCredentials: true });
+    } catch {
+      // Session may already be invalid on the server.
+    } finally {
+      tokenService.clearTokens(dispatch);
+    }
+  },
+
+  refreshAccessToken: async (dispatch: AppDispatch): Promise<boolean> => {
+    if (refreshInFlight) {
+      return refreshInFlight;
     }
 
-}
+    refreshInFlight = (async () => {
+      try {
+        const res = await api.post<TokensResponse>("api/auth/refresh", undefined, {
+          withCredentials: true,
+          _skipAuth: true,
+        } as InternalAxiosRequestConfig & { _skipAuth: boolean });
+        tokenService.setTokens(res.data, dispatch);
+        return true;
+      } catch {
+        return false;
+      } finally {
+        refreshInFlight = null;
+      }
+    })();
+
+    return refreshInFlight;
+  },
+};

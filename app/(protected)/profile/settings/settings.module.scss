@@ -1,0 +1,26 @@
+@use "@/styles/tokens" as tokens;
+
+.main {
+  max-width: 720px;
+  padding: tokens.$space-xl tokens.$space-l tokens.$space-xxxl;
+  font-family: tokens.$font-family-primary;
+  color: tokens.$color-text-light;
+}
+
+.header {
+  margin-bottom: tokens.$space-xl;
+}
+
+.title {
+  margin: 0;
+  font-size: tokens.$font-size-xl;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.lead {
+  margin: 0;
+  font-size: tokens.$font-size-m;
+  line-height: tokens.$line-height-body;
+  color: tokens.$color-text-muted-light;
+}

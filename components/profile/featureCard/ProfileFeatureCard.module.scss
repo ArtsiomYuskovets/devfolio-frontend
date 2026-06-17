@@ -1,0 +1,39 @@
+@use "@/styles/tokens" as tokens;
+
+.profile-feature-card {
+  min-height: tokens.$size-profile-feature-min-height;
+  padding: tokens.$space-l;
+  border: tokens.$border-width-thin solid tokens.$color-border-dark-medium;
+  border-radius: tokens.$radius-l;
+  background: tokens.$color-surface-card-muted;
+  box-shadow: tokens.$shadow-soft;
+  text-align: left;
+
+  &--interactive {
+    width: 100%;
+    cursor: pointer;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: tokens.$space-m;
+    margin-bottom: tokens.$space-m;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xl;
+    line-height: 1;
+    color: tokens.$color-text-dark;
+  }
+
+  &__link {
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    color: tokens.$color-text-dark-soft;
+    white-space: nowrap;
+  }
+}

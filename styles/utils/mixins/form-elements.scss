@@ -1,0 +1,80 @@
+@use "@/styles/tokens" as tokens;
+
+@mixin form-elements-base {
+    border-radius: tokens.$radius-m;
+    border: tokens.$space-xxs solid;
+    font-family: tokens.$font-family-primary;
+    font-size: 100%;
+    letter-spacing: 0.12em;
+    padding: tokens.$space-m tokens.$space-xl;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.15s ease,
+      box-shadow 0.15s ease,
+      border-color 0.2s ease;
+}
+
+@mixin form-elements-primary-dark {
+    background-color: tokens.$color-button-dark-bg;
+    border-color: rgba(tokens.$color-button-dark-border, 0.4);
+    color: tokens.$color-text-light;
+}
+
+@mixin form-elements-primary-light {
+    background-color: tokens.$color-button-light-bg;
+    border-color: rgba(tokens.$color-button-light-border, 0.4);
+    color: tokens.$color-text-dark;
+
+}
+
+@mixin form-elements-primary-transparent {
+    background-color: tokens.$color-button-transparent-bg;
+    border-color: rgba(tokens.$color-button-transparent-border, 0.4);
+    color: tokens.$color-text-light;
+
+}
+
+@mixin form-elements-primary-gray {
+    background-color: tokens.$color-button-gray-bg;
+    border-color: rgba(tokens.$color-button-gray-border, 0.4);
+    color: tokens.$color-text-light;
+
+}
+
+@mixin form-elements-outline-gray{
+    background-color: tokens.$color-button-gray-bg;
+    border-color: rgba(tokens.$color-button-gray-border, 0.4);
+    color: tokens.$color-text-light;
+}
+
+@mixin form-elements-outline-dark {
+    outline: tokens.$space-xxs solid tokens.$color-button-dark-border;         
+    outline-offset: tokens.$space-xs;
+    background-color: tokens.$color-button-dark-bg;
+    color: tokens.$color-text-light;
+    border-color: transparent;
+}
+
+@mixin form-elements-outline-light {
+    outline: tokens.$space-xxs solid tokens.$color-button-light-border;         
+    outline-offset: tokens.$space-xs;
+    background-color: tokens.$color-button-light-bg;
+    color: tokens.$color-text-dark;
+    border-color: transparent;
+}
+
+@mixin form-elements-outline-transparent {
+    outline: tokens.$space-xxs solid tokens.$color-button-transparent-border;         
+    outline-offset: tokens.$space-xs;
+    background-color: tokens.$color-button-transparent-bg;
+    color: tokens.$color-text-light;
+    border-color: tokens.$color-button-transparent-border;
+}
+@mixin form-elements-outline-gray{
+    outline: tokens.$space-xxs solid tokens.$color-button-gray-border;         
+    outline-offset: tokens.$space-xs;
+    background-color: tokens.$color-button-gray-bg;
+    color: tokens.$color-text-light;
+    border-color: tokens.$color-button-gray-border;
+}

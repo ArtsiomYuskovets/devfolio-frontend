@@ -1,0 +1,51 @@
+@use "@/styles/tokens" as tokens;
+
+.profile-projects {
+  display: flex;
+  flex-direction: column;
+  gap: tokens.$space-l;
+  padding: tokens.$space-l;
+  border-radius: tokens.$radius-l;
+  background: tokens.$color-surface-dark;
+  box-shadow: tokens.$shadow-card;
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$space-m;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-l;
+  }
+
+  &__status {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    color: tokens.$color-text-muted-light;
+  }
+
+  &__card-link {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+    border-radius: tokens.$radius-m;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 0.92;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: tokens.$space-m;
+
+    &__actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+}

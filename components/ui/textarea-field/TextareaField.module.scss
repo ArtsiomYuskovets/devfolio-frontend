@@ -1,0 +1,55 @@
+@use "@/styles/tokens" as tokens;
+@use "@/styles/utils/mixins/form-elements" as form-elements;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: tokens.$space-xs;
+}
+
+.label {
+  font-family: tokens.$font-family-primary;
+  font-size: tokens.$font-size-s;
+  letter-spacing: 0.04em;
+  color: tokens.$color-text-dark;
+}
+
+.textarea {
+  @include form-elements.form-elements-base;
+  min-height: 132px;
+  resize: vertical;
+  border: none;
+  outline: tokens.$space-xxs solid rgba(tokens.$color-text-dark, 0.18);
+  outline-offset: tokens.$space-xs;
+  background-color: tokens.$color-button-light-bg;
+  color: tokens.$color-text-dark;
+  font-size: tokens.$font-size-m;
+  line-height: tokens.$line-height-body;
+  width: 100%;
+
+  &::placeholder {
+    color: rgba(tokens.$color-text-dark, 0.38);
+  }
+}
+
+.field--darkSurface {
+  .label {
+    color: tokens.$color-text-muted-light;
+  }
+}
+
+.textarea--darkSurface {
+  background-color: tokens.$color-surface-card-light;
+  color: tokens.$color-text-dark;
+  outline: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.28);
+  outline-offset: 0;
+  border-radius: tokens.$radius-m;
+
+  &::placeholder {
+    color: tokens.$color-text-dark-muted;
+  }
+
+  &:focus {
+    outline-color: rgba(tokens.$color-text-light, 0.45);
+  }
+}

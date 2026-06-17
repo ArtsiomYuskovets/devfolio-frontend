@@ -1,0 +1,132 @@
+@use "@/styles/tokens" as tokens;
+@use "@/styles/utils/mixins/blur" as blur;
+
+.profile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  overflow: hidden;
+
+  &--open {
+    pointer-events: auto;
+
+    .profile-menu__backdrop {
+      opacity: 1;
+    }
+
+    .profile-menu__panel {
+      transform: translateX(0);
+    }
+  }
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: tokens.$color-surface-overlay;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    cursor: pointer;
+  }
+
+  &__panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: min(tokens.$size-profile-menu-width, 100%);
+    height: 100vh;
+    max-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-xl;
+    padding: tokens.$space-xxxl tokens.$space-xl;
+    color: tokens.$color-text-light;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    isolation: isolate;
+    overflow: hidden;
+    overscroll-behavior: none;
+    @include blur.blur(
+      url("../../../public/background/black-background-1.png"),
+      tokens.$blur-strong
+    );
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      inset: - tokens.$blur-strong;
+      z-index: -1;
+      background: tokens.$color-surface-dark-soft;
+    }
+  }
+
+  &__header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-right: tokens.$size-profile-menu-close-offset;
+  }
+
+  &__avatar {
+    width: tokens.$size-profile-avatar-menu;
+    height: tokens.$size-profile-avatar-menu;
+    border-radius: 50%;
+    border: tokens.$border-width-base solid tokens.$color-text-light-soft;
+    background: linear-gradient(
+      180deg,
+      tokens.$color-gradient-avatar-menu-start,
+      tokens.$color-gradient-avatar-menu-end
+    );
+    box-shadow: tokens.$shadow-menu-avatar;
+    overflow: hidden;
+  }
+
+  &__avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 0;
+    background: transparent;
+    color: tokens.$color-text-light;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xxxl;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  &__actions,
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-m;
+  }
+
+  &__nav {
+    margin-top: tokens.$space-s;
+  }
+
+  &__footer {
+    margin-top: auto;
+    padding-top: tokens.$space-l;
+  }
+
+  &__link {
+    display: block;
+    text-decoration: none;
+  }
+
+  &__link--active {
+    border-radius: tokens.$radius-m;
+    outline: tokens.$border-width-base solid rgba(tokens.$color-text-light, 0.35);
+  }
+}

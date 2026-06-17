@@ -1,0 +1,147 @@
+@use "@/styles/tokens" as tokens;
+@use "@/styles/utils/mixins/blur" as blur;
+
+.career-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: tokens.$space-xl;
+  overflow: hidden;
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: tokens.$color-surface-overlay;
+    backdrop-filter: blur(tokens.$space-xs);
+    -webkit-backdrop-filter: blur(tokens.$space-xs);
+    cursor: pointer;
+  }
+
+  &__panel {
+    position: relative;
+    width: min(100%, tokens.$layout-modal-max-width);
+    height: min(100%, calc(100vh - tokens.$space-4xl)); 
+    max-height: calc(100vh - tokens.$space-4xl);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: tokens.$radius-l;
+    background: tokens.$color-surface-card-light;
+    box-shadow: tokens.$shadow-card;
+  }
+
+  &__hero {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    gap: tokens.$space-l;
+    padding: tokens.$space-xl;
+    color: tokens.$color-text-light;
+    isolation: isolate;
+    overflow: hidden;
+    @include blur.blur(url("../../../public/background/wave-background-2.png"), tokens.$blur-strong);
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: - tokens.$blur-strong;
+      inset: 0;
+      z-index: -1;
+      background: rgba(5, 5, 11, 0.9);
+    }
+  }
+
+  &__hero-content {
+    max-width: 620px;
+  }
+
+  &__eyebrow {
+    display: inline-flex;
+    margin-bottom: tokens.$space-s;
+    padding: tokens.$space-xs tokens.$space-m;
+    border-radius: tokens.$radius-pill;
+    background: rgba(tokens.$color-text-light, 0.1);
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xxxl;
+  }
+
+  &__subtitle {
+    margin: tokens.$space-s 0 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-m;
+    line-height: tokens.$line-height-body;
+    color: tokens.$color-text-muted-light;
+  }
+
+  &__close {
+    border: 0;
+    background: transparent;
+    color: tokens.$color-text-light;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xxxl;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  &__body {
+    flex: 1;
+    min-height: 0;
+  }
+
+  &__content {
+    height: 100%;
+    min-height: 0;
+    padding: tokens.$space-xl;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$space-m;
+    margin-bottom: tokens.$space-l;
+  }
+
+  &__error {
+    margin: 0 0 tokens.$space-l;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    color: #e53935;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: tokens.$space-l;
+  }
+
+  @media (max-width: 768px) {
+    padding: tokens.$space-l;
+
+    &__hero,
+    &__content {
+      padding: tokens.$space-l;
+    }
+
+    &__hero {
+      flex-direction: column;
+    }
+
+    &__title {
+      font-size: tokens.$font-size-xxl;
+    }
+  }
+}

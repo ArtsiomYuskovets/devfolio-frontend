@@ -1,0 +1,75 @@
+@use "@/styles/tokens" as tokens;
+@use "@/styles/utils/mixins/form-elements" as form-elements;
+
+.button {
+  @include form-elements.form-elements-base;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &--primary-dark {
+    @include form-elements.form-elements-primary-dark;
+  }
+
+  &--primary-light {
+    @include form-elements.form-elements-primary-light;
+  }
+
+  &--primary-transparent {
+    @include form-elements.form-elements-primary-transparent;
+  }
+  
+  &--primary-gray {
+    @include form-elements.form-elements-primary-gray;
+  }
+
+  &--outline-dark {
+    @include form-elements.form-elements-outline-dark;
+  }
+
+  &--outline-light {
+    @include form-elements.form-elements-outline-light;
+  }
+
+  &--outline-gray {
+    @include form-elements.form-elements-outline-gray;
+  }
+  &--outline-transparent {
+    @include form-elements.form-elements-outline-transparent;
+  }
+
+  &--size-small {
+    min-height: tokens.$button-height-small;
+    height: tokens.$button-height-small;
+    padding: tokens.$space-xs tokens.$space-l;
+    font-size: tokens.$button-font-size-small;
+  }
+
+  &--size-normal {
+    min-height: tokens.$button-height-normal;
+    height: tokens.$button-height-normal;
+    font-size: tokens.$button-font-size-normal;
+  }
+
+  &--size-large {
+    min-height: tokens.$button-height-large;
+    height: tokens.$button-height-large;
+    width: tokens.$button-width-large;
+    font-size: tokens.$button-font-size-large;
+  }
+
+  &--size-wide {
+    width: 100%;
+    min-height: tokens.$button-height-normal;
+    height: tokens.$button-height-normal;
+    font-size: tokens.$button-font-size-normal;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  }
+}
+

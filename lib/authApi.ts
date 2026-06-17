@@ -1,32 +1,70 @@
-import axios from "axios"
-
-import { tokenService } from "./tokenService"
+import axios, { type InternalAxiosRequestConfig } from "axios";
+import type { AppDispatch } from "@/stores/store";
+import { isAuthRequestUrl } from "@/lib/authTokenUtils";
+import { API_ORIGIN } from "@/lib/env";
 
 export const api = axios.create({
-    baseURL: "http://localhost:8080"
-})
+  baseURL: API_ORIGIN,
+  // Bearer-only API calls: do not send session cookies cross-origin (localhost:3000 → 8080).
+  // Otherwise Spring may treat POST as cookie-session auth and reject with 403 (CSRF).
+  withCredentials: false,
+});
 
-axios.interceptors.request.use((config) => {
-    const token = tokenService.getAccessToken();
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+type AuthAxiosConfig = InternalAxiosRequestConfig & { _skipAuth?: boolean };
+
+let getAccessTokenFromState: () => string | null = () => null;
+
+export const setAccessTokenGetter = (getter: () => string | null) => {
+  getAccessTokenFromState = getter;
+};
+
+export const setupInterceptors = (dispatch: AppDispatch) => {
+  api.interceptors.request.use((config) => {
+    const cfg = config as AuthAxiosConfig;
+    const url = String(cfg.url ?? "");
+    const skipAuth = cfg._skipAuth || isAuthRequestUrl(url);
+
+    if (skipAuth) {
+      delete cfg.headers.Authorization;
+      return cfg;
     }
-    return config;
-})
 
-axios.interceptors.response.use(
+    const token = getAccessTokenFromState();
+    if (token) {
+      cfg.headers.Authorization = `Bearer ${token}`;
+    }
+    return cfg;
+  });
+
+  api.interceptors.response.use(
     (res) => res,
     async (error) => {
-        if (error.response?.status === 401) {
-            const refreshed = await tokenService.refreshAccessToken();
-            if (refreshed) {
-                error.config.headers.Authorization = `Bearer ${tokenService.getAccessToken()}`;
-                return api.request(error.config);
-            } else {
-                tokenService.clearTokens();
-            }
-        }
+      const status = error.response?.status;
+      const url = String(error.config?.url ?? "");
+      const isRefreshRequest = url.includes("auth/refresh");
+
+      if (status !== 401) {
         return Promise.reject(error);
+      }
+
+      const { tokenService } = await import("./tokenService");
+
+      if (isRefreshRequest) {
+        return Promise.reject(error);
+      }
+
+      const refreshed = await tokenService.refreshAccessToken(dispatch);
+      if (refreshed) {
+        const cfg = error.config as AuthAxiosConfig;
+        const token = getAccessTokenFromState();
+        if (token) {
+          cfg.headers.Authorization = `Bearer ${token}`;
+        }
+        return api.request(cfg);
+      }
+
+      tokenService.clearTokens(dispatch);
+      return Promise.reject(error);
     }
-)
-    
+  );
+};

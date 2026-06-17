@@ -1,7 +1,5 @@
-export default function HomePage(){
-    return(
-        <>
-            
-        </>
-    )
+import { WelcomePage } from "@/components/welcome/WelcomePage";
+
+export default function HomePage() {
+  return <WelcomePage />;
 }
