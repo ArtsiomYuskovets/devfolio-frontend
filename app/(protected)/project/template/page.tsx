@@ -13,7 +13,7 @@ function ProjectTemplateRouteInner() {
     return (
       <section className={styles["project-template"]}>
         <p className={styles["project-template__status"]}>
-          Укажите projectId в query-параметрах
+          Укажите идентификатор проекта в параметрах адреса
         </p>
       </section>
     );

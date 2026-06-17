@@ -39,18 +39,7 @@
 .input {
   @include form-elements.form-elements-base;
   cursor: text;
-  background-color: transparent;
-  border: none;
-  outline: none;
-  box-shadow: none;
-  border-color: transparent;
-  color: tokens.$color-text-light;
   width: 100%;
-
-  &::placeholder {
-    color: tokens.$color-text-light;
-    opacity: 0.6;
-  }
 
   &--hasAdornment {
     padding-right: 2.75rem;
@@ -62,33 +51,73 @@
 
   &--primary-dark {
     @include form-elements.form-elements-primary-dark;
+
+    &::placeholder {
+      color: tokens.$color-text-light;
+      opacity: 0.6;
+    }
   }
 
   &--primary-light {
     @include form-elements.form-elements-primary-light;
+
+    &::placeholder {
+      color: rgba(tokens.$color-text-dark, 0.45);
+      opacity: 1;
+    }
   }
 
   &--primary-transparent {
     @include form-elements.form-elements-primary-transparent;
+
+    &::placeholder {
+      color: tokens.$color-text-light;
+      opacity: 0.6;
+    }
   }
 
   &--primary-gray {
     @include form-elements.form-elements-primary-gray;
+
+    &::placeholder {
+      color: tokens.$color-text-light;
+      opacity: 0.6;
+    }
   }
 
   &--outline-dark {
     @include form-elements.form-elements-outline-dark;
+
+    &::placeholder {
+      color: tokens.$color-text-light;
+      opacity: 0.6;
+    }
   }
 
   &--outline-light {
     @include form-elements.form-elements-outline-light;
+
+    &::placeholder {
+      color: rgba(tokens.$color-text-dark, 0.45);
+      opacity: 1;
+    }
   }
 
   &--outline-transparent {
     @include form-elements.form-elements-outline-transparent;
+
+    &::placeholder {
+      color: tokens.$color-text-light;
+      opacity: 0.6;
+    }
   }
 
   &--outline-gray {
     @include form-elements.form-elements-outline-gray;
+
+    &::placeholder {
+      color: tokens.$color-text-light;
+      opacity: 0.6;
+    }
   }
 }

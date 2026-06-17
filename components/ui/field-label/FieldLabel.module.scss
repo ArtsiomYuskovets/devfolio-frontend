@@ -1,0 +1,13 @@
+@use "@/styles/tokens" as tokens;
+
+.label {
+  font-family: tokens.$font-family-primary;
+  font-size: tokens.$font-size-s;
+  letter-spacing: 0.06em;
+  color: inherit;
+}
+
+.required {
+  color: #c62828;
+  font-weight: 700;
+}

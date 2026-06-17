@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input/Input";
+import { formatSkillCategoryLabel } from "@/lib/skillCategory";
 import { useProjectEditorSkills } from "./hooks/useProjectEditorSkills";
 import styles from "./ProjectTemplate.module.scss";
 import editorStyles from "./ProjectTemplateEditor.module.scss";
@@ -111,7 +112,7 @@ export function ProjectTemplateEditorSkills({
                           editorStyles["project-template-editor__skill-category"]
                         }
                       >
-                        {skill.category}
+                        {formatSkillCategoryLabel(skill.category)}
                       </span>
                     ) : null}
                   </button>
@@ -173,7 +174,7 @@ export function ProjectTemplateEditorSkills({
               }
             >
               {skill.name}
-              {skill.category ? ` · ${skill.category}` : ""} ×
+              {skill.category ? ` · ${formatSkillCategoryLabel(skill.category)}` : ""} ×
             </button>
           ))}
         </div>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { profileLinksRecordToViews } from "@/lib/profileLinks";
 import { ProfileCareerSection } from "./career/ProfileCareerSection";
 import { ProfileAvatarImg } from "./ProfileAvatarImg";
 import { ProfileProjectsSection } from "./ProfileProjectsSection";
@@ -29,19 +30,10 @@ export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
   const avatarSrc = useProfileAvatarSrc(profile.avatarURL, profileUserId);
   const [isAvatarLightboxOpen, setIsAvatarLightboxOpen] = useState(false);
 
-  const profileLinks = useMemo(() => {
-    const linkValues = Object.values(profile.links ?? {}).filter(Boolean);
-
-    if (linkValues.length > 0) {
-      return linkValues.slice(0, 3);
-    }
-
-    return [
-      "https://ссылка-на-соцсети",
-      "https://ссылка-на-портфолио",
-      "https://ссылка-на-проект",
-    ];
-  }, [profile.links]);
+  const profileLinks = useMemo(
+    () => profileLinksRecordToViews(profile.links),
+    [profile.links]
+  );
 
   const contentClassName = [
     styles["profile-view__content"],
@@ -96,22 +88,24 @@ export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
             {formatUserTypeLabel(profile.userType)}
           </span>
 
-          <div className={styles["profile-view__links-box"]}>
-            <h2 className={styles["profile-view__links-title"]}>Ссылки</h2>
-            <div className={styles["profile-view__links-list"]}>
-              {profileLinks.map((link) => (
-                <a
-                  key={link}
-                  className={styles["profile-view__link-text"]}
-                  href={link}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {link}
-                </a>
-              ))}
+          {profileLinks.length > 0 ? (
+            <div className={styles["profile-view__links-box"]}>
+              <h2 className={styles["profile-view__links-title"]}>Ссылки</h2>
+              <div className={styles["profile-view__links-list"]}>
+                {profileLinks.map((link) => (
+                  <a
+                    key={link.id}
+                    className={styles["profile-view__link-text"]}
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : null}
 
           {!showBioInMain ? (
             <div className={styles["profile-view__bio"]}>

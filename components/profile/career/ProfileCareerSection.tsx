@@ -13,6 +13,7 @@ import {
   mapCareerEntriesToPayload,
   sortCareerEntries,
 } from "./career.utils";
+import { validateCareerEntries } from "@/lib/formValidation";
 import styles from "./ProfileCareerSection.module.scss";
 
 type ProfileCareerSectionProps = {
@@ -67,6 +68,12 @@ export function ProfileCareerSection({
     }
 
     setSaveError(null);
+
+    const careerError = validateCareerEntries(draftEntries);
+    if (careerError) {
+      setSaveError(careerError);
+      return;
+    }
 
     try {
       await updateMyCareer({

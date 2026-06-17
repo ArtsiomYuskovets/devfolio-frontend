@@ -18,6 +18,7 @@ export function ProfileSidebarMenu({
         isOpen ? styles["profile-menu--open"] : ""
       }`}
       aria-hidden={!isOpen}
+      inert={!isOpen ? true : undefined}
     >
       <button
         type="button"

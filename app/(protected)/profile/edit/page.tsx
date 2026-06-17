@@ -8,7 +8,7 @@ export default function ProfileEditPage() {
   const { data: profile, isLoading, error } = useGetMyProfileQuery();
 
   if (isLoading) {
-    return <div>Loading profile...</div>;
+    return <div>Загрузка профиля…</div>;
   }
 
   if (error) {

@@ -5,7 +5,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button/Button";
 import { Input } from "@/components/ui/input/Input";
 import { TextareaField } from "@/components/ui/textarea-field/TextareaField";
+import { getProjectApiErrorMessage } from "@/lib/apiError";
 import { pickProjectId } from "@/lib/projectId";
+import {
+  IMAGE_UPLOAD_HINT,
+  validateImageFile,
+  validateProjectForm,
+} from "@/lib/formValidation";
 import {
   useCreateProjectMutation,
   useDeleteProjectMutation,
@@ -17,55 +23,6 @@ import styles from "./ProjectCreateForm.module.scss";
 const PHOTO_SLOT_COUNT = 5;
 
 type PhotoSlot = { file: File; previewUrl: string } | null;
-
-function formatApiError(err: unknown): string {
-  if (typeof err === "object" && err !== null) {
-    const e = err as Record<string, unknown>;
-    if (e.status === "FETCH_ERROR" && typeof e.error === "string") {
-      return e.error;
-    }
-  }
-
-  if (typeof err === "object" && err !== null && "status" in err) {
-    const status = (err as { status?: number }).status;
-    const data = (err as { data?: unknown }).data;
-
-    let detail = "";
-    if (typeof data === "string") {
-      detail = data;
-    } else if (data && typeof data === "object") {
-      const o = data as Record<string, unknown>;
-      if (typeof o.message === "string") {
-        detail = o.message;
-      } else if (typeof o.error === "string") {
-        detail = o.error;
-      } else if (Array.isArray(o.errors)) {
-        detail = o.errors.map(String).join("; ");
-      } else {
-        try {
-          detail = JSON.stringify(data);
-        } catch {
-          detail = "";
-        }
-      }
-    }
-
-    const prefix =
-      typeof status === "number" ? `[${status}] ` : "";
-    let msg = `${prefix}${detail || "Ошибка сервера"}`.trim();
-    if (status === 403) {
-      msg +=
-        " Доступ запрещён на сервере: проверьте правила Spring Security для POST /api/projects, …/preview и …/images (роль пользователя), при необходимости CSRF для cookie-сессии.";
-    }
-    return msg;
-  }
-
-  if (err instanceof Error) {
-    return err.message;
-  }
-
-  return "Неизвестная ошибка";
-}
 
 export function ProjectCreateForm() {
   const router = useRouter();
@@ -80,6 +37,7 @@ export function ProjectCreateForm() {
   const [githubUrl, setGithubUrl] = useState("");
   const [projectPublic, setProjectPublic] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>(() =>
     Array.from({ length: PHOTO_SLOT_COUNT }, () => null)
@@ -109,6 +67,21 @@ export function ProjectCreateForm() {
         next[index] = null;
         return next;
       }
+
+      const validation = validateImageFile(file);
+      if (!validation.isValid) {
+        setFieldErrors((prev) => ({
+          ...prev,
+          [`photo-${index}`]: validation.error ?? "Некорректный файл",
+        }));
+        return prev;
+      }
+      setFieldErrors((prev) => {
+        const nextErrors = { ...prev };
+        delete nextErrors[`photo-${index}`];
+        return nextErrors;
+      });
+
       next[index] = { file, previewUrl: URL.createObjectURL(file) };
       return next;
     });
@@ -117,16 +90,39 @@ export function ProjectCreateForm() {
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      const trimmedName = name.trim();
-      if (!trimmedName) {
-        setErrorMessage("Укажите название проекта.");
+
+      const validationErrors = validateProjectForm({
+        name,
+        githubUrl,
+      });
+      if (Object.keys(validationErrors).length > 0) {
+        setFieldErrors(validationErrors);
+        setErrorMessage(null);
         return;
       }
 
+      for (let i = 0; i < photoSlots.length; i++) {
+        const slot = photoSlots[i];
+        if (!slot?.file) {
+          continue;
+        }
+        const photoValidation = validateImageFile(slot.file);
+        if (!photoValidation.isValid) {
+          setFieldErrors({
+            [`photo-${i}`]:
+              photoValidation.error ?? "Некорректный файл изображения",
+          });
+          setErrorMessage(null);
+          return;
+        }
+      }
+
+      setFieldErrors({});
       setErrorMessage(null);
       setIsSubmitting(true);
 
       try {
+        const trimmedName = name.trim();
         const created = await createProject({
           name: trimmedName,
           description: description.trim(),
@@ -160,16 +156,14 @@ export function ProjectCreateForm() {
             }
           }
         } catch (uploadErr) {
-          console.error(uploadErr);
           try {
             await deleteProject(id).unwrap();
             setErrorMessage(
-              `Фото не загрузились; проект не сохранён. ${formatApiError(uploadErr)}`
+              `Фото не загрузились; проект не сохранён. ${getProjectApiErrorMessage(uploadErr, "Ошибка загрузки фото")}`
             );
           } catch (delErr) {
-            console.error(delErr);
             setErrorMessage(
-              `Фото не загрузились, проект остался без нужных файлов. Не удалось удалить проект: ${formatApiError(delErr)}. Ошибка загрузки: ${formatApiError(uploadErr)}`
+              `Фото не загрузились, проект остался без нужных файлов. Не удалось удалить проект: ${getProjectApiErrorMessage(delErr, "Ошибка удаления проекта")}. Ошибка загрузки: ${getProjectApiErrorMessage(uploadErr, "Ошибка загрузки фото")}`
             );
           }
           return;
@@ -177,8 +171,7 @@ export function ProjectCreateForm() {
 
         router.replace("/profile");
       } catch (err) {
-        console.error(err);
-        setErrorMessage(`Не удалось создать проект. ${formatApiError(err)}`);
+        setErrorMessage(`Не удалось создать проект. ${getProjectApiErrorMessage(err, "Ошибка создания проекта")}`);
       } finally {
         setIsSubmitting(false);
       }
@@ -208,6 +201,9 @@ export function ProjectCreateForm() {
             профиле только если текст сохранился и все выбранные фото успели
             загрузиться; при ошибке загрузки фото создание отменяется.
           </p>
+          <p className={styles.requiredNote}>
+            <span className={styles.requiredMark}>*</span> — обязательное поле
+          </p>
         </header>
 
         <div className={styles.card}>
@@ -221,9 +217,19 @@ export function ProjectCreateForm() {
                 label="Название"
                 name="name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (fieldErrors.name) {
+                    setFieldErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.name;
+                      return next;
+                    });
+                  }
+                }}
                 placeholder="Например: Devfolio API"
-                required
+                requiredMark
+                error={fieldErrors.name}
                 autoComplete="off"
               />
 
@@ -250,11 +256,22 @@ export function ProjectCreateForm() {
               <Input
                 variant="outline-light"
                 label="Ссылка на GitHub"
+                requiredMark
                 name="githubUrl"
                 type="url"
                 value={githubUrl}
-                onChange={(e) => setGithubUrl(e.target.value)}
+                onChange={(e) => {
+                  setGithubUrl(e.target.value);
+                  if (fieldErrors.githubUrl) {
+                    setFieldErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.githubUrl;
+                      return next;
+                    });
+                  }
+                }}
                 placeholder="https://github.com/..."
+                error={fieldErrors.githubUrl}
                 autoComplete="off"
               />
 
@@ -277,8 +294,9 @@ export function ProjectCreateForm() {
               Фотографии
             </h2>
             <p className={styles.sectionHint}>
-              До пяти файлов: первый слот — превью, остальные — галерея. Пока не
-              нажали «Создать проект», «×» только убирает файл со слота.
+              До пяти файлов: первый слот — превью, остальные — галерея.{" "}
+              {IMAGE_UPLOAD_HINT} Пока не нажали «Создать проект», «×» только
+              убирает файл со слота.
             </p>
 
             <div className={styles.photoGrid}>
@@ -330,6 +348,13 @@ export function ProjectCreateForm() {
                 </div>
               ))}
             </div>
+            {Object.entries(fieldErrors)
+              .filter(([key]) => key.startsWith("photo-"))
+              .map(([key, message]) => (
+                <p key={key} className={styles.error} role="alert">
+                  {message}
+                </p>
+              ))}
           </section>
 
           {errorMessage ? (
