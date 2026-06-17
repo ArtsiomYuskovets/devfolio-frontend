@@ -186,19 +186,19 @@
       min-height: calc(100dvh - #{tokens.$space-xxxl});
       transform: none !important;
       flex-direction: column;
+    }
 
-      > &__panel--form-light,
-      > &__panel--form-dark {
-        display: none;
-      }
+    &__strip > &__panel--form-light,
+    &__strip > &__panel--form-dark {
+      display: none;
+    }
 
-      &:not(&--shifted) > &__panel--form-light {
-        display: flex;
-      }
+    &__strip:not(&__strip--shifted) > &__panel--form-light {
+      display: flex;
+    }
 
-      &--shifted > &__panel--form-dark {
-        display: flex;
-      }
+    &__strip--shifted > &__panel--form-dark {
+      display: flex;
     }
 
     &__panel {
