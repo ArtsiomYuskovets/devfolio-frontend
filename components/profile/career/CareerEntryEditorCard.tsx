@@ -77,6 +77,8 @@ function CareerEntryEditorCardComponent({
         <Input
           variant="primary-light"
           className={styles["career-entry-editor-card__input"]}
+          label="Название"
+          requiredMark
           placeholder="Название"
           value={entry.title}
           onChange={(e) =>
@@ -86,6 +88,8 @@ function CareerEntryEditorCardComponent({
         <Input
           variant="primary-light"
           className={styles["career-entry-editor-card__input"]}
+          label="Компания / курс / университет"
+          requiredMark
           placeholder="Компания / курс / университет"
           value={entry.organization}
           onChange={(e) =>
