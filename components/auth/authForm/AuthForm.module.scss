@@ -155,4 +155,110 @@
       opacity: 1;
     }
   }
+
+  &__panel--form-light &__passwordToggle {
+    color: tokens.$color-text-light;
+  }
+
+  &__passwordHint {
+    margin: calc(-1 * tokens.$space-s) 0 0;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-xs;
+    line-height: tokens.$line-height-body;
+    color: inherit;
+    opacity: 0.75;
+  }
+
+  &__mobileSwitch {
+    display: none;
+    width: 100%;
+    margin: 0;
+    padding: tokens.$space-xs 0 0;
+    border: none;
+    background: none;
+    font-family: tokens.$font-family-primary;
+    font-size: tokens.$font-size-s;
+    font-weight: 500;
+    line-height: tokens.$line-height-body;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: inherit;
+    opacity: 0.8;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 900px) {
+    min-height: 100dvh;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    &__back {
+      top: tokens.$space-m;
+      left: tokens.$space-m;
+      font-size: tokens.$font-size-xs;
+    }
+
+    &__strip {
+      width: 100%;
+      min-height: 0;
+      height: auto;
+      transform: none !important;
+      flex-direction: column;
+    }
+
+    &__strip > &__panel--welcome-dark,
+    &__strip > &__panel--welcome-light {
+      display: none;
+    }
+
+    &__strip > &__panel--form-light,
+    &__strip > &__panel--form-dark {
+      display: none;
+      flex: none;
+      width: 100%;
+      min-height: 100dvh;
+      box-sizing: border-box;
+      padding: tokens.$space-xxxl tokens.$space-l tokens.$space-xl;
+      padding-top: calc(tokens.$space-xxxl + tokens.$space-l);
+    }
+
+    &__strip:not(&__strip--shifted) > &__panel--form-light {
+      display: flex;
+    }
+
+    &__strip--shifted > &__panel--form-dark {
+      display: flex;
+    }
+
+    &:not(:has(&__strip--shifted)) &__back {
+      color: tokens.$color-text-dark;
+    }
+
+    &__form-wrap {
+      max-width: none;
+      width: 100%;
+    }
+
+    &__form-title {
+      font-size: tokens.$font-size-xl;
+      letter-spacing: 0.08em;
+    }
+
+    &__welcome-title {
+      font-size: tokens.$font-size-xl;
+    }
+
+    &__mobileSwitch {
+      display: block;
+    }
+  }
 }

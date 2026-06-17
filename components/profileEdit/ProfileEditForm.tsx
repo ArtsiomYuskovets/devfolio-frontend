@@ -18,9 +18,25 @@ import { ProfileAvatarImg } from "@/components/profile/ProfileAvatarImg";
 import { resolveProfileAvatarUrl } from "@/lib/profileAvatar";
 import { LinksSection } from "@/components/section/linkSection/LinkSection";
 import {
+  countCompleteProfileLinks,
+  createEmptyProfileLinkItem,
+  getVisibleProfileLinkItems,
+  profileLinkItemsToRecord,
+  profileLinksRecordToItems,
+  updateProfileLinkItem,
+  type ProfileLinkItem,
+} from "@/lib/profileLinks";
+import {
   getApiErrorCode,
   getProfileSaveErrorMessage,
 } from "@/lib/apiError";
+import {
+  IMAGE_UPLOAD_HINT,
+  hasProfileCoreFieldsFilled,
+  validateImageFile,
+  validateProfileForm,
+} from "@/lib/formValidation";
+import { FieldLabel } from "@/components/ui/field-label/FieldLabel";
 
 type ProfileSaveError = {
   message: string;
@@ -42,65 +58,72 @@ export function ProfileEditForm({
   const [fillMyProfile] = useFillMyProfileMutation();
   const [uploadAvatar, { isLoading: isAvatarUploading }] = useUploadAvatarMutation();
   const [saveError, setSaveError] = useState<ProfileSaveError | null>(null);
-  const [links, setLinks] = useState<Array<{ key: string; value: string }>>(() => {
-    const initialLinks = profile?.links ?? {};
-    const linksArray = Object.entries(initialLinks).map(([key, value]) => ({
-      key,
-      value
-    }));
-    
-    return linksArray.length > 0 ? linksArray : [{ key: '', value: '' }];
-  });
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [links, setLinks] = useState<ProfileLinkItem[]>(() =>
+    profileLinksRecordToItems(profile?.links)
+  );
+  const visibleLinks = getVisibleProfileLinkItems(links);
+  const completeLinksCount = countCompleteProfileLinks(links);
+  const hasDraftLink = links.some((link) => link.isDraft);
+  const canAddLink = completeLinksCount < 5 && !hasDraftLink;
 
   const handleChange = (field: keyof UserProfileInfo, value: string) => {
     setMyProfile(prev => ({ ...prev, [field]: value }));
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
     if (field === "nickname" && saveError?.field === "nickname") {
       setSaveError(null);
     }
   };
 
   const selectedUserType = myProfile.userType ?? "JOB_SEEKER";
+  const coreFieldsFilled = hasProfileCoreFieldsFilled({
+    nickname: myProfile.nickname ?? "",
+    firstName: myProfile.firstName ?? "",
+    lastName: myProfile.lastName ?? "",
+  });
+  const canUploadAvatar = !isNewProfile && coreFieldsFilled;
 
   useEffect(() => {
     if (!profile) {
       return;
     }
     setMyProfile(profile);
-    const initialLinks = profile.links ?? {};
-    const linksArray = Object.entries(initialLinks).map(([key, value]) => ({
-      key,
-      value,
-    }));
-    setLinks(linksArray.length > 0 ? linksArray : [{ key: "", value: "" }]);
+    setLinks(profileLinksRecordToItems(profile.links));
   }, [profile]);
 
-  const handleKeyChange = useCallback((index: number, newKey: string) => {
-    setLinks(prev => {
-      const newLinks = [...prev];
-        newLinks[index] = { ...newLinks[index], key: newKey };
-        return newLinks;
-      });
+  const handleKeyChange = useCallback((id: string, newKey: string) => {
+    setLinks((prev) => updateProfileLinkItem(prev, id, { key: newKey }));
   }, []);
-  const handleValueChange = useCallback((index: number, newValue: string) => {
-    setLinks(prev => {
-      const newLinks = [...prev];
-      newLinks[index] = { ...newLinks[index], value: newValue };
-      return newLinks;
-    });
+  const handleValueChange = useCallback((id: string, newValue: string) => {
+    setLinks((prev) => updateProfileLinkItem(prev, id, { value: newValue }));
   }, []);
-  const handleRemoveLink = useCallback((indexToRemove: number) => {
-    const newLinks = links.filter((_, index) => index !== indexToRemove);
-    setLinks(newLinks.length > 0 ? newLinks : [{ key: '', value: '' }]);
+  const handleRemoveLink = useCallback((id: string) => {
+    setLinks((prev) => prev.filter((link) => link.id !== id));
   }, []);
   const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setSaveError(null);
+
+    const validationErrors = validateProfileForm({
+      nickname: myProfile.nickname ?? "",
+      firstName: myProfile.firstName ?? "",
+      lastName: myProfile.lastName ?? "",
+    });
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
+      alert(Object.values(validationErrors).join("\n"));
+      return;
+    }
+    setFieldErrors({});
+
     try {
-      const linksObject: Record<string, string> = Object.fromEntries(
-        links
-          .filter(({ key, value }) => key && value)
-          .map(({ key, value }) => [key, value])
-      );
+      const linksObject = profileLinkItemsToRecord(links);
       const { skills: _skills, userId: _userId, ...profileWithoutSkills } = myProfile;
       const profileToSave: DataForFillProfile = {
         nickname: profileWithoutSkills.nickname ?? "",
@@ -119,6 +142,7 @@ export function ProfileEditForm({
 
       if (savedProfile) {
         setMyProfile(savedProfile);
+        setLinks(profileLinksRecordToItems(savedProfile.links));
         const userId = savedProfile.userId;
         if (userId) {
           router.push(`/profile/${userId}`);
@@ -126,18 +150,31 @@ export function ProfileEditForm({
         alert(isNewProfile ? "Профиль успешно создан" : "Профиль успешно обновлен");
       }
     } catch (error) {
-      console.error(error);
       const code = getApiErrorCode(error);
-      setSaveError({
-        message: getProfileSaveErrorMessage(error),
-        field: code === "NICKNAME_ALREADY_EXISTS" ? "nickname" : undefined,
-      });
+      const message = getProfileSaveErrorMessage(error);
+
+      if (code === "NICKNAME_ALREADY_EXISTS") {
+        setFieldErrors((prev) => ({ ...prev, nickname: message }));
+        setSaveError({ message, field: "nickname" });
+        alert(message);
+        return;
+      }
+
+      setFieldErrors({});
+      setSaveError({ message });
+      alert(message);
     }
   };
   const handleAddLink = useCallback(() => {
-    if (links.length < 5) {
-      setLinks([...links, { key: '', value: '' }]);
-    }
+    setLinks((prev) => {
+      if (countCompleteProfileLinks(prev) >= 5) {
+        return prev;
+      }
+      if (prev.some((link) => link.isDraft)) {
+        return prev;
+      }
+      return [...prev, createEmptyProfileLinkItem(true)];
+    });
   }, []);
 
   const handleAvatarUpload = useCallback(
@@ -147,11 +184,31 @@ export function ProfileEditForm({
       if (!file) {
         return;
       }
+
+      const fileValidation = validateImageFile(file);
+      if (!fileValidation.isValid) {
+        const errorMessage = fileValidation.error ?? "Некорректный файл";
+        setFieldErrors((prev) => ({
+          ...prev,
+          avatarFile: errorMessage,
+        }));
+        alert(errorMessage);
+        input.value = "";
+        return;
+      }
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next.avatarFile;
+        return next;
+      });
+
       try {
         const uploadedAvatar = await uploadAvatar(file).unwrap();
         const nextAvatar =
           uploadedAvatar.trim() ||
-          resolveProfileAvatarUrl(undefined, myProfile.userId);
+          resolveProfileAvatarUrl(undefined, myProfile.userId, {
+            fallbackToEndpoint: true,
+          });
         if (nextAvatar) {
           setMyProfile((prev) => ({ ...prev, avatarURL: nextAvatar }));
         }
@@ -169,77 +226,77 @@ export function ProfileEditForm({
       <div className={styles["profile-edit__shell"]}>
         <div className={styles["profile-edit__card"]}>
           <div className={styles["profile-edit__hero"]}>
-            <div className={styles["profile-edit__avatar"]}>
-              <ProfileAvatarImg
-                avatarURL={myProfile.avatarURL}
-                userId={myProfile.userId}
-                alt="Аватар профиля"
-                className={styles["profile-edit__avatar-img"]}
-              />
+            <div className={styles["profile-edit__avatar-block"]}>
+              <div className={styles["profile-edit__avatar"]}>
+                <ProfileAvatarImg
+                  avatarURL={myProfile.avatarURL}
+                  userId={myProfile.userId}
+                  alt="Аватар профиля"
+                  className={styles["profile-edit__avatar-img"]}
+                />
+              </div>
+
+              <div className={styles["profile-edit__avatar-upload"]}>
+                {canUploadAvatar ? (
+                  <div className={styles["profile-edit__avatar-upload-row"]}>
+                    <input
+                      id="profile-avatar-upload"
+                      type="file"
+                      accept="image/*"
+                      className={styles["profile-edit__avatar-file-input"]}
+                      onChange={handleAvatarUpload}
+                      disabled={isAvatarUploading}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline-light"
+                      size="small"
+                      onClick={() =>
+                        document.getElementById("profile-avatar-upload")?.click()
+                      }
+                      disabled={isAvatarUploading}
+                    >
+                      {isAvatarUploading ? "Загрузка..." : "Загрузить аватар"}
+                    </Button>
+                    <p className={styles["profile-edit__avatar-upload-hint"]}>
+                      {IMAGE_UPLOAD_HINT}
+                    </p>
+                  </div>
+                ) : (
+                  <p className={styles["profile-edit__avatar-upload-hint"]}>
+                    {isNewProfile
+                      ? "Загрузка аватара будет доступна после создания профиля"
+                      : "Заполните никнейм, имя и фамилию, чтобы загрузить аватар"}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
           <div className={styles["profile-edit__content"]}>
+            <p className={styles["profile-edit__required-note"]}>
+              <span className={styles["profile-edit__required-mark"]}>*</span> —
+              обязательное поле
+            </p>
             <SectionTitle>ВНЕШНИЙ ВИД</SectionTitle>
 
             <div className={styles["profile-edit__stack"]}>
               <div className={styles["profile-edit__field"]}>
                 <Input
-                  label="Изображение профиля"
-                  className={styles["profile-edit__input"]}
-                  variant="primary-light"
-                  placeholder="https://example.com/avatar.jpg"
-                  value={myProfile.avatarURL ?? ""}
-                  onChange={(e) => handleChange('avatarURL', e.target.value)}
-                  rightAdornment={<EditAdornment />}
-                />
-                <div className={styles["profile-edit__avatar-upload-row"]}>
-                  <input
-                    id="profile-avatar-upload"
-                    type="file"
-                    accept="image/*"
-                    className={styles["profile-edit__avatar-file-input"]}
-                    onChange={handleAvatarUpload}
-                    disabled={isAvatarUploading || isNewProfile}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline-dark"
-                    size="small"
-                    onClick={() =>
-                      document.getElementById("profile-avatar-upload")?.click()
-                    }
-                    disabled={isAvatarUploading || isNewProfile}
-                  >
-                    {isAvatarUploading ? "Загрузка..." : "Загрузить файл"}
-                  </Button>
-                  {isNewProfile ? (
-                    <p className={styles["profile-edit__hint"]}>
-                      Загрузка файла будет доступна после создания профиля
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-              <div className={styles["profile-edit__field"]}>
-                <Input
                   label="Никнейм"
-                  className={styles["profile-edit__input"]}
+                  requiredMark
                   variant="primary-light"
                   placeholder="nickname"
                   value={myProfile.nickname ?? ""}
                   onChange={(e) => handleChange('nickname', e.target.value)}
+                  error={fieldErrors.nickname ?? (saveError?.field === "nickname" ? saveError.message : undefined)}
                   rightAdornment={<EditAdornment />}
                 />
-                {saveError?.field === "nickname" ? (
-                  <p className={styles["profile-edit__error"]} role="alert">
-                    {saveError.message}
-                  </p>
-                ) : null}
               </div>
               <div className={styles["profile-edit__field"]}>
-                <span className={styles["profile-edit__radio-label"]}>
+                <FieldLabel required className={styles["profile-edit__radio-label"]}>
                   Тип пользователя
-                </span>
+                </FieldLabel>
                 <div className={styles["profile-edit__radio-group"]}>
                   <label className={styles["profile-edit__radio-option"]}>
                     <input
@@ -268,39 +325,28 @@ export function ProfileEditForm({
             <SectionTitle>ОПИСАНИЕ</SectionTitle>
 
             <div className={styles["profile-edit__grid"]}>
-              <div className={styles["profile-edit__field"]}>
+              <div className={`${styles["profile-edit__field"]} ${styles["profile-edit__name-field"]}`}>
                 <Input
                   label="Имя"
-                  className={styles["profile-edit__input"]}
+                  requiredMark
                   variant="primary-light"
                   placeholder="Имя"
                   value={myProfile.firstName ?? ""}
                   onChange={(e) => handleChange('firstName', e.target.value)}
+                  error={fieldErrors.firstName}
                 />
               </div>
 
-              <div className={styles["profile-edit__field"]}>
+              <div className={`${styles["profile-edit__field"]} ${styles["profile-edit__name-field"]}`}>
                 <Input
                   label="Фамилия"
-                  className={styles["profile-edit__input"]}
+                  requiredMark
                   variant="primary-light"
                   placeholder="Фамилия"
                   value={myProfile.lastName ?? ""}
                   onChange={(e) => handleChange('lastName', e.target.value)}
+                  error={fieldErrors.lastName}
                 />
-              </div>
-
-              <div className={styles["profile-edit__field--full"]}>
-                {!isNewProfile ? (
-                  <Input
-                    label="ID-пользователя"
-                    className={styles["profile-edit__input"]}
-                    variant="primary-light"
-                    placeholder="id-000000000"
-                    value={myProfile.userId ?? ""}
-                    readOnly
-                  />
-                ) : null}
               </div>
 
               <TextareaField
@@ -316,14 +362,15 @@ export function ProfileEditForm({
             <SectionTitle>ССЫЛКИ</SectionTitle>
 
             <LinksSection
-              links={links}
+              links={visibleLinks}
+              canAddLink={canAddLink}
               onKeyChange={handleKeyChange}
               onValueChange={handleValueChange}
               onAddLink={handleAddLink}
               onRemoveLink={handleRemoveLink}
             />
             <div className={styles["profile-edit__actions"]}>
-              {saveError && saveError.field !== "nickname" ? (
+              {saveError ? (
                 <p className={styles["profile-edit__error"]} role="alert">
                   {saveError.message}
                 </p>

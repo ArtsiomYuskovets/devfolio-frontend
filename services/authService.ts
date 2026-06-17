@@ -20,8 +20,7 @@ export async function loginOrRegistr(
     resetApiCaches(dispatch);
     tokenService.setTokens(res.data, dispatch);
     return true;
-  } catch (e) {
-    console.log(e);
+  } catch {
     return false;
   }
 }

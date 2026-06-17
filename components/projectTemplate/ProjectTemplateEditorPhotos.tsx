@@ -8,6 +8,7 @@ import {
   useUploadProjectPhotoMutation,
 } from "@/stores/projects/projectsApi";
 import { buildProjectEditorPhotoSlots } from "@/lib/projectImage";
+import { IMAGE_UPLOAD_HINT, validateImageFile } from "@/lib/formValidation";
 import type { Project } from "@/types/types";
 import editorStyles from "./ProjectTemplateEditor.module.scss";
 
@@ -51,6 +52,12 @@ export function ProjectTemplateEditorPhotos({
       const file = event.target.files?.[0];
       event.target.value = "";
       if (!file) {
+        return;
+      }
+
+      const fileValidation = validateImageFile(file);
+      if (!fileValidation.isValid) {
+        setError(fileValidation.error ?? "Некорректный файл");
         return;
       }
 
@@ -111,8 +118,8 @@ export function ProjectTemplateEditorPhotos({
         Фотографии
       </h3>
       <p className={editorStyles["project-template-editor__photos-hint"]}>
-        Первый слот — превью, остальные — галерея. Можно добавлять и удалять
-        фото без сохранения текста проекта.
+        Первый слот — превью, остальные — галерея. {IMAGE_UPLOAD_HINT} Можно
+        добавлять и удалять фото без сохранения текста проекта.
       </p>
 
       <div className={editorStyles["project-template-editor__photo-grid"]}>

@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import styles from "@/components/auth/authForm/AuthForm.module.scss";
 import { loginOrRegistr } from "@/services/authService";
 import { tokenService } from "@/lib/tokenService";
-import { checkEmail, checkPassword } from "@/lib/validation";
+import { checkEmail, checkPassword, PASSWORD_REQUIREMENTS_HINT } from "@/lib/validation";
+import { validateAuthLogin } from "@/lib/formValidation";
 import { useAppSelector, useAppDispatch } from "@/stores/auth/hooks";
 import { setTokens } from "@/stores/auth/authSlice";
 import { Input } from "@/components/ui/input/Input";
@@ -19,7 +20,8 @@ export default function AuthForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
-  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [loginPasswordVisible, setLoginPasswordVisible] = useState(false);
+  const [registerPasswordVisible, setRegisterPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -57,6 +59,9 @@ export default function AuthForm() {
     setConfirmPasswordError(null);
     setLoginError(null);
     setConfirmPassword("");
+    setLoginPasswordVisible(false);
+    setRegisterPasswordVisible(false);
+    setConfirmPasswordVisible(false);
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -67,6 +72,13 @@ export default function AuthForm() {
     setLoginError(null);
 
     if (isLogin) {
+      const loginErrors = validateAuthLogin(email, password);
+      if (Object.keys(loginErrors).length > 0) {
+        setEmailError(loginErrors.email ?? null);
+        setPasswordError(loginErrors.password ?? null);
+        return;
+      }
+
       const success = await loginOrRegistr(isLogin, email, password, dispatch);
       if (success) {
         router.replace("/profile");
@@ -78,7 +90,7 @@ export default function AuthForm() {
 
     const emailValidation = checkEmail(email);
     if (!emailValidation.isValid) {
-      setEmailError(emailValidation.errors[0] ?? "Неверный формат email");
+      setEmailError(emailValidation.errors[0] ?? "Некорректный формат почты");
       return;
     }
 
@@ -109,7 +121,7 @@ export default function AuthForm() {
     <button
       type="button"
       tabIndex={-1}
-      aria-label={visible ? "Hide password" : "Show password"}
+      aria-label={visible ? "Скрыть пароль" : "Показать пароль"}
       onClick={onClick}
       className={styles.auth__passwordToggle}
     >
@@ -156,27 +168,40 @@ export default function AuthForm() {
               )}
               <Input
                 variant="outline-dark"
+                label="Почта"
+                requiredMark
                 type="email"
-                placeholder="E-mail"
+                placeholder="example@mail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                error={emailError ?? undefined}
                 autoComplete="email"
               />
               <Input
                 variant="outline-dark"
-                type={passwordVisible ? "text" : "password"}
+                label="Пароль"
+                requiredMark
+                type={loginPasswordVisible ? "text" : "password"}
                 placeholder="Пароль"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                error={passwordError ?? undefined}
                 autoComplete="current-password"
                 rightAdornment={passwordToggleButton(
-                  passwordVisible,
-                  () => setPasswordVisible((v) => !v)
+                  loginPasswordVisible,
+                  () => setLoginPasswordVisible((v) => !v)
                 )}
               />
               <Button type="submit" variant="outline-dark" size="wide">
                 ВХОД
               </Button>
+              <button
+                type="button"
+                className={styles.auth__mobileSwitch}
+                onClick={() => handleSwitch(false)}
+              >
+                Нет аккаунта? Зарегистрироваться
+              </button>
             </form>
           </div>
         </div>
@@ -192,8 +217,10 @@ export default function AuthForm() {
               )}
               <Input
                 variant="outline-transparent"
+                label="Почта"
+                requiredMark
                 type="email"
-                placeholder="E-mail"
+                placeholder="example@mail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 error={emailError ?? undefined}
@@ -201,19 +228,24 @@ export default function AuthForm() {
               />
               <Input
                 variant="outline-transparent"
-                type={passwordVisible ? "text" : "password"}
+                label="Пароль"
+                requiredMark
+                type={registerPasswordVisible ? "text" : "password"}
                 placeholder="Пароль"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 error={passwordError ?? undefined}
                 autoComplete="new-password"
                 rightAdornment={passwordToggleButton(
-                  passwordVisible,
-                  () => setPasswordVisible((v) => !v)
+                  registerPasswordVisible,
+                  () => setRegisterPasswordVisible((v) => !v)
                 )}
               />
+              <p className={styles.auth__passwordHint}>{PASSWORD_REQUIREMENTS_HINT}</p>
               <Input
                 variant="outline-transparent"
+                label="Повторите пароль"
+                requiredMark
                 type={confirmPasswordVisible ? "text" : "password"}
                 placeholder="Повторите пароль"
                 value={confirmPassword}
@@ -228,6 +260,13 @@ export default function AuthForm() {
               <Button type="submit" variant="outline-transparent" size="wide">
                 РЕГИСТРАЦИЯ
               </Button>
+              <button
+                type="button"
+                className={styles.auth__mobileSwitch}
+                onClick={() => handleSwitch(true)}
+              >
+                Уже есть аккаунт? Войти
+              </button>
             </form>
           </div>
         </div>

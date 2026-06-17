@@ -81,6 +81,17 @@
   }
 }
 
+.requiredNote {
+  margin: tokens.$space-s 0 0;
+  font-size: tokens.$font-size-s;
+  color: tokens.$color-text-muted-light;
+}
+
+.requiredMark {
+  color: #c62828;
+  font-weight: 700;
+}
+
 .card {
   border-radius: tokens.$radius-l;
   border: tokens.$border-width-thin solid rgba(tokens.$color-text-light, 0.14);

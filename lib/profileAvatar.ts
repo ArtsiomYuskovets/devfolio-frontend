@@ -44,16 +44,19 @@ export function profileAvatarEndpointUrl(userId: string): string {
 
 export function resolveProfileAvatarUrl(
   avatarURL: string | undefined,
-  userId: string | undefined
+  userId?: string | undefined,
+  options?: { fallbackToEndpoint?: boolean }
 ): string | undefined {
   const explicit = avatarURL?.trim();
   if (explicit) {
     return normalizeAvatarUrl(explicit) || explicit;
   }
 
-  const id = userId?.trim();
-  if (id) {
-    return profileAvatarEndpointUrl(id);
+  if (options?.fallbackToEndpoint) {
+    const id = userId?.trim();
+    if (id) {
+      return profileAvatarEndpointUrl(id);
+    }
   }
 
   return undefined;

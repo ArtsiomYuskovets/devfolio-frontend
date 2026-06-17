@@ -51,19 +51,19 @@ export default function ProfileByIdPage() {
   }, [isOwnProfile, myProfile, viewedProfile]);
 
   if (!id) {
-    return <div>Profile not found</div>;
+    return <div>Профиль не найден</div>;
   }
 
   if (isLoadingViewedProfile || (isOwnProfile && isLoadingMyProfile)) {
-    return <div>Loading profile...</div>;
+    return <div>Загрузка профиля…</div>;
   }
 
   if (viewedProfileError) {
-    return <div>Error getting profile</div>;
+    return <div>Не удалось загрузить профиль</div>;
   }
 
   if (!displayProfile) {
-    return <div>Profile not found</div>;
+    return <div>Профиль не найден</div>;
   }
 
   return (

@@ -1,5 +1,6 @@
 import { forwardRef, useId } from "react";
 import type { InputHTMLAttributes } from "react";
+import { FieldLabel } from "@/components/ui/field-label/FieldLabel";
 import styles from "./Input.module.scss";
 
 export type InputVariant =
@@ -16,6 +17,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   variant?: InputVariant;
   label?: string;
   error?: string;
+  requiredMark?: boolean;
   rightAdornment?: React.ReactNode;
 }
 
@@ -25,6 +27,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       variant = "primary-dark",
       label,
       error,
+      requiredMark = false,
       className,
       id,
       rightAdornment,
@@ -37,9 +40,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className={styles.wrapper}>
         {label && (
-          <label htmlFor={inputId} className={styles.label}>
+          <FieldLabel htmlFor={inputId} required={requiredMark}>
             {label}
-          </label>
+          </FieldLabel>
         )}
         <div className={styles.inputRow}>
           <input

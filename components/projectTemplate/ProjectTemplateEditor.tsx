@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input/Input";
+import { TextareaField } from "@/components/ui/textarea-field/TextareaField";
 import { Button } from "@/components/ui/button/Button";
 import {
   useDeleteProjectMutation,
@@ -13,6 +14,7 @@ import {
 import { useGetMyProfileQuery } from "@/stores/user/userApi";
 import { useProfileAvatarSrc } from "@/hooks/useProfileAvatarSrc";
 import { pickUserId } from "@/lib/userId";
+import { validateProjectForm } from "@/lib/formValidation";
 import { ProjectTemplateEditorSkills } from "./ProjectTemplateEditorSkills";
 import { ProjectTemplateEditorPhotos } from "./ProjectTemplateEditorPhotos";
 import styles from "./ProjectTemplate.module.scss";
@@ -42,7 +44,9 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
   const [description, setDescription] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [githubUrl, setGithubUrl] = useState("");
+  const [projectPublic, setProjectPublic] = useState(true);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -51,6 +55,7 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
       setDescription(project.description ?? "");
       setShortDescription(project.shortDescription ?? "");
       setGithubUrl(project.githubUrl ?? "");
+      setProjectPublic(project.projectPublic ?? true);
     }
   }, [project]);
 
@@ -59,6 +64,14 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
       return;
     }
     setSaveError(null);
+
+    const validationErrors = validateProjectForm({ name, githubUrl });
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
+      return;
+    }
+    setFieldErrors({});
+
     try {
       await updateProject({
         ...project,
@@ -66,12 +79,13 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
         description,
         shortDescription,
         githubUrl,
+        projectPublic,
       }).unwrap();
       router.push(`/project/${projectId}`);
     } catch {
       setSaveError("Не удалось сохранить проект");
     }
-  }, [project, projectId, router, updateProject, name, description, shortDescription, githubUrl]);
+  }, [project, projectId, router, updateProject, name, description, shortDescription, githubUrl, projectPublic]);
 
   const handleDelete = useCallback(async () => {
     if (!project) {
@@ -182,36 +196,81 @@ export function ProjectTemplateEditor({ projectId }: ProjectTemplateEditorProps)
         </aside>
 
         <section className={styles["project-template__project"]}>
-          <Input
-            variant="primary-light"
-            className={editorStyles["project-template-editor__input"]}
-            placeholder="Название проекта"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <Input
-            variant="primary-light"
-            className={editorStyles["project-template-editor__input"]}
-            placeholder="Ссылка на GitHub"
-            value={githubUrl}
-            onChange={(e) => setGithubUrl(e.target.value)}
-          />
+          <div className={editorStyles["project-template-editor__fields"]}>
+            <Input
+              variant="outline-light"
+              className={editorStyles["project-template-editor__input"]}
+              label="Название проекта"
+              requiredMark
+              placeholder="Название проекта"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (fieldErrors.name) {
+                  setFieldErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.name;
+                    return next;
+                  });
+                }
+              }}
+              error={fieldErrors.name}
+            />
+            <Input
+              variant="outline-light"
+              className={editorStyles["project-template-editor__input"]}
+              label="Ссылка на GitHub"
+              requiredMark
+              placeholder="https://github.com/..."
+              value={githubUrl}
+              onChange={(e) => {
+                setGithubUrl(e.target.value);
+                if (fieldErrors.githubUrl) {
+                  setFieldErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.githubUrl;
+                    return next;
+                  });
+                }
+              }}
+              error={fieldErrors.githubUrl}
+            />
+            <label className={editorStyles["project-template-editor__visibility"]}>
+              <input
+                type="checkbox"
+                checked={projectPublic}
+                onChange={(e) => setProjectPublic(e.target.checked)}
+              />
+              <span>Публичный проект</span>
+            </label>
+            <p className={editorStyles["project-template-editor__visibility-hint"]}>
+              {projectPublic
+                ? "Проект виден в общей ленте и профиле."
+                : "Проект скрыт из ленты — доступен только вам."}
+            </p>
+          </div>
 
           <ProjectTemplateEditorPhotos projectId={projectId} project={project} />
 
           <div className={styles["project-template__details"]}>
-            <textarea
-              className={editorStyles["project-template-editor__textarea"]}
-              placeholder="Краткое описание"
+            <h3 className={editorStyles["project-template-editor__section-title"]}>
+              Описание
+            </h3>
+            <TextareaField
+              className={editorStyles["project-template-editor__description-field"]}
+              label="Краткое описание"
+              placeholder="Одна–две строки для карточек и списков"
               value={shortDescription}
               onChange={(e) => setShortDescription(e.target.value)}
-              rows={2}
+              rows={3}
             />
-            <textarea
-              className={editorStyles["project-template-editor__textarea"]}
-              placeholder="Описание проекта"
+            <TextareaField
+              className={editorStyles["project-template-editor__description-field"]}
+              label="Полное описание"
+              placeholder="Подробное описание проекта, технологии и особенности"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              rows={8}
             />
 
             <ProjectTemplateEditorSkills projectId={projectId} />

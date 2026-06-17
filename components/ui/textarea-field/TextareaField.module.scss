@@ -53,3 +53,13 @@
     outline-color: rgba(tokens.$color-text-light, 0.45);
   }
 }
+
+.textarea--error {
+  outline-color: tokens.$color-logo-bordeaux;
+}
+
+.error {
+  font-size: tokens.$font-size-s;
+  font-weight: 500;
+  color: #e53935;
+}
