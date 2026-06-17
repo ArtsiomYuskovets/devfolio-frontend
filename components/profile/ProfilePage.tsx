@@ -20,12 +20,12 @@ type ProfilePageProps = {
 
 export function ProfilePage({ profile, isOwnProfile }: ProfilePageProps) {
   const profileIsRecruiter = isRecruiter(profile.userType);
-  const showProjectsSection = !(isOwnProfile && profileIsRecruiter);
-  const showCareerSection = !profileIsRecruiter;
-  const showMainColumn =
-    showProjectsSection || (showCareerSection && Boolean(profile.userId));
-  const isCenteredLayout = isOwnProfile && profileIsRecruiter;
   const profileUserId = pickUserId(profile) ?? profile.userId;
+  const showProjectsSection = !profileIsRecruiter;
+  const showCareerSection = Boolean(profileUserId);
+  const showMainColumn = showProjectsSection || showCareerSection;
+  const isCenteredLayout =
+    isOwnProfile && profileIsRecruiter && !showMainColumn;
   const showBioInMain = showMainColumn && !isCenteredLayout;
   const avatarSrc = useProfileAvatarSrc(profile.avatarURL, profileUserId);
   const [isAvatarLightboxOpen, setIsAvatarLightboxOpen] = useState(false);
